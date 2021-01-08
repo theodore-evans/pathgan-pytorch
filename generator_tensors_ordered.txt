@@ -1,0 +1,149 @@
+#dense layer 1
+
+generator/dense_layer_1/bias (DT_FLOAT) [1024]
+generator/dense_layer_1/filter_dense (DT_FLOAT) [200,1024]
+generator/dense_layer_1/u (DT_FLOAT) [1,1024]
+
+generator/conditional_instance_norm_dense_1/dense_layer_1/bias (DT_FLOAT) [612]
+generator/conditional_instance_norm_dense_1/dense_layer_1/filter_dense (DT_FLOAT) [200,612]
+generator/conditional_instance_norm_dense_1/dense_layer_1/u (DT_FLOAT) [1,612]
+
+generator/conditional_instance_norm_dense_1/dense_layer_gamma/bias (DT_FLOAT) [1024]
+generator/conditional_instance_norm_dense_1/dense_layer_gamma/filter_dense (DT_FLOAT) [612,1024]
+generator/conditional_instance_norm_dense_1/dense_layer_gamma/u (DT_FLOAT) [1,1024]
+
+generator/conditional_instance_norm_dense_1/dense_layer_beta/bias (DT_FLOAT) [1024]
+generator/conditional_instance_norm_dense_1/dense_layer_beta/filter_dense (DT_FLOAT) [612,1024]
+generator/conditional_instance_norm_dense_1/dense_layer_beta/u (DT_FLOAT) [1,1024]
+
+leaky_ReLu
+
+#dense layer 2
+
+generator/dense_layer_2/bias (DT_FLOAT) [12544]
+generator/dense_layer_2/filter_dense (DT_FLOAT) [1024,12544]
+generator/dense_layer_2/u (DT_FLOAT) [1,12544]
+
+generator/conditional_instance_norm_dense_2/dense_layer_1/bias (DT_FLOAT) [6372]
+generator/conditional_instance_norm_dense_2/dense_layer_1/filter_dense (DT_FLOAT) [200,6372]
+generator/conditional_instance_norm_dense_2/dense_layer_1/u (DT_FLOAT) [1,6372]
+
+generator/conditional_instance_norm_dense_2/dense_layer_gamma/bias (DT_FLOAT) [12544]
+generator/conditional_instance_norm_dense_2/dense_layer_gamma/filter_dense (DT_FLOAT) [6372,12544]
+generator/conditional_instance_norm_dense_2/dense_layer_gamma/u (DT_FLOAT) [1,12544]
+
+generator/conditional_instance_norm_dense_2/dense_layer_beta/bias (DT_FLOAT) [12544]
+generator/conditional_instance_norm_dense_2/dense_layer_beta/filter_dense (DT_FLOAT) [6372,12544]
+generator/conditional_instance_norm_dense_2/dense_layer_beta/u (DT_FLOAT) [1,12544]
+
+leaky_ReLu
+
+reshape [7,7,256]
+
+#resnet conv2d layer 0
+
+generator/resblock_0/part_1/conv_layer_1/bias (DT_FLOAT) [256]
+generator/resblock_0/part_1/conv_layer_1/filter_conv (DT_FLOAT) [3,3,256,256]
+generator/resblock_0/part_1/conv_layer_1/u (DT_FLOAT) [1,256]
+
+generator/resblock_0/part_1/noise_input_1/noise_weights (DT_FLOAT) [256]
+
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [228]
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,228]
+
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [256]
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,256]
+
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [256]
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
+generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,256]
+
+leaky_ReLu
+
+generator/resblock_0/part_2/conv_layer_1/bias (DT_FLOAT) [256]
+generator/resblock_0/part_2/conv_layer_1/filter_conv (DT_FLOAT) [3,3,256,256]
+generator/resblock_0/part_2/conv_layer_1/u (DT_FLOAT) [1,256]
+
+generator/resblock_0/part_2/noise_input_2/noise_weights (DT_FLOAT) [256]
+
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [228]
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,228]
+
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [256]
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,256]
+
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [256]
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
+generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,256]
+
+leaky_ReLu
+
+#convtranspose2d layer 0
+
+generator/conv_layer_0/bias (DT_FLOAT) [512]
+generator/conv_layer_0/filter_conv (DT_FLOAT) [2,2,512,256]
+generator/conv_layer_0/u (DT_FLOAT) [1,256]
+
+generator/noise_input_0/noise_weights (DT_FLOAT) [512]
+
+generator/conditional_instance_norm_0/dense_layer_1/bias (DT_FLOAT) [356]
+generator/conditional_instance_norm_0/dense_layer_1/filter_dense (DT_FLOAT) [200,356]
+generator/conditional_instance_norm_0/dense_layer_1/u (DT_FLOAT) [1,356]
+
+generator/conditional_instance_norm_0/dense_layer_gamma/bias (DT_FLOAT) [512]
+generator/conditional_instance_norm_0/dense_layer_gamma/filter_dense (DT_FLOAT) [356,512]
+generator/conditional_instance_norm_0/dense_layer_gamma/u (DT_FLOAT) [1,512]
+
+generator/conditional_instance_norm_0/dense_layer_beta/bias (DT_FLOAT) [512]
+generator/conditional_instance_norm_0/dense_layer_beta/filter_dense (DT_FLOAT) [356,512]
+generator/conditional_instance_norm_0/dense_layer_beta/u (DT_FLOAT) [1,512]
+
+leaky_ReLu
+
+#resnet conv2d layer 1
+... (see resnet conv2d layer 0)
+#convtranspose2d layer 1
+... (see convtranspose2d layer 0)
+
+#resnet conv2d layer 2
+...
+#convtranspose2d layer 2
+...
+
+#attention layer
+
+generator/attention_block_5/gamma (DT_FLOAT) [1]
+
+generator/attention_block_5/conv_layer_1/bias (DT_FLOAT) [32]
+generator/attention_block_5/conv_layer_1/filter_conv (DT_FLOAT) [1,1,256,32]
+generator/attention_block_5/conv_layer_1/u (DT_FLOAT) [1,32]
+
+generator/attention_block_5/conv_layer_2/bias (DT_FLOAT) [32]
+generator/attention_block_5/conv_layer_2/filter_conv (DT_FLOAT) [1,1,256,32]
+generator/attention_block_5/conv_layer_2/u (DT_FLOAT) [1,32]
+
+generator/attention_block_5/conv_layer_3/bias (DT_FLOAT) [256]
+generator/attention_block_5/conv_layer_3/filter_conv (DT_FLOAT) [1,1,256,256]
+generator/attention_block_5/conv_layer_3/u (DT_FLOAT) [1,256]
+
+#resnet conv2d layer 3
+...
+#convtranspose2d layer 3
+...
+
+#resnet conv2d layer 4
+...
+#convtranspose2d layer 4
+...
+
+#Conv2d logits
+
+generator/conv_layer_logits/bias (DT_FLOAT) [3]
+generator/conv_layer_logits/filter_conv (DT_FLOAT) [3,3,32,3]
+generator/conv_layer_logits/u (DT_FLOAT) [1,3]
+
+sigmoid
