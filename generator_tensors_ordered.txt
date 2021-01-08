@@ -4,17 +4,20 @@ generator/dense_layer_1/bias (DT_FLOAT) [1024]
 generator/dense_layer_1/filter_dense (DT_FLOAT) [200,1024]
 generator/dense_layer_1/u (DT_FLOAT) [1,1024]
 
-generator/conditional_instance_norm_dense_1/dense_layer_1/bias (DT_FLOAT) [612]
-generator/conditional_instance_norm_dense_1/dense_layer_1/filter_dense (DT_FLOAT) [200,612]
-generator/conditional_instance_norm_dense_1/dense_layer_1/u (DT_FLOAT) [1,612]
+    #AdaIn dense 1
+    generator/conditional_instance_norm_dense_1/dense_layer_1/bias (DT_FLOAT) [612]
+    generator/conditional_instance_norm_dense_1/dense_layer_1/filter_dense (DT_FLOAT) [200,612]
+    generator/conditional_instance_norm_dense_1/dense_layer_1/u (DT_FLOAT) [1,612]
+    ReLu
 
-generator/conditional_instance_norm_dense_1/dense_layer_gamma/bias (DT_FLOAT) [1024]
-generator/conditional_instance_norm_dense_1/dense_layer_gamma/filter_dense (DT_FLOAT) [612,1024]
-generator/conditional_instance_norm_dense_1/dense_layer_gamma/u (DT_FLOAT) [1,1024]
+    generator/conditional_instance_norm_dense_1/dense_layer_gamma/bias (DT_FLOAT) [1024]
+    generator/conditional_instance_norm_dense_1/dense_layer_gamma/filter_dense (DT_FLOAT) [612,1024]
+    generator/conditional_instance_norm_dense_1/dense_layer_gamma/u (DT_FLOAT) [1,1024]
+    ReLu
 
-generator/conditional_instance_norm_dense_1/dense_layer_beta/bias (DT_FLOAT) [1024]
-generator/conditional_instance_norm_dense_1/dense_layer_beta/filter_dense (DT_FLOAT) [612,1024]
-generator/conditional_instance_norm_dense_1/dense_layer_beta/u (DT_FLOAT) [1,1024]
+    generator/conditional_instance_norm_dense_1/dense_layer_beta/bias (DT_FLOAT) [1024]
+    generator/conditional_instance_norm_dense_1/dense_layer_beta/filter_dense (DT_FLOAT) [612,1024]
+    generator/conditional_instance_norm_dense_1/dense_layer_beta/u (DT_FLOAT) [1,1024]
 
 leaky_ReLu
 
@@ -24,17 +27,20 @@ generator/dense_layer_2/bias (DT_FLOAT) [12544]
 generator/dense_layer_2/filter_dense (DT_FLOAT) [1024,12544]
 generator/dense_layer_2/u (DT_FLOAT) [1,12544]
 
-generator/conditional_instance_norm_dense_2/dense_layer_1/bias (DT_FLOAT) [6372]
-generator/conditional_instance_norm_dense_2/dense_layer_1/filter_dense (DT_FLOAT) [200,6372]
-generator/conditional_instance_norm_dense_2/dense_layer_1/u (DT_FLOAT) [1,6372]
+    #AdaIN dense 2
+    generator/conditional_instance_norm_dense_2/dense_layer_1/bias (DT_FLOAT) [6372]
+    generator/conditional_instance_norm_dense_2/dense_layer_1/filter_dense (DT_FLOAT) [200,6372]
+    generator/conditional_instance_norm_dense_2/dense_layer_1/u (DT_FLOAT) [1,6372]
+    ReLu
 
-generator/conditional_instance_norm_dense_2/dense_layer_gamma/bias (DT_FLOAT) [12544]
-generator/conditional_instance_norm_dense_2/dense_layer_gamma/filter_dense (DT_FLOAT) [6372,12544]
-generator/conditional_instance_norm_dense_2/dense_layer_gamma/u (DT_FLOAT) [1,12544]
+    generator/conditional_instance_norm_dense_2/dense_layer_gamma/bias (DT_FLOAT) [12544]
+    generator/conditional_instance_norm_dense_2/dense_layer_gamma/filter_dense (DT_FLOAT) [6372,12544]
+    generator/conditional_instance_norm_dense_2/dense_layer_gamma/u (DT_FLOAT) [1,12544]
+    ReLu
 
-generator/conditional_instance_norm_dense_2/dense_layer_beta/bias (DT_FLOAT) [12544]
-generator/conditional_instance_norm_dense_2/dense_layer_beta/filter_dense (DT_FLOAT) [6372,12544]
-generator/conditional_instance_norm_dense_2/dense_layer_beta/u (DT_FLOAT) [1,12544]
+    generator/conditional_instance_norm_dense_2/dense_layer_beta/bias (DT_FLOAT) [12544]
+    generator/conditional_instance_norm_dense_2/dense_layer_beta/filter_dense (DT_FLOAT) [6372,12544]
+    generator/conditional_instance_norm_dense_2/dense_layer_beta/u (DT_FLOAT) [1,12544]
 
 leaky_ReLu
 
@@ -48,17 +54,20 @@ generator/resblock_0/part_1/conv_layer_1/u (DT_FLOAT) [1,256]
 
 generator/resblock_0/part_1/noise_input_1/noise_weights (DT_FLOAT) [256]
 
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [228]
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,228]
+    #AdaIN resblock_0 part_1
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [228]
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,228]
+    ReLu
 
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [256]
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [256]
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    ReLu
 
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [256]
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
-generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,256]
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [256]
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
+    generator/resblock_0/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,256]
 
 leaky_ReLu
 
@@ -68,17 +77,18 @@ generator/resblock_0/part_2/conv_layer_1/u (DT_FLOAT) [1,256]
 
 generator/resblock_0/part_2/noise_input_2/noise_weights (DT_FLOAT) [256]
 
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [228]
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,228]
+    #AdaIN resblock_0 part_2
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [228]
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,228]
 
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [256]
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [256]
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,256]
 
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [256]
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
-generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,256]
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [256]
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
+    generator/resblock_0/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,256]
 
 leaky_ReLu
 
@@ -90,17 +100,20 @@ generator/conv_layer_0/u (DT_FLOAT) [1,256]
 
 generator/noise_input_0/noise_weights (DT_FLOAT) [512]
 
-generator/conditional_instance_norm_0/dense_layer_1/bias (DT_FLOAT) [356]
-generator/conditional_instance_norm_0/dense_layer_1/filter_dense (DT_FLOAT) [200,356]
-generator/conditional_instance_norm_0/dense_layer_1/u (DT_FLOAT) [1,356]
+    #AdaIN conv_layer_0
+    generator/conditional_instance_norm_0/dense_layer_1/bias (DT_FLOAT) [356]
+    generator/conditional_instance_norm_0/dense_layer_1/filter_dense (DT_FLOAT) [200,356]
+    generator/conditional_instance_norm_0/dense_layer_1/u (DT_FLOAT) [1,356]
+    ReLu
 
-generator/conditional_instance_norm_0/dense_layer_gamma/bias (DT_FLOAT) [512]
-generator/conditional_instance_norm_0/dense_layer_gamma/filter_dense (DT_FLOAT) [356,512]
-generator/conditional_instance_norm_0/dense_layer_gamma/u (DT_FLOAT) [1,512]
+    generator/conditional_instance_norm_0/dense_layer_gamma/bias (DT_FLOAT) [512]
+    generator/conditional_instance_norm_0/dense_layer_gamma/filter_dense (DT_FLOAT) [356,512]
+    generator/conditional_instance_norm_0/dense_layer_gamma/u (DT_FLOAT) [1,512]
+    ReLu
 
-generator/conditional_instance_norm_0/dense_layer_beta/bias (DT_FLOAT) [512]
-generator/conditional_instance_norm_0/dense_layer_beta/filter_dense (DT_FLOAT) [356,512]
-generator/conditional_instance_norm_0/dense_layer_beta/u (DT_FLOAT) [1,512]
+    generator/conditional_instance_norm_0/dense_layer_beta/bias (DT_FLOAT) [512]
+    generator/conditional_instance_norm_0/dense_layer_beta/filter_dense (DT_FLOAT) [356,512]
+    generator/conditional_instance_norm_0/dense_layer_beta/u (DT_FLOAT) [1,512]
 
 leaky_ReLu
 
@@ -112,17 +125,20 @@ generator/resblock_1/part_1/conv_layer_1/u (DT_FLOAT) [1,512]
 
 generator/resblock_1/part_1/noise_input_1/noise_weights (DT_FLOAT) [512]
 
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [356]
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,356]
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,356]
+    #AdaIN resblock_1 part_1
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [356]
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,356]
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,356]
+    ReLu
 
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [512]
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [356,512]
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,512]
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [512]
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [356,512]
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,512]
+    ReLu
 
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [512]
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [356,512]
-generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,512]
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [512]
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [356,512]
+    generator/resblock_1/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,512]
 
 leaky_ReLu
 
@@ -132,17 +148,20 @@ generator/resblock_1/part_2/conv_layer_1/u (DT_FLOAT) [1,512]
 
 generator/resblock_1/part_2/noise_input_2/noise_weights (DT_FLOAT) [512]
 
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [356]
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,356]
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,356]
+    #AdaIN resblock_1 part_2
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [356]
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,356]
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,356]
+    ReLu
 
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [512]
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [356,512]
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,512]
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [512]
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [356,512]
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,512]
+    ReLu
 
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [512]
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [356,512]
-generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,512]
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [512]
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [356,512]
+    generator/resblock_1/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,512]
 
 leaky_ReLu
 
@@ -154,18 +173,20 @@ generator/conv_layer_1/u (DT_FLOAT) [1,512]
 
 generator/noise_input_1/noise_weights (DT_FLOAT) [256]
 
-generator/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [228]
-generator/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
-generator/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,228]
+    #AdaIN conv_layer_1
+    generator/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [228]
+    generator/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
+    generator/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,228]
+    ReLu
 
-generator/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [256]
-generator/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
-generator/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    generator/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [256]
+    generator/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
+    generator/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    ReLu
 
-
-generator/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [256]
-generator/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
-generator/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,256]
+    generator/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [256]
+    generator/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
+    generator/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,256]
 
 leaky_ReLu
 
@@ -177,17 +198,20 @@ generator/resblock_2/part_1/conv_layer_1/u (DT_FLOAT) [1,256]
 
 generator/resblock_2/part_1/noise_input_1/noise_weights (DT_FLOAT) [256]
 
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [228]
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,228]
+    #AdaIN resblock_2 part_1
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [228]
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,228]
+    ReLu
 
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [256]
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [256]
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    ReLu
 
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [256]
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
-generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,256]
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [256]
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
+    generator/resblock_2/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,256]
 
 leaky_ReLu
 
@@ -197,17 +221,20 @@ generator/resblock_2/part_2/conv_layer_1/u (DT_FLOAT) [1,256]
 
 generator/resblock_2/part_2/noise_input_2/noise_weights (DT_FLOAT) [256]
 
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [228]
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,228]
+    #AdaIN resblock_2 part_2
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [228]
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,228]
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,228]
+    ReLu
 
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [256]
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [256]
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [228,256]
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,256]
+    ReLu
 
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [256]
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
-generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,256]
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [256]
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [228,256]
+    generator/resblock_2/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,256]
 
 leaky_ReLu
 
@@ -219,17 +246,20 @@ generator/conv_layer_2/u (DT_FLOAT) [1,256]
 
 generator/noise_input_2/noise_weights (DT_FLOAT) [128]
 
-generator/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [164]
-generator/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,164]
-generator/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,164]
+    #AdaIN conv_layer_2
+    generator/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [164]
+    generator/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,164]
+    generator/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,164]
+    ReLu
 
-generator/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [128]
-generator/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [164,128]
-generator/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,128]
+    generator/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [128]
+    generator/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [164,128]
+    generator/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,128]
+    ReLu
 
-generator/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [128]
-generator/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [164,128]
-generator/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,128]
+    generator/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [128]
+    generator/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [164,128]
+    generator/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,128]
 
 leaky_ReLu
 
@@ -257,17 +287,20 @@ generator/resblock_3/part_1/conv_layer_1/u (DT_FLOAT) [1,128]
 
 generator/resblock_3/part_1/noise_input_1/noise_weights (DT_FLOAT) [128]
 
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [164]
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,164]
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,164]
+    #AdaIN resblock_3 part_1
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [164]
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,164]
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,164]
+    ReLu
 
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [128]
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [164,128]
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,128]
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [128]
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [164,128]
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,128]
+    ReLu
 
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [128]
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [164,128]
-generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,128]
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [128]
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [164,128]
+    generator/resblock_3/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,128]
 
 leaky_ReLu
 
@@ -277,17 +310,20 @@ generator/resblock_3/part_2/conv_layer_1/u (DT_FLOAT) [1,128]
 
 generator/resblock_3/part_2/noise_input_2/noise_weights (DT_FLOAT) [128]
 
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [164]
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,164]
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,164]
+    #AdaIN resblock_3 part_2
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [164]
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,164]
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,164]
+    ReLu
 
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [128]
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [164,128]
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,128]
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [128]
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [164,128]
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,128]
+    ReLu
 
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [128]
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [164,128]
-generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,128]
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [128]
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [164,128]
+    generator/resblock_3/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,128]
 
 leaky_ReLu
 
@@ -299,17 +335,20 @@ generator/conv_layer_3/u (DT_FLOAT) [1,128]
 
 generator/noise_input_3/noise_weights (DT_FLOAT) [64]
 
-generator/conditional_instance_norm_3/dense_layer_1/bias (DT_FLOAT) [132]
-generator/conditional_instance_norm_3/dense_layer_1/filter_dense (DT_FLOAT) [200,132]
-generator/conditional_instance_norm_3/dense_layer_1/u (DT_FLOAT) [1,132]
+    #AdaIN conv_layer_3
+    generator/conditional_instance_norm_3/dense_layer_1/bias (DT_FLOAT) [132]
+    generator/conditional_instance_norm_3/dense_layer_1/filter_dense (DT_FLOAT) [200,132]
+    generator/conditional_instance_norm_3/dense_layer_1/u (DT_FLOAT) [1,132]
+    ReLu
 
-generator/conditional_instance_norm_3/dense_layer_gamma/bias (DT_FLOAT) [64]
-generator/conditional_instance_norm_3/dense_layer_gamma/filter_dense (DT_FLOAT) [132,64]
-generator/conditional_instance_norm_3/dense_layer_gamma/u (DT_FLOAT) [1,64]
+    generator/conditional_instance_norm_3/dense_layer_gamma/bias (DT_FLOAT) [64]
+    generator/conditional_instance_norm_3/dense_layer_gamma/filter_dense (DT_FLOAT) [132,64]
+    generator/conditional_instance_norm_3/dense_layer_gamma/u (DT_FLOAT) [1,64]
+    ReLu
 
-generator/conditional_instance_norm_3/dense_layer_beta/bias (DT_FLOAT) [64]
-generator/conditional_instance_norm_3/dense_layer_beta/filter_dense (DT_FLOAT) [132,64]
-generator/conditional_instance_norm_3/dense_layer_beta/u (DT_FLOAT) [1,64]
+    generator/conditional_instance_norm_3/dense_layer_beta/bias (DT_FLOAT) [64]
+    generator/conditional_instance_norm_3/dense_layer_beta/filter_dense (DT_FLOAT) [132,64]
+    generator/conditional_instance_norm_3/dense_layer_beta/u (DT_FLOAT) [1,64]
 
 leaky_ReLu
 
@@ -321,17 +360,20 @@ generator/resblock_4/part_1/conv_layer_1/u (DT_FLOAT) [1,64]
 
 generator/resblock_4/part_1/noise_input_1/noise_weights (DT_FLOAT) [64]
 
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [132]
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,132]
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,132]
+    #AdaIN resblock_4 part_1
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_1/bias (DT_FLOAT) [132]
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_1/filter_dense (DT_FLOAT) [200,132]
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_1/u (DT_FLOAT) [1,132]
+    ReLu
 
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [64]
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [132,64]
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,64]
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_gamma/bias (DT_FLOAT) [64]
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_gamma/filter_dense (DT_FLOAT) [132,64]
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_gamma/u (DT_FLOAT) [1,64]
+    ReLu
 
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [64]
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [132,64]
-generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,64]
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_beta/bias (DT_FLOAT) [64]
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_beta/filter_dense (DT_FLOAT) [132,64]
+    generator/resblock_4/part_1/conditional_instance_norm_1/dense_layer_beta/u (DT_FLOAT) [1,64]
 
 leaky_ReLu
 
@@ -341,17 +383,20 @@ generator/resblock_4/part_2/conv_layer_1/u (DT_FLOAT) [1,64]
 
 generator/resblock_4/part_2/noise_input_2/noise_weights (DT_FLOAT) [64]
 
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [132]
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,132]
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,132]
+    #AdaIN resblock_4 part_2
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_1/bias (DT_FLOAT) [132]
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_1/filter_dense (DT_FLOAT) [200,132]
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_1/u (DT_FLOAT) [1,132]
+    ReLu
 
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [64]
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [132,64]
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,64]
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_gamma/bias (DT_FLOAT) [64]
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_gamma/filter_dense (DT_FLOAT) [132,64]
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_gamma/u (DT_FLOAT) [1,64]
+    ReLu
 
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [64]
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [132,64]
-generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,64]
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_beta/bias (DT_FLOAT) [64]
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_beta/filter_dense (DT_FLOAT) [132,64]
+    generator/resblock_4/part_2/conditional_instance_norm_2/dense_layer_beta/u (DT_FLOAT) [1,64]
 
 leaky_ReLu
 
@@ -363,17 +408,20 @@ generator/conv_layer_4/u (DT_FLOAT) [1,64]
 
 generator/noise_input_4/noise_weights (DT_FLOAT) [32]
 
-generator/conditional_instance_norm_4/dense_layer_1/bias (DT_FLOAT) [116]
-generator/conditional_instance_norm_4/dense_layer_1/filter_dense (DT_FLOAT) [200,116]
-generator/conditional_instance_norm_4/dense_layer_1/u (DT_FLOAT) [1,116]
+    #AdaIN conv_layer_4
+    generator/conditional_instance_norm_4/dense_layer_1/bias (DT_FLOAT) [116]
+    generator/conditional_instance_norm_4/dense_layer_1/filter_dense (DT_FLOAT) [200,116]
+    generator/conditional_instance_norm_4/dense_layer_1/u (DT_FLOAT) [1,116]
+    ReLu
 
-generator/conditional_instance_norm_4/dense_layer_gamma/bias (DT_FLOAT) [32]
-generator/conditional_instance_norm_4/dense_layer_gamma/filter_dense (DT_FLOAT) [116,32]
-generator/conditional_instance_norm_4/dense_layer_gamma/u (DT_FLOAT) [1,32]
+    generator/conditional_instance_norm_4/dense_layer_gamma/bias (DT_FLOAT) [32]
+    generator/conditional_instance_norm_4/dense_layer_gamma/filter_dense (DT_FLOAT) [116,32]
+    generator/conditional_instance_norm_4/dense_layer_gamma/u (DT_FLOAT) [1,32]
+    ReLu
 
-generator/conditional_instance_norm_4/dense_layer_beta/bias (DT_FLOAT) [32]
-generator/conditional_instance_norm_4/dense_layer_beta/filter_dense (DT_FLOAT) [116,32]
-generator/conditional_instance_norm_4/dense_layer_beta/u (DT_FLOAT) [1,32]
+    generator/conditional_instance_norm_4/dense_layer_beta/bias (DT_FLOAT) [32]
+    generator/conditional_instance_norm_4/dense_layer_beta/filter_dense (DT_FLOAT) [116,32]
+    generator/conditional_instance_norm_4/dense_layer_beta/u (DT_FLOAT) [1,32]
 
 leaky_ReLu
 
