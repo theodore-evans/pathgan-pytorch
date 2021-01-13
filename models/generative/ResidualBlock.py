@@ -1,4 +1,5 @@
 from typing import Optional
+from torch import Tensor
 import torch.nn as nn
 
 from ConvolutionalBlock import ConvolutionalBlock
@@ -24,7 +25,5 @@ class ResidualBlock(nn.Module):
         for index in range(num_blocks):
             self.add_module(f'part_{index + 1}', ConvolutionalBlock(*conv_args))
     
-    def forward(self, input):
+    def forward(self, input) -> Tensor:
         pass
-
-print(ResidualBlock(2, 256, 256, 3, 1, 0, 0, True, True, 'conditional', nn.LeakyReLU(0.2)))

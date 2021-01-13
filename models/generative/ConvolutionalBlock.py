@@ -2,6 +2,8 @@ from typing import Optional
 import torch.nn as nn
 from torch import Tensor
 
+from Placeholder import Placeholder
+
 class ConvolutionalBlock(nn.Module):
     def __init__(self, 
                  in_channels: int, 
@@ -19,13 +21,14 @@ class ConvolutionalBlock(nn.Module):
         super().__init__()
                 
         conv_args = (in_channels, out_channels, kernel_size, stride, padding)
-        self.add_module(f'conv_layer', nn.ConvTranspose2d(*conv_args, output_padding) if transpose else nn.Conv2d(*conv_args))
+        conv_layer = nn.ConvTranspose2d(*conv_args, output_padding) if transpose else nn.Conv2d(*conv_args)
+        self.add_module('conv_layer', conv_layer)
         
         if noise_input: 
-            self.add_module(f'noise_input', nn.Module())
+            self.add_module(f'noise_input', Placeholder())
             
         if normalization == 'conditional': 
-            self.add_module(f'conditional_instance_normalization', nn.Module())
+            self.add_module(f'conditional_instance_normalization', Placeholder())
         
         if activation is not None:
             self.add_module(f'activation', activation)

@@ -1,3 +1,4 @@
+from torch import Tensor
 import torch.nn as nn
 
 class ConditionalNorm(nn.Module):
@@ -12,5 +13,5 @@ class ConditionalNorm(nn.Module):
         self.dense_layer_beta = None
         self.dense_layer_gamma_activation = None
 
-    def forward(self, input, latent_input):
+    def forward(self, input, latent_input) -> Tensor:
         pass
