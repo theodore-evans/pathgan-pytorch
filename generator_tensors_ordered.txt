@@ -2,7 +2,7 @@
 
 generator/dense_layer_1/bias (DT_FLOAT) [1024]
 generator/dense_layer_1/filter_dense (DT_FLOAT) [200,1024]
-generator/dense_layer_1/u (DT_FLOAT) [1,1024]
+generator/dense_layer_1/u (DT_FLOAT) [1,1024] 
 
     #AdaIn dense_layer_1
     generator/conditional_instance_norm_dense_1/dense_layer_1/bias (DT_FLOAT) [612]
