@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torch.nn.utils import spectral_norm
 
 from models.generative.Placeholder import Placeholder
+from models.generative.ConditionalNorm import ConditionalNorm
 
 class ConvolutionalBlock(nn.Module):
     def __init__(self,
@@ -46,11 +47,10 @@ class ConvolutionalBlock(nn.Module):
 
         if noise_input:
             self.add_module(f'noise_input', Placeholder())
-
-        if normalization == 'conditional':
-            self.add_module(
-                f'conditional_instance_normalization', Placeholder())
-
+            
+        if normalization == 'conditional': 
+            self.add_module(f'conditional_instance_normalization', ConditionalNorm())
+        
         if activation is not None:
             self.add_module(f'activation', activation)
     
