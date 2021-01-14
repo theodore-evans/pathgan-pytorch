@@ -17,4 +17,9 @@ class ResidualBlock(Block):
             blocks[f'part_{index + 1}'] = block
             
         super().__init__(block.in_channels, block.out_channels, blocks)
-    
+        
+    def forward(self, input):
+        net = super().forward(input)
+        return input + net
+        
+print(ResidualBlock(2, ConvolutionalBlock(200, 200, 3, 1, 0)))

@@ -26,6 +26,6 @@ class ConditionalNorm(nn.Module):
         self.add_module('dense_layer_beta', nn.Linear(inter_dim, out_channels))
         if beta_activation is not None:
             self.add_module('dense_layer_beta_activation', beta_activation)
-
-    def forward(self, input, latent_input) -> Tensor:
-        return Tensor()
+    
+    def forward(self, input) -> Tensor:
+        return input #TODO: implement

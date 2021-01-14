@@ -16,3 +16,4 @@ class DenseBlock(Block):
         dense_layer = ModuleDict({'dense_layer' : nn.Linear(in_channels, out_channels)})
         
         super().__init__(in_channels, out_channels, dense_layer, noise_input, normalization, regularization, activation)
+

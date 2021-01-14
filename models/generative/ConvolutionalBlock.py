@@ -27,7 +27,7 @@ class ConvolutionalBlock(Block):
         
         super().__init__(in_channels, out_channels, conv_layer, noise_input, normalization, regularization, activation)
     
-    def add_normalization(self, normalization, conv_layer):
+    def add_normalization(self, normalization, conv_layer): #is this necessary? we handle normalization in the Block initialization
         pass
 
 

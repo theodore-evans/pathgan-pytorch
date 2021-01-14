@@ -3,8 +3,9 @@ import torch.nn as nn
 
 class NoiseInput(nn.Module):
     def __init__(self,
-                 in_channels : int):
+                 in_channels : int
+                 ) -> None:
         super().__init__()
 
-    def forward(self, inputs) -> Tensor:
-        return Tensor()
+    def forward(self, input) -> Tensor:
+        return input #TODO: implement

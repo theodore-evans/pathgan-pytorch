@@ -1,19 +1,19 @@
 from typing import List, Optional
 import math
 from torch import Tensor
+import torch
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 from torch.nn.utils import spectral_norm
 
-
-from Placeholder import Placeholder
+from NoiseInput import NoiseInput
 from ConditionalNorm import ConditionalNorm
 
 class Block(nn.Module):
     def __init__(self,
                  in_channels : int,
                  out_channels : int,
-                 modules: ModuleDict, 
+                 modules: ModuleDict,
                  noise_input: bool = False,
                  normalization: Optional[str] = None,
                  regularization: Optional[str] = None,
@@ -31,21 +31,20 @@ class Block(nn.Module):
                 self.add_module(module_name, module)
                 
         if noise_input:
-            self.add_module(f'noise_input', Placeholder())
+            self.add_module(f'noise_input', NoiseInput(out_channels))
             
         if normalization == 'conditional':
             #hack
             latent_dim = 100
-            inter_dim = math.ceil(latent_dim + out_channels / 2)
+            inter_dim = math.ceil(float(latent_dim) + float(out_channels) / 2 )
             self.add_module(f'conditional_instance_normalization', ConditionalNorm(out_channels, latent_dim, inter_dim))
         
         if activation is not None:
             self.add_module(f'activation', activation)
-                
-    def forward(self, input : Tensor) -> Tensor:
+    
+    #TODO: how to pass latent variable in?
+    def forward(self, input : Tensor) -> Tensor: 
         net = input
         for module in self.modules():
             net = module(net)
         return net
-    
-    
