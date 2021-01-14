@@ -2,12 +2,10 @@ from typing import Optional
 import torch.nn as nn
 from torch import Tensor
 import torch.nn.functional as F
-from torch.nn.utils import spectral_norm
 
-from models.generative.Placeholder import Placeholder
-from models.generative.ConditionalNorm import ConditionalNorm
+from Block import Block
 
-class ConvolutionalBlock(nn.Module):
+class ConvolutionalBlock(Block):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
@@ -18,30 +16,15 @@ class ConvolutionalBlock(nn.Module):
                  transpose: bool = False,
                  noise_input: bool = True,
                  normalization: Optional[str] = 'conditional',
+                 regularization: Optional[str] = None,
                  activation: Optional[nn.Module] = nn.LeakyReLU(0.2),
                  **kwargs
                  ) -> None:
 
-        super().__init__()
-
         conv_args = (in_channels, out_channels, kernel_size, stride, padding)
-        conv_layer = nn.ConvTranspose2d(
-            *conv_args, output_padding) if transpose else nn.Conv2d(*conv_args)
-
-        if normalization == 'spectral':
-            self.add_module('conv_layer', spectral_norm(
-                conv_layer, n_power_iterations=1))
-        else:
-            self.add_module('conv_layer', conv_layer)
-
-        if noise_input:
-            self.add_module(f'noise_input', Placeholder())
-            
-        if normalization == 'conditional': 
-            self.add_module(f'conditional_instance_normalization', ConditionalNorm())
+        conv_layer = nn.ConvTranspose2d(*conv_args, output_padding) if transpose else nn.Conv2d(*conv_args)
         
-        if activation is not None:
-            self.add_module(f'activation', activation)
+        super().__init__([('conv_layer', conv_layer)], noise_input, normalization, regularization, activation)
     
     def add_normalization(self, normalization, conv_layer):
         pass
