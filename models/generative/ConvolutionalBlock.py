@@ -19,7 +19,6 @@ class ConvolutionalBlock(nn.Module):
                  noise_input: bool = True,
                  normalization: Optional[str] = 'conditional',
                  activation: Optional[nn.Module] = nn.LeakyReLU(0.2),
-                 init: Optional[str] = 'orthogonal',
                  **kwargs
                  ) -> None:
 
@@ -28,17 +27,6 @@ class ConvolutionalBlock(nn.Module):
         conv_args = (in_channels, out_channels, kernel_size, stride, padding)
         conv_layer = nn.ConvTranspose2d(
             *conv_args, output_padding) if transpose else nn.Conv2d(*conv_args)
-
-        # Different init modes applied only to the weight tensor of the Conv Layer
-        if init == 'orthogonal':
-            nn.init.orthogonal_(conv_layer.weight)
-        elif init == 'xavier':
-            nn.init.xavier_uniform_(conv_layer.weight)
-        elif init == 'normal':
-            nn.init.normal_(conv_layer.weight, std=0.02)
-
-        # Bias is initialized with constant 0 values, still trainable
-        nn.init.constant_(conv_layer.bias, 0.)
 
         if normalization == 'spectral':
             self.add_module('conv_layer', spectral_norm(
