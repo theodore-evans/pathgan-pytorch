@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch import Tensor
 
 from Placeholder import Placeholder
+from ConditionalNorm import ConditionalNorm
 
 class ConvolutionalBlock(nn.Module):
     def __init__(self, 
@@ -28,7 +29,7 @@ class ConvolutionalBlock(nn.Module):
             self.add_module(f'noise_input', Placeholder())
             
         if normalization == 'conditional': 
-            self.add_module(f'conditional_instance_normalization', Placeholder())
+            self.add_module(f'conditional_instance_normalization', ConditionalNorm())
         
         if activation is not None:
             self.add_module(f'activation', activation)
