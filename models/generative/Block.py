@@ -1,34 +1,51 @@
-from typing import List, Optional, Tuple, Union
-import torch.nn as nn
+from typing import List, Optional
+import math
 from torch import Tensor
-import torch.nn.functional as F
+import torch.nn as nn
+from torch.nn.modules.container import ModuleDict
 from torch.nn.utils import spectral_norm
+
 
 from Placeholder import Placeholder
 from ConditionalNorm import ConditionalNorm
 
 class Block(nn.Module):
     def __init__(self,
-                 layers: List[Tuple[str, nn.Module]],
+                 in_channels : int,
+                 out_channels : int,
+                 modules: ModuleDict, 
                  noise_input: bool = False,
                  normalization: Optional[str] = None,
                  regularization: Optional[str] = None,
-                 activation: Optional[nn.Module] = None
+                 activation: Optional[nn.Module] = None,
                  ) -> None:
-        
         super().__init__()
         
-        for layer_name, layer in layers:  
-            if regularization == 'spectral':
-                self.add_module(layer_name, spectral_norm(layer, n_power_iterations=1))
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        
+        for module_name, module in modules.items():  
+            if regularization == 'spectral': 
+                self.add_module(module_name, spectral_norm(module))
             else:
-                self.add_module(layer_name, layer)
-
+                self.add_module(module_name, module)
+                
         if noise_input:
             self.add_module(f'noise_input', Placeholder())
             
-        if normalization == 'conditional': 
-            self.add_module(f'conditional_instance_normalization', Placeholder())
+        if normalization == 'conditional':
+            #hack
+            latent_dim = 100
+            inter_dim = math.ceil(latent_dim + out_channels / 2)
+            self.add_module(f'conditional_instance_normalization', ConditionalNorm(out_channels, latent_dim, inter_dim))
         
         if activation is not None:
             self.add_module(f'activation', activation)
+                
+    def forward(self, input : Tensor) -> Tensor:
+        net = input
+        for module in self.modules():
+            net = module(net)
+        return net
+    
+    

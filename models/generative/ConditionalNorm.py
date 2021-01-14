@@ -28,4 +28,4 @@ class ConditionalNorm(nn.Module):
             self.add_module('dense_layer_beta_activation', beta_activation)
 
     def forward(self, input, latent_input) -> Tensor:
-        pass
+        return Tensor()

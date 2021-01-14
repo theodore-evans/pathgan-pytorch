@@ -5,8 +5,7 @@ class Model(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         
-    def initialise_weights(self, initialization : str = 'conditional') -> None:
-        # default xavier init
+    def initialise_weights(self, initialization : str = 'xavier') -> None:
         for m in self.modules():
             if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.Linear)):
                 # Different init modes applied only to the weight tensor of the Layer
