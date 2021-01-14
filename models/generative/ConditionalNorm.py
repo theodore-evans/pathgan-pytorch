@@ -1,10 +1,13 @@
 from typing import Optional
 from torch import Tensor
 import torch.nn as nn
+from torch.nn.modules.instancenorm import InstanceNorm2d
+
+from DenseBlock import DenseBlock
 
 class ConditionalNorm(nn.Module):
     def __init__(self, 
-                 in_channels : int,
+                 channels : int,
                  latent_dim : int, 
                  inter_dim : int, 
                  dense_activation : Optional[nn.Module] = nn.ReLU(), 
@@ -13,19 +16,19 @@ class ConditionalNorm(nn.Module):
                  ) -> None:
         super().__init__()
         
-        out_channels = in_channels
+        self.instance_norm = InstanceNorm2d(channels)
+        self.dense_layer = DenseBlock(latent_dim, inter_dim, activation=dense_activation)
+        self.gamma_layer = DenseBlock(inter_dim, channels, activation=gamma_activation)
+        self.beta_layer = DenseBlock(inter_dim, channels, activation=beta_activation)
+
+    def forward(self, input, latent_input) -> Tensor:
+        normalized_input = self.instance_norm(input)
+        #https://zhangruochi.com/Components-of-StyleGAN/2020/10/13/
         
-        self.add_module('dense_layer', nn.Linear(latent_dim, inter_dim))
-        if dense_activation is not None:
-            self.add_module('dense_layer_activation', dense_activation)
+        intemediate_result = self.dense_layer(latent_input)
+        style_scale = self.gamma_layer(intemediate_result)[:, :, None, None]
+        style_shift = self.beta_layer(intemediate_result)[:, :, None, None]
         
-        self.add_module('dense_layer_gamma', nn.Linear(inter_dim, out_channels))
-        if gamma_activation is not None:
-            self.add_module('dense_layer_gamma_activation', gamma_activation)
-        
-        self.add_module('dense_layer_beta', nn.Linear(inter_dim, out_channels))
-        if beta_activation is not None:
-            self.add_module('dense_layer_beta_activation', beta_activation)
+        transformed_input = style_scale * normalized_input + style_shift
+        return transformed_input
     
-    def forward(self, input) -> Tensor:
-        return input #TODO: implement
