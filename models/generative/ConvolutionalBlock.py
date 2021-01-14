@@ -20,6 +20,7 @@ class ConvolutionalBlock(nn.Module):
                  normalization: Optional[str] = 'conditional',
                  activation: Optional[nn.Module] = nn.LeakyReLU(0.2),
                  init: Optional[str] = 'orthogonal',
+                 **kwargs
                  ) -> None:
 
         super().__init__()
@@ -76,6 +77,11 @@ class ConvolutionalScale(ConvolutionalBlock):
 
         # Additional weight initialization used by authors for Up and Downscaling
         weights = F.pad(self.conv_layer.weight, (1,1,1,1))
-        self.conv_layer.weight = weights[:,:,1:,1:] + weights[:,:,1:,:-1] + weights[:,:,:-1,1:] + weights[:,:,:-1,:-1]
+        self.conv_layer.weight = nn.Parameter(weights[:,:,1:,1:] + weights[:,:,1:,:-1] + weights[:,:,:-1,1:] + weights[:,:,:-1,:-1])
+
+        # The filter is incremented in both directions
+        filter_size = self.conv_layer.kernel_size[0] + 1
+        self.conv_layer.kernel_size = (filter_size, filter_size)
+
 
 
