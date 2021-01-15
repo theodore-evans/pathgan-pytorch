@@ -1,6 +1,6 @@
 from torch import Tensor
 from torch.nn.modules.container import ModuleDict
-from models.generative.Block import Block
+from Block import Block
 from typing import Optional
 import torch.nn as nn
 

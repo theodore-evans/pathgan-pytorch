@@ -22,13 +22,14 @@ class ConditionalNorm(nn.Module):
         self.beta_layer = DenseBlock(inter_dim, channels, activation=beta_activation)
 
     def forward(self, input, latent_input) -> Tensor:
-        normalized_input = self.instance_norm(input)
         #https://zhangruochi.com/Components-of-StyleGAN/2020/10/13/
+        normalized_input = self.instance_norm(input)
         
-        intemediate_result = self.dense_layer(latent_input)
-        style_scale = self.gamma_layer(intemediate_result)[:, :, None, None]
-        style_shift = self.beta_layer(intemediate_result)[:, :, None, None]
+        intermediate_result = self.dense_layer(latent_input)
         
-        transformed_input = style_scale * normalized_input + style_shift
+        gamma = self.gamma_layer(intermediate_result)[:, :, None, None]
+        beta = self.beta_layer(intermediate_result)[:, :, None, None]
+        
+        transformed_input = gamma * normalized_input + beta
         return transformed_input
     
