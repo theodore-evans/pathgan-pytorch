@@ -32,8 +32,6 @@ class ConvolutionalScale(ConvolutionalBlock):
         self.conv_layer.weight = nn.Parameter(
             weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
 
-        nn.utils.SpectralNorm
-
         # The filter is incremented in both directions
         filter_size = self.conv_layer.kernel_size[0] + 1
         self.conv_layer.kernel_size = (filter_size, filter_size)
