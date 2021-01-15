@@ -42,9 +42,8 @@ class Block(nn.Module):
         if activation is not None:
             self.add_module(f'activation', activation)
     
-    #TODO: how to pass latent variable in?
-    def forward(self, input : Tensor) -> Tensor: 
+    def forward(self, input : Tensor, **kwargs) -> Tensor: 
         net = input
         for module in self.modules():
-            net = module(net)
+            net = module(net, **kwargs)
         return net
