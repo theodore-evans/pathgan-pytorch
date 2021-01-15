@@ -37,7 +37,6 @@ class ConvolutionalScale(ConvolutionalBlock):
         self.conv_layer.kernel_size = (filter_size, filter_size)
 
     def forward(self, input: Tensor, **kwargs) -> Tensor:
-        F.conv
         return self.conv_layer(input)
 
     @staticmethod
