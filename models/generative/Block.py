@@ -7,7 +7,7 @@ from torch.nn.modules.container import ModuleDict
 from torch.nn.utils import spectral_norm
 
 from NoiseInput import NoiseInput
-from ConditionalNorm import ConditionalNorm
+from ConditionalNorm import AdaIN
 
 class Block(nn.Module):
     def __init__(self,
@@ -37,7 +37,7 @@ class Block(nn.Module):
             #hack
             latent_dim = 100
             inter_dim = math.ceil(float(latent_dim) + float(out_channels) / 2 )
-            self.add_module(f'conditional_instance_normalization', ConditionalNorm(out_channels, latent_dim, inter_dim))
+            self.add_module(f'conditional_instance_normalization', AdaIN(out_channels, latent_dim, inter_dim))
         
         if activation is not None:
             self.add_module(f'activation', activation)
