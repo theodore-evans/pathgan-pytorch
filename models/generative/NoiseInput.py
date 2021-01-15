@@ -6,21 +6,21 @@ import torch.nn as nn
 #https://github.com/lernapparat/lernapparat/blob/master/style_gan/pytorch_style_gan.ipynb
 class NoiseInput(nn.Module):
     def __init__(self,
-                 in_channels : int
+                 channels : int
                  ) -> None:
         super().__init__()
-        self.weight = nn.Parameter(torch.zeros(in_channels), requires_grad=True)
+        self.weight = nn.Parameter(torch.zeros(channels), requires_grad=True)
         self.noise = None
 
-    def forward(self, x : Tensor, noise : Optional[Tensor] = None) -> Tensor:
+    def forward(self, input : Tensor, noise : Optional[Tensor] = None) -> Tensor:
         if noise is None:
             # here is a little trick: if you get all the noiselayers and set each
             # modules .noise attribute, you can have pre-defined noise.
             # Very useful for analysis
-            if self.noise is None:
-                noise = torch.randn(x.size(0), 1, x.size(2), x.size(3), device=x.device, dtype=x.dtype)
-            else:
+            if self.noise is not None:
                 noise = self.noise
+            else:
+                noise = torch.randn(input.size(0), 1, input.size(2), input.size(3), device=input.device, dtype=input.dtype)
         
         net = input + self.weight.view(1, -1, 1, 1) * noise
         return net
