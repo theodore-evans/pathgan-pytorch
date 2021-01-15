@@ -32,5 +32,3 @@ class ConvolutionalBlock(Block):
 
 
 
-
-
