@@ -10,7 +10,7 @@ class AttentionBlock(Block):
     def __init__(self, channels: int,) -> None:
         super().__init__()
 
-        self.gamma = nn.Parameter(0)
+        self.register_parameter(name='gamma', param = nn.parameter.Parameter(0.))
         f_g_channels = channels // 8
 
         blocks = ModuleDict()
@@ -21,7 +21,7 @@ class AttentionBlock(Block):
         blocks['attention_h'] = ConvolutionalBlock(
             in_channels=channels, out_channels=channels, kernel_size=1, stride=1, padding=0, regularization='spectral')
 
-        super().__init__(channels, channels, blocks, )
+        super().__init__(channels, channels, blocks)
         
     #TODO: implement
 
