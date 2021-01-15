@@ -15,11 +15,13 @@ class AttentionBlock(Block):
 
         blocks = ModuleDict()
         blocks['attention_f'] = ConvolutionalBlock(
-            in_channels=channels, out_channels=f_g_channels, kernel_size=1, stride=1, padding=0, init='xavier', regularization='spectral')
+            in_channels=channels, out_channels=f_g_channels, kernel_size=1, stride=1, padding=0, regularization='spectral')
         blocks['attention_g'] = ConvolutionalBlock(
-            in_channels=channels, out_channels=f_g_channels, kernel_size=1, stride=1, padding=0, init='xavier', regularization='spectral')
+            in_channels=channels, out_channels=f_g_channels, kernel_size=1, stride=1, padding=0, regularization='spectral')
         blocks['attention_h'] = ConvolutionalBlock(
-            in_channels=channels, out_channels=channels, kernel_size=1, stride=1, padding=0, init='xavier', regularization='spectral')
+            in_channels=channels, out_channels=channels, kernel_size=1, stride=1, padding=0, regularization='spectral')
+
+        super().__init__(channels, channels, blocks, )
         
     #TODO: implement
 
