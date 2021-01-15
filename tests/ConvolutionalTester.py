@@ -8,7 +8,7 @@ from models.generative.ConvolutionalScale import ConvolutionalScale
 
 class ConvolutionalTester(unittest.TestCase):
     def setUp(self) -> None:
-        self.data = torch.Tensor(np.random.normal(0, 1, (64, 3, 224, 224)))
+        self.data = torch.rand((64, 3, 224, 224))
 
     def test_vanilla(self):
         conv = ConvolutionalBlock(

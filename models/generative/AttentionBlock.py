@@ -1,30 +1,29 @@
+from typing import Optional
 from models.generative.ConvolutionalBlock import ConvolutionalBlock
 from torch import Tensor
 import torch
 import torch.nn as nn
-from .Block import Block
-from torch.nn.modules.container import ModuleDict
+import torch.nn.functional as F
 
+from .Block import Block
 
 class AttentionBlock(Block):
-    def __init__(self, channels: int,) -> None:
-        super().__init__()
-
-        self.gamma = nn.Parameter(0)
+    def __init__(self, 
+                 channels: int,
+                 regularization: Optional[str] = 'spectral'
+                 ) -> None:
+        
+        self.gamma = nn.Parameter(0, requires_grad=True)
         f_g_channels = channels // 8
 
-        blocks = ModuleDict()
-        blocks['attention_f'] = ConvolutionalBlock(
-            in_channels=channels, out_channels=f_g_channels, kernel_size=1, stride=1, padding=0, regularization='spectral')
-        blocks['attention_g'] = ConvolutionalBlock(
-            in_channels=channels, out_channels=f_g_channels, kernel_size=1, stride=1, padding=0, regularization='spectral')
-        blocks['attention_h'] = ConvolutionalBlock(
-            in_channels=channels, out_channels=channels, kernel_size=1, stride=1, padding=0, regularization='spectral')
-
-        super().__init__(channels, channels, blocks, )
+        kwargs = dict({'kernel_size' : 1, 'stride' : 1, 'padding' : 0, 'regularization' : regularization})
         
-    #TODO: implement
+        self.attention_f = ConvolutionalBlock(in_channels=channels, out_channels=f_g_channels, **kwargs)
+        self.attention_g = ConvolutionalBlock(in_channels=channels, out_channels=f_g_channels, **kwargs)
+        self.attention_h = ConvolutionalBlock(in_channels=channels, out_channels=channels, **kwargs)
 
+        super().__init__(channels, channels, None)
+        
     def forward(self, inputs: Tensor) -> Tensor:
         batch_size, channels, height, width = inputs.shape
         f_flat = self.attention_f(inputs).view((batch_size, channels//8, -1)).permute(0,2,1)
@@ -33,7 +32,7 @@ class AttentionBlock(Block):
 
         s = torch.matmul(g_flat, f_flat.transpose())
 
-        beta = torch.softmax(s)
+        beta = F.softmax(s)
 
         o = torch.matmul(beta, h_flat)
         o = o.view((batch_size, height, width, channels)).permute(0,3,1,2)

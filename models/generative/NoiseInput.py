@@ -2,6 +2,7 @@ from typing import Optional
 from torch import Tensor
 import torch
 import torch.nn as nn
+import unittest
 
 #https://github.com/lernapparat/lernapparat/blob/master/style_gan/pytorch_style_gan.ipynb
 class NoiseInput(nn.Module):
@@ -24,3 +25,4 @@ class NoiseInput(nn.Module):
         
         net = input + self.weight.view(1, -1, 1, 1) * noise
         return net
+    
