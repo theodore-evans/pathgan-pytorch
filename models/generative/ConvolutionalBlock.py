@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 
-from Block import Block
+from .Block import Block
 
 class ConvolutionalBlock(Block):
     def __init__(self,

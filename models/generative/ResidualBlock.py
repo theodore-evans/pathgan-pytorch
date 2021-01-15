@@ -3,8 +3,8 @@ from torch import Tensor
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
-from Block import Block
-from ConvolutionalBlock import ConvolutionalBlock
+from .Block import Block
+from .ConvolutionalBlock import ConvolutionalBlock
 
 class ResidualBlock(Block):
     def __init__(self, 

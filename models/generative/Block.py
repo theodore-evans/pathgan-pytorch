@@ -6,8 +6,8 @@ import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 from torch.nn.utils import spectral_norm
 
-from NoiseInput import NoiseInput
-from ConditionalNorm import AdaIN
+from .NoiseInput import NoiseInput
+from .AdaIN import AdaIN
 
 class Block(nn.Module):
     def __init__(self,
