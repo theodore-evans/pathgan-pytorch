@@ -4,8 +4,6 @@ import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
 from .Block import Block
-from .ConvolutionalBlock import ConvolutionalBlock
-
 class ResidualBlock(Block):
     def __init__(self, 
                  num_blocks : int, 
@@ -21,5 +19,3 @@ class ResidualBlock(Block):
     def forward(self, input, **kwargs):
         net = super().forward(input, **kwargs)
         return input + net
-        
-print(ResidualBlock(2, ConvolutionalBlock(200, 200, 3, 1, 0)))

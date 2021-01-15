@@ -36,7 +36,7 @@ class Block(nn.Module):
         if normalization == 'conditional':
             #hack
             latent_dim = 100
-            inter_dim = math.ceil(float(latent_dim) + float(out_channels) / 2 )
+            inter_dim = math.ceil((float(latent_dim) + float(out_channels)) / 2 )
             self.add_module(f'conditional_instance_normalization', AdaIN(out_channels, latent_dim, inter_dim))
         
         if activation is not None:
