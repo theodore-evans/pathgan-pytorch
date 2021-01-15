@@ -27,5 +27,5 @@ class ConvolutionalBlock(Block):
         
         super().__init__(in_channels, out_channels, conv_layer, noise_input, normalization, regularization, activation)
 
-
-
+    def forward(self, input: Tensor, **kwargs) -> Tensor:
+        return self.conv_layer(input)
