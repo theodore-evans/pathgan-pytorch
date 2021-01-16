@@ -26,6 +26,3 @@ class ConvolutionalBlock(Block):
         conv_layer = ModuleDict({'conv_layer' : nn.ConvTranspose2d(*conv_args, output_padding) if transpose else nn.Conv2d(*conv_args)})
         
         super().__init__(in_channels, out_channels, conv_layer, noise_input, normalization, regularization, activation)
-
-    # def forward(self, input: Tensor, **kwargs) -> Tensor:
-    #     return self.conv_layer(input)

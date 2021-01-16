@@ -9,11 +9,11 @@ class ResidualBlock(Block):
                  num_blocks : int, 
                  block : Block,
                  ) -> None:
-            
+        
+        super().__init__(block.in_channels, block.out_channels, None)
+        
         for index in range(num_blocks):
             self.add_module(f'part_{index + 1}', block)
-            
-        super().__init__(block.in_channels, block.out_channels, None)
         
     def forward(self, input, **kwargs):
         net = super().forward(input, **kwargs)

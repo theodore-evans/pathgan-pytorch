@@ -45,6 +45,6 @@ class Block(nn.Module):
     
     def forward(self, input : Tensor, **kwargs) -> Tensor: 
         net = input
-        for module in self.modules():
+        for module in self.children():
             net = module(net, **kwargs)
         return net

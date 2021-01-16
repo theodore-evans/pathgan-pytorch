@@ -14,6 +14,8 @@ class AdaIN(nn.Module):
                  beta_activation : Optional[nn.Module] = None
                  ) -> None:
         super().__init__()
+        
+        self.latent_dim = latent_dim
 
         self.instance_norm = InstanceNorm2d(channels)
         
@@ -33,7 +35,12 @@ class AdaIN(nn.Module):
         self.beta_layer = nn.Linear(in_channels, out_channels)
         self.beta_activation = beta_activation
 
-    def forward(self, input, latent_input) -> Tensor:
+    def forward(self, input : Tensor, latent_input : Optional[Tensor] = None) -> Tensor:
+        
+        if latent_input is None:
+            batch_size = input.shape[0]
+            latent_input = torch.zeros(batch_size, self.latent_dim)
+            
         normalized_input = self.instance_norm(input)
         
         if self.dense_layer is not None:
@@ -41,10 +48,10 @@ class AdaIN(nn.Module):
             if self.dense_activation is not None: intermediate_result = self.dense_activation(intermediate_result)
         else: intermediate_result = latent_input
         
-        gamma = self.gamma_layer(intermediate_result)[:, :, None, None]
+        gamma = self.gamma_layer(intermediate_result)[:, :]
         if self.gamma_activation is not None: gamma = self.gamma_activation(gamma)
         
-        beta = self.beta_layer(intermediate_result)[:, :, None, None]
+        beta = self.beta_layer(intermediate_result)[:, :]
         if self.beta_activation is not None: beta = self.beta_activation(beta)
         
         transformed_input = gamma * normalized_input + beta
