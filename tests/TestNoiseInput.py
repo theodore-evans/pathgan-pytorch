@@ -1,7 +1,7 @@
 import unittest
 import torch
 from torch import nn
-from ..models.generative.NoiseInput import NoiseInput
+from models.generative.NoiseInput import NoiseInput
 
 class TestNoiseInput(unittest.TestCase):
     def setUp(self) -> None:

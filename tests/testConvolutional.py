@@ -5,8 +5,7 @@ import numpy as np
 from models.generative.ConvolutionalBlock import ConvolutionalBlock
 from models.generative.ConvolutionalScale import ConvolutionalScale
 
-
-class ConvolutionalTester(unittest.TestCase):
+class TestConvolutional(unittest.TestCase):
     def setUp(self) -> None:
         self.data = torch.rand((64, 3, 224, 224))
 

@@ -13,7 +13,7 @@ class AttentionBlock(Block):
                  regularization: Optional[str] = 'spectral'
                  ) -> None:
         
-        self.gamma = nn.Parameter(0, requires_grad=True)
+        self.gamma = nn.Parameter(torch.zeros(1), requires_grad=True)
         f_g_channels = channels // 8
 
         kwargs = dict({'kernel_size' : 1, 'stride' : 1, 'padding' : 0, 'regularization' : regularization})
@@ -27,8 +27,8 @@ class AttentionBlock(Block):
     def forward(self, inputs: Tensor) -> Tensor:
         batch_size, channels, height, width = inputs.shape
         f_flat = self.attention_f(inputs).view((batch_size, channels//8, -1)).permute(0,2,1)
-        g_flat = self.attention_f(inputs).view((batch_size, channels//8, -1)).permute(0,2,1)
-        h_flat = self.attention_f(inputs).view((batch_size, channels, -1)).permute(0,2,1)
+        g_flat = self.attention_g(inputs).view((batch_size, channels//8, -1)).permute(0,2,1)
+        h_flat = self.attention_h(inputs).view((batch_size, channels, -1)).permute(0,2,1)
 
         s = torch.matmul(g_flat, f_flat.transpose())
 
