@@ -10,7 +10,7 @@ from .Block import Block
 from typing import Optional
 
 def kernel_padding_hook(module, *args):
-    weights = F.pad(module.kernel, (1, 1, 1, 1))
+    weights = F.pad(module.kernel, [1, 1, 1, 1])
     module.weight = nn.Parameter(
             weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
 
@@ -28,7 +28,7 @@ class ConvolutionalScale(ConvolutionalBlock):
         self.conv_layer.stride = 2
 
         # Additional weight initialization used by authors for Up and Downscaling
-        weights = F.pad(self.conv_layer.weight, (1, 1, 1, 1))
+        weights = F.pad(self.conv_layer.weight, [1, 1, 1, 1])
         self.conv_layer.weight = nn.Parameter(
             weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
 
@@ -76,17 +76,13 @@ class ConvolutionalScaleVanilla(Block):
         weights_shape = (in_channels, out_channels, kernel_size, kernel_size) if upscale else (out_channels, in_channels, kernel_size, kernel_size)
 
         # Initialize the kernel as a seperate parameter to mutate shape later
-
         conv_args = (in_channels, out_channels, kernel_size + 1, stride, padding)
-
         conv_layer = ModuleDict({'conv_layer' : nn.ConvTranspose2d(*conv_args, output_padding) if upscale else nn.Conv2d(*conv_args)})
         
         super().__init__(in_channels, out_channels, conv_layer, noise_input, normalization, regularization, activation)
 
         self.register_parameter(name='kernel', param = nn.parameter.Parameter(torch.empty(weights_shape)))
-
         self.register_forward_hook(kernel_padding_hook)
-
         self.conv_layer = spectral_norm(self.conv_layer)
 
     def forward(self, input: Tensor, **kwargs) -> Tensor:

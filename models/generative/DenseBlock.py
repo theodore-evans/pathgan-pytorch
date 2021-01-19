@@ -12,7 +12,8 @@ class DenseBlock(Block):
                  noise_input : bool = False, 
                  normalization : str = 'conditional', 
                  regularization : str = None,
-                 activation : Optional[nn.Module] = nn.LeakyReLU(0.2)):
+                 activation : Optional[nn.Module] = nn.LeakyReLU(0.2),
+                 **kwargs) -> None:
         
         dense_layer = ModuleDict({'dense_layer' : nn.Linear(in_channels, out_channels)})
         

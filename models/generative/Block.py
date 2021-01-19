@@ -24,6 +24,7 @@ class Block(nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         
+        #TODO: Spectral norm should be declared explicitly, some moudules use spec norm and orthogonal norm
         if modules is not None:
             for module_name, module in modules.items():  
                 if regularization == 'spectral': 
