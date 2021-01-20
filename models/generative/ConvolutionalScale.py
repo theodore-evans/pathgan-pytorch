@@ -6,10 +6,9 @@ import torch.nn.functional as F
 from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 from torch import nn
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from .Block import Block
-from typing import Optional, Union
 from .ConvolutionalBlock import ConvolutionalBlock
 
 
@@ -68,10 +67,7 @@ class ConvolutionalScaleVanilla(Block):
                  padding: Union[int,tuple],
                  output_padding: int = 0,
                  upscale: bool = False,
-                 noise_input: bool = True,
-                 normalization: Optional[str] = 'conditional',
-                 regularization: Optional[str] = None,
-                 activation: Optional[nn.Module] = LeakyReLU(0.2),
+                 **kwargs
                  ) -> None:
         
         stride = 2
@@ -81,9 +77,10 @@ class ConvolutionalScaleVanilla(Block):
         weights_shape = (in_channels, out_channels, kernel_size, kernel_size) if upscale else (out_channels, in_channels, kernel_size, kernel_size)
         modules = ModuleDict()
         conv_args = (in_channels, out_channels, kernel_size + 1, stride, padding)
+        
         modules['conv_layer'] = nn.ConvTranspose2d(*conv_args, output_padding) if upscale else nn.Conv2d(*conv_args)
         
-        super().__init__(in_channels, out_channels, modules, noise_input, normalization, regularization, activation)
+        super().__init__(in_channels, out_channels, modules, **kwargs)
 
         self.register_parameter(name='kernel', param = nn.parameter.Parameter(torch.ones(weights_shape)))
         self.register_forward_hook(kernel_padding_hook)

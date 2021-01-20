@@ -66,7 +66,7 @@ class DiscriminatorResnet(nn.Module):
             inner_res = ConvolutionalBlock(
                 in_channels=in_channels, out_channels=in_channels, kernel_size=3, stride=1, padding=1, **default_kwargs)
             res_block = ResidualBlock(
-                num_blocks=2, block=inner_res, **default_kwargs)
+                num_blocks=2, block_template=inner_res, **default_kwargs)
 
             self.conv_part.add_module(f'ResNet_{layer}', res_block)
 
