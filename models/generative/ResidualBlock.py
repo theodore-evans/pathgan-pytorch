@@ -4,6 +4,8 @@ import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
 from .Block import Block
+
+#TODO: check whether subblocks are passed in as references, and implement with deep clones of a template if so
 class ResidualBlock(Block):
     def __init__(self, 
                  num_blocks : int, 
