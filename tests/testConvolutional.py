@@ -1,9 +1,11 @@
 import unittest
 import torch
 import numpy as np
+import torch.nn.functional as F
+from torch import nn
 
 from models.generative.ConvolutionalBlock import ConvolutionalBlock
-from models.generative.ConvolutionalScale import ConvolutionalScale
+from models.generative.ConvolutionalScale import ConvolutionalScale, ConvolutionalScaleVanilla
 
 class TestConvolutional(unittest.TestCase):
     def setUp(self) -> None:
@@ -11,7 +13,7 @@ class TestConvolutional(unittest.TestCase):
 
     def test_vanilla(self):
         conv = ConvolutionalBlock(
-            in_channels=3, out_channels=6, kernel_size=3, stride=1, padding=1)
+            in_channels=3, out_channels=6, kernel_size=3, stride=1, padding=1, normalization =None)
         out = conv(self.data)
         self.assertEqual(out.shape, (64, 6, 224, 224),
                          "Dimensions Should Match")
@@ -40,3 +42,28 @@ class TestConvolutional(unittest.TestCase):
     def test_padding_calculator(self):
         pads = ConvolutionalScale.calculate_padding_upscale(input_size=112,stride=2,kernel_size=3)
         self.assertEqual(pads, (1,1), "Paddings Should Match")
+
+    def tests_vanilla_kernel_upscale(self):
+        in_channels, out_channels, kernel_size = 3, 6, 2
+        block = ConvolutionalScaleVanilla(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
+                                   stride=2, padding=1, normalization=None, upscale=True)
+        block.kernel = nn.init.xavier_uniform_(block.kernel, gain = nn.init.calculate_gain('leaky_relu', 0.2))
+        out = block(self.data)
+        weights = F.pad(block.kernel, [1, 1, 1, 1])
+        weights = weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1]
+        assert out.shape == (64,6,448,448)
+        assert block.conv_layer.weight.shape == (3,6,3,3) , "Conv Layer Kernel Shape should match"
+        assert torch.max( weights - block.conv_layer.weight) < 1e-4, "Padded kernel should be equal to Conv Weight" 
+        
+    def tests_vanilla_kernel_downscale(self):
+        in_channels, out_channels, kernel_size = 3, 6, 4
+        block = ConvolutionalScaleVanilla(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size,
+                                   stride=2, padding=2, normalization=None, upscale=False)
+        block.kernel = nn.init.xavier_uniform_(block.kernel, gain = nn.init.calculate_gain('leaky_relu', 0.2))
+        out = block(self.data)
+        weights = F.pad(block.kernel, [1, 1, 1, 1])
+        weights = weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1]
+        assert out.shape == (64,6,112,112)
+        assert block.conv_layer.weight.shape == (6,3,5,5) , "Conv Layer Kernel Shape should match"
+        assert torch.max( weights - block.conv_layer.weight) < 1e-4, "Padded kernel should be equal to Conv Weight" 
+        

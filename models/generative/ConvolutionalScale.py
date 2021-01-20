@@ -1,5 +1,6 @@
 import torch
 from torch import Tensor
+from torch.nn.modules.conv import ConvTranspose2d
 from torch.nn.utils.spectral_norm import spectral_norm
 import torch.nn.functional as F
 from torch.nn.modules.activation import LeakyReLU
@@ -8,12 +9,13 @@ from torch import nn
 from typing import Optional, Tuple
 
 from .Block import Block
+from typing import Optional, Union
 from .ConvolutionalBlock import ConvolutionalBlock
 
 
 def kernel_padding_hook(module, *args):
     weights = F.pad(module.kernel, [1, 1, 1, 1])
-    module.weight = nn.Parameter(
+    module.conv_layer.weight = nn.Parameter(
             weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
 
 class ConvolutionalScale(ConvolutionalBlock):
@@ -63,7 +65,7 @@ class ConvolutionalScaleVanilla(Block):
                  out_channels: int,
                  kernel_size: int,
                  stride: int,
-                 padding: int,
+                 padding: Union[int,tuple],
                  output_padding: int = 0,
                  upscale: bool = False,
                  noise_input: bool = True,
@@ -74,19 +76,26 @@ class ConvolutionalScaleVanilla(Block):
         
         stride = 2
         regularization = None
+        self.upscale = upscale
 
         weights_shape = (in_channels, out_channels, kernel_size, kernel_size) if upscale else (out_channels, in_channels, kernel_size, kernel_size)
-
-        # Initialize the kernel as a seperate parameter to mutate shape later
+        modules = ModuleDict()
         conv_args = (in_channels, out_channels, kernel_size + 1, stride, padding)
-        conv_layer = ModuleDict({'conv_layer' : nn.ConvTranspose2d(*conv_args, output_padding) if upscale else nn.Conv2d(*conv_args)})
+        modules['conv_layer'] = nn.ConvTranspose2d(*conv_args, output_padding) if upscale else nn.Conv2d(*conv_args)
         
-        super().__init__(in_channels, out_channels, conv_layer, noise_input, normalization, regularization, activation)
+        super().__init__(in_channels, out_channels, modules, noise_input, normalization, regularization, activation)
 
-        self.register_parameter(name='kernel', param = nn.parameter.Parameter(torch.empty(weights_shape)))
+        self.register_parameter(name='kernel', param = nn.parameter.Parameter(torch.ones(weights_shape)))
         self.register_forward_hook(kernel_padding_hook)
         self.conv_layer = spectral_norm(self.conv_layer)
 
-    def forward(self, inputs: Tensor, **kwargs) -> Tensor:
-        return self.conv_layer(inputs)
+    def forward(self, input : Tensor, **kwargs) -> Tensor: 
+        net = input
+        batch_size, channels, image_width, image_height = input.shape
+        for module in self.children():
+            if type(module) == ConvTranspose2d:
+                net = module(net, output_size=(batch_size, channels, image_width * 2, image_height * 2))
+            else:
+                net = module(net, **kwargs)
+        return net
 
