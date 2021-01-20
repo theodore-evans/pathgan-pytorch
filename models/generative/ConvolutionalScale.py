@@ -15,7 +15,7 @@ from .ConvolutionalBlock import ConvolutionalBlock
 
 def kernel_padding_hook(module, *args):
     weights = F.pad(module.kernel, [1, 1, 1, 1])
-    module.weight = nn.Parameter(
+    module.conv_layer.weight = nn.Parameter(
             weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
 
 class ConvolutionalScale(ConvolutionalBlock):
@@ -85,14 +85,9 @@ class ConvolutionalScaleVanilla(Block):
         
         super().__init__(in_channels, out_channels, modules, noise_input, normalization, regularization, activation)
 
-        self.register_parameter(name='kernel', param = nn.parameter.Parameter(torch.empty(weights_shape)))
+        self.register_parameter(name='kernel', param = nn.parameter.Parameter(torch.ones(weights_shape)))
         self.register_forward_hook(kernel_padding_hook)
         self.conv_layer = spectral_norm(self.conv_layer)
-
-    def upscale_forward(self, input: Tensor, **kwargs) -> Tensor:
-        batch_size, channels, image_width, image_height = input.shape
-        result = self.forward(input, output_size=(batch_size, channels, image_width * 2, image_height * 2)) if self.upscale else self.conv_layer(input)
-        return result
 
     def forward(self, input : Tensor, **kwargs) -> Tensor: 
         net = input
