@@ -10,7 +10,7 @@ class AbstractInitializer(ABC):
         self.module = module
         
     @abstractmethod
-    def initialize_weights(self, initialization: Optional[Callable[[Tensor]]] = None) -> None:
+    def initialize_weights(self, initialization: Optional[Callable[[Tensor], None]] = None) -> None:
         for m in self.module.modules():
             if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.Linear)):
                 

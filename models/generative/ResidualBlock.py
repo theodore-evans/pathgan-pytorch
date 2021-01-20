@@ -13,7 +13,7 @@ class ResidualBlock(Block):
                  **kwargs
                  ) -> None:
         
-        super().__init__(block_template.in_channels, block_template.out_channels, None)
+        super().__init__(block_template.in_channels, block_template.out_channels)
         
         for index in range(num_blocks):
             self.add_module(f'part_{index + 1}', copy.deepcopy(block_template))

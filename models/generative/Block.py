@@ -4,17 +4,18 @@ from torch import Tensor
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
-from .Normalization.AbstractNormalization import AbstractNormalization
-from .Initialization.AbstractInitializer import AbstractInitializer
+from .normalization.AbstractNormalization import AbstractNormalization
+from .initialization.AbstractInitializer import AbstractInitializer
 
 class Block(nn.Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
                  modules: Optional[ModuleDict] = None,
+                 latent_dim: Optional[int] = None,
                  regularization: Optional[Callable[[nn.Module], nn.Module]] = lambda x: x,
                  noise_input: Optional[Callable[[int], nn.Module]] = None,
-                 normalization: Optional[Callable[[int], AbstractNormalization]] = None,  
+                 normalization: Optional[Callable[..., AbstractNormalization]] = None,
                  activation: Optional[nn.Module] = None,
                  initializer: Optional[Callable[[nn.Module], AbstractInitializer]] = None
                  ) -> None:
@@ -32,7 +33,10 @@ class Block(nn.Module):
             self.noise_input = noise_input(out_channels)
         
         if normalization is not None:
-            self.normalization = normalization(out_channels)
+            if latent_dim is not None:
+                self.normalization = normalization(out_channels, latent_dim)
+            else:
+                self.normalization = normalization(out_channels)
             
         if activation is not None:
             self.activation = activation
