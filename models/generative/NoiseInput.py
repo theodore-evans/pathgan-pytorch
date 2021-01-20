@@ -9,7 +9,7 @@ class NoiseInput(nn.Module):
                  channels : int
                  ) -> None:
         super().__init__()
-        self.weight = nn.Parameter(torch.zeros(channels))
+        self.weight = nn.Parameter(torch.rand(channels))
         self.noise = None
 
     def forward(self, inputs : Tensor, noise : Optional[Tensor] = None) -> Tensor:

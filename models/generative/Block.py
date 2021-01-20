@@ -43,6 +43,8 @@ class Block(nn.Module):
         
         if activation is not None:
             self.activation = activation
+            
+        #TODO dependency injected initialization
     
     def forward(self, inputs : Tensor, **kwargs) -> Tensor: 
         net = inputs

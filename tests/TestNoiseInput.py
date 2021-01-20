@@ -1,6 +1,7 @@
 import unittest
 import torch
 from torch import nn
+
 from models.generative.NoiseInput import NoiseInput
 
 class TestNoiseInput(unittest.TestCase):
@@ -14,7 +15,7 @@ class TestNoiseInput(unittest.TestCase):
     def test_noise_input(self):
         assert torch.abs(self.inject_noise.weight.std() - 1) < 0.1
         assert torch.abs(self.inject_noise.weight.mean()) < 0.1
-        assert type(self.inject_noise.weight) == torch.nn.parameter.Parameter
+        assert type(self.inject_noise.weight) == nn.parameter.Parameter
         
         assert tuple(self.inject_noise.weight.shape) == (1, self.test_noise_channels, 1, 1)
         self.inject_noise.weight = nn.Parameter(torch.ones_like(self.inject_noise.weight), requires_grad=True)

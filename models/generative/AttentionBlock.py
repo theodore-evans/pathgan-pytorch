@@ -9,7 +9,6 @@ import torch.nn.functional as F
 from .Block import Block
 from .ConvolutionalBlock import ConvolutionalBlock
 
-
 class AttentionBlock(Block):
     def __init__(self,
                  channels: int,
@@ -18,19 +17,17 @@ class AttentionBlock(Block):
                  ) -> None:
         f_g_channels = channels // 8
 
-        layers = ModuleDict({})
+        super().__init__(channels, channels, None)
 
         conv_kwargs = dict({'kernel_size': 1, 'stride': 1,
                             'padding': 0, 'regularization': regularization})
 
-        layers['attention_f'] = ConvolutionalBlock(
+        self.attention_f = ConvolutionalBlock(
             in_channels=channels, out_channels=f_g_channels, **conv_kwargs, **kwargs)
-        layers['attention_g'] = ConvolutionalBlock(
+        self.attention_g = ConvolutionalBlock(
             in_channels=channels, out_channels=f_g_channels, **conv_kwargs, **kwargs)
-        layers['attention_h'] = ConvolutionalBlock(
+        self.attention_h = ConvolutionalBlock(
             in_channels=channels, out_channels=channels, **conv_kwargs, **kwargs)
-
-        super().__init__(channels, channels, layers, **kwargs)
 
         self.gamma = nn.Parameter(torch.zeros(1), requires_grad=True)
 
