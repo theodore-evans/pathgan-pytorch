@@ -2,13 +2,16 @@ import torch
 from torch import Tensor
 from torch.nn.modules.conv import ConvTranspose2d
 from torch.nn.utils.spectral_norm import spectral_norm
-from .ConvolutionalBlock import ConvolutionalBlock
 import torch.nn.functional as F
 from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 from torch import nn
+from typing import Optional, Tuple
+
 from .Block import Block
 from typing import Optional, Union
+from .ConvolutionalBlock import ConvolutionalBlock
+
 
 def kernel_padding_hook(module, *args):
     weights = F.pad(module.kernel, [1, 1, 1, 1])
@@ -24,7 +27,7 @@ class ConvolutionalScale(ConvolutionalBlock):
         del kwargs['upscale']
 
         super().__init__(*args, **kwargs)
-
+        
         # Set the stride to 2 for both Up and Downscaling
         self.conv_layer.stride = 2
 
@@ -42,7 +45,7 @@ class ConvolutionalScale(ConvolutionalBlock):
 
     @staticmethod
     def calculate_padding_upscale(input_size: int,
-                          stride: int, kernel_size: int) -> int:
+                          stride: int, kernel_size: int) -> Tuple[int, int]:
         # Rest = out_pad - 2 * pad
         output_size = 2 * input_size
         rest = output_size - (input_size - 1) * stride  - (kernel_size -1) - 1

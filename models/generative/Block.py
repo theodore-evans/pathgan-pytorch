@@ -1,7 +1,7 @@
-from typing import List, Optional
+from typing import Optional
 import math
 from torch import Tensor
-import torch
+
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 from torch.nn.utils import spectral_norm
@@ -44,8 +44,8 @@ class Block(nn.Module):
         if activation is not None:
             self.activation = activation
     
-    def forward(self, input : Tensor, **kwargs) -> Tensor: 
-        net = input
+    def forward(self, inputs : Tensor, **kwargs) -> Tensor: 
+        net = inputs
         for module in self.children():
             net = module(net, **kwargs)
         return net

@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .Block import Block
+from .ConvolutionalBlock import ConvolutionalBlock
 
 
 class AttentionBlock(Block):
@@ -15,7 +16,6 @@ class AttentionBlock(Block):
                  regularization: Optional[str] = 'spectral',
                  **kwargs,
                  ) -> None:
-
         f_g_channels = channels // 8
 
         layers = ModuleDict({})
