@@ -31,24 +31,26 @@ class DiscriminatorResnet(nn.Module):
         layers: int = 5,
         attention_size: int = 28,
         starting_channels: int = 32,
-        image_size: int = 224
+        image_size: int = 224,
+        orthogonal_reg_scale: float = 1e-4
     ) -> None:
         super().__init__()
 
         in_channels = 3
         out_channels = starting_channels
         current_size = image_size
+        self.ortho_reg_scale = orthogonal_reg_scale
 
         self.conv_part = ModuleDict()
         self.dense_part = ModuleDict()
 
         default_kwargs = {
             'normalization': None,
-            'regularization': 'spectral'
+            'regularization': 'spectral',
+            'noise_input': False
         }
 
         for layer in range(layers):
-
             # Spectral norm, init mode, regularizer and activation should be added
             # init is xavier
             # normalization=None,
@@ -97,6 +99,17 @@ class DiscriminatorResnet(nn.Module):
 
     def initialize_modules(self):
         pass
+
+    def get_orthogonal_reg_loss(self):
+        with torch.enable_grad():
+            orth_loss = torch.zeros(1)
+            for name, param in self.named_parameters():
+                if 'bias' not in name and 'Scale' not in name and 'gamma' not in name or 'Scale' in name and 'kernel' in name:
+                    param_flat = param.view(param.shape[0], -1)
+                    sym = torch.mm(param_flat, torch.t(param_flat))
+                    sym -= torch.eye(param_flat.shape[0])
+                    orth_loss = orth_loss + (self.ortho_reg_scale * sym.abs().sum())
+            return orth_loss
 
     def forward(self, data: torch.Tensor, **kwargs) -> torch.Tensor:
         batch_size = data.shape[0]
