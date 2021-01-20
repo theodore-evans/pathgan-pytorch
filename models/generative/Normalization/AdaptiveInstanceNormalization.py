@@ -4,7 +4,9 @@ import torch
 import torch.nn as nn
 from torch.nn.modules.instancenorm import InstanceNorm2d
 
-class AdaIN(nn.Module):
+from .AbstractNormalization import AbstractNormalization
+
+class AdaptiveInstanceNormalization(AbstractNormalization, nn.Module):
     def __init__(self, 
                  channels : int,
                  latent_dim : int, 
@@ -13,7 +15,8 @@ class AdaIN(nn.Module):
                  gamma_activation : Optional[nn.Module] = nn.ReLU(), 
                  beta_activation : Optional[nn.Module] = None
                  ) -> None:
-        super().__init__()
+        
+        nn.Module.__init__(self)
         
         self.latent_dim = latent_dim
 
