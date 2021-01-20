@@ -16,15 +16,15 @@ class ConvolutionalBlock(Block):
                  kernel_size: int,
                  stride: int,
                  padding: int,
-                 output_padding: int = 0,
                  transpose: bool = False,
-                 noise_input: bool = True,
-                 normalization: Optional[str] = 'conditional',
-                 regularization: Optional[str] = None,
-                 activation: Optional[nn.Module] = LeakyReLU(0.2),
+                 output_padding: int = 0,
+                 **kwargs,
                  ) -> None:
         
         conv_args = (in_channels, out_channels, kernel_size, stride, padding)
-        conv_layer = ModuleDict({'conv_layer' : nn.ConvTranspose2d(*conv_args, output_padding) if transpose else nn.Conv2d(*conv_args)})
+
+        conv_layer = nn.ConvTranspose2d(*conv_args, output_padding) if transpose else nn.Conv2d(*conv_args)
         
-        super().__init__(in_channels, out_channels, conv_layer, noise_input, normalization, regularization, activation)
+        layer_dict = ModuleDict({'conv_layer' : conv_layer})
+        
+        super().__init__(in_channels, out_channels, layer_dict, **kwargs)

@@ -1,24 +1,20 @@
-from typing import Optional
-import math
+from typing import Callable, Optional
 from torch import Tensor
-
 import torch.nn as nn
-from torch.nn.modules.container import ModuleDict
-from torch.nn.utils import spectral_norm
-
-from .NoiseInput import NoiseInput
-from .AdaIN import AdaIN
+from torch.nn.modules.container import ModuleDict, ModuleList
 
 class Block(nn.Module):
     def __init__(self,
-                 in_channels : int,
-                 out_channels : int,
-                 modules: Optional[ModuleDict],
-                 noise_input: bool = False,
-                 normalization: Optional[str] = None,
-                 regularization: Optional[str] = None,
+                 in_channels: int,
+                 out_channels: int,
+                 modules: Optional[ModuleDict] = None,
+                 regularization: Optional[Callable[[nn.Module], nn.Module]] = lambda x: x,
+                 noise_input: Optional[Callable[[int], nn.Module]] = None,
+                 normalization: Optional[Callable[[int], nn.Module]] = None,  
                  activation: Optional[nn.Module] = None,
+                 initialization: Optional[Callable] = None
                  ) -> None:
+        
         super().__init__()
         
         self.in_channels = in_channels
@@ -26,25 +22,20 @@ class Block(nn.Module):
         
         #TODO: Spectral norm should be declared explicitly, some moudules use spec norm and orthogonal norm
         if modules is not None:
-            for module_name, module in modules.items():  
-                if regularization == 'spectral': 
-                    self.add_module(module_name, spectral_norm(module))
-                else:
-                    self.add_module(module_name, module)
-                
-        if noise_input:
-            self.noise_input = NoiseInput(out_channels)
-            
-        if normalization == 'conditional':
-            #hack
-            latent_dim = 100
-            inter_dim = math.ceil((float(latent_dim) + float(out_channels)) / 2 )
-            self.conditional_instance_normalization = AdaIN(out_channels, latent_dim, inter_dim)
+            for module_name, module in modules.items():
+                self.add_module(module_name, regularization(module))
+                        
+        if noise_input is not None:
+            self.noise_input = noise_input(out_channels)
         
+        if normalization is not None:
+            self.normalization = normalization(out_channels)
+            
         if activation is not None:
             self.activation = activation
-            
-        #TODO dependency injected initialization
+        
+        if initialization is not None:
+            initialization(self)
     
     def forward(self, inputs : Tensor, **kwargs) -> Tensor: 
         net = inputs
