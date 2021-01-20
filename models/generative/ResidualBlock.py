@@ -8,6 +8,7 @@ class ResidualBlock(Block):
     def __init__(self, 
                  num_blocks : int, 
                  block : Block,
+                 **kwargs
                  ) -> None:
         
         super().__init__(block.in_channels, block.out_channels, None)
