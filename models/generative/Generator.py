@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.tensor import Tensor
 
 class Model(nn.Module):
     def __init__(self) -> None:
@@ -17,7 +18,7 @@ class Model(nn.Module):
                     nn.init.normal_(m.weight, std=0.02)
 
                 # Bias is initialized with constant 0 values, still trainable
-                nn.init.constant_(m.bias, 0.)
+                if m.bias is not None: nn.init.constant_(m.bias, 0.)
 
 class Generator(Model):
     def __init__(self) -> None:

@@ -1,11 +1,11 @@
 from typing import Optional
-from models.generative.ConvolutionalBlock import ConvolutionalBlock
 from torch import Tensor
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from .Block import Block
+from .ConvolutionalBlock import ConvolutionalBlock
 
 class AttentionBlock(Block):
     def __init__(self, 
@@ -13,7 +13,7 @@ class AttentionBlock(Block):
                  regularization: Optional[str] = 'spectral'
                  ) -> None:
         
-        self.gamma = nn.Parameter(torch.zeros(1), requires_grad=True)
+        self.gamma = nn.Parameter(torch.zeros(1))
         f_g_channels = channels // 8
 
         kwargs = dict({'kernel_size' : 1, 'stride' : 1, 'padding' : 0, 'regularization' : regularization})
