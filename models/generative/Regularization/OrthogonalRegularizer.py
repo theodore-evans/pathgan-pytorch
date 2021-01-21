@@ -4,9 +4,9 @@ from torch.tensor import Tensor
 
 from .AbstractRegularizer import AbstractRegularizer
 
-class OrthogonalRegularizerlizer(AbstractRegularizer):        
-    def __init__(self, module: nn.Module):
-        self.module = module
+class OrthogonalRegularizer(AbstractRegularizer):        
+    def __init__(self, module: nn.Module, regularizer_scale: float = 1e-4):
+        super().__init__(module, regularizer_scale)
     
     def get_regularizer_loss(self) -> None:
         loss_func = self.get_orthogonality
