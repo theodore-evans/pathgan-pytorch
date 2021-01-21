@@ -1,7 +1,8 @@
 from typing import Union
 import torch.nn as nn
-from torch.nn.init import xavier_normal, calculate_gain
+from torch.nn.init import calculate_gain, xavier_uniform_
 from torch.nn.modules.activation import LeakyReLU, ReLU
+
 
 from .AbstractInitializer import AbstractInitializer
 
@@ -21,4 +22,4 @@ class XavierInitializer(AbstractInitializer):
         else:
             gain = 1
         
-        super().initialize_weights(initialization = lambda x: xavier_normal(x, gain))
+        super().initialize_weights(initialization = lambda x: xavier_uniform_(x, gain))
