@@ -66,6 +66,13 @@ class ConvolutionalScale(nn.Conv2d):
         else:
             self.register_buffer('u', torch.Tensor(1, out_channels).normal_())
 
+    '''
+    This was used in the original pathgan and in the stylegan repo:
+    https://github.com/NVlabs/stylegan/blob/master/training/networks_stylegan.py
+    Padding the weights and adding them by a sliding window results in a composite operation
+    Fusing Conv + Scaling for Performance
+    Don't know how it functions yet
+    '''
     @property
     def W_(self):
         weights = F.pad(self.weight, [1, 1, 1, 1])
@@ -77,7 +84,6 @@ class ConvolutionalScale(nn.Conv2d):
         return weights / sigma
 
     def forward(self, input: Tensor, **kwargs: Dict[str, Any]) -> Tensor:
-
         if self.upscale:
             output_padding = self._output_padding(
                 input, self.output_size, self.stride, self.padding, self.kernel_size)
@@ -124,52 +130,3 @@ class ConvolutionalScale(nn.Conv2d):
         ret = res
         return ret
 
-
-class ConvolutionalScaleVanilla(Block):
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 kernel_size: int,
-                 stride: int,
-                 padding: Union[int, tuple],
-                 output_padding: int = 0,
-                 upscale: bool = False,
-                 **kwargs
-                 ) -> None:
-
-        stride = 2
-        regularization = None
-        self.upscale = upscale
-
-        weights_shape = (in_channels, out_channels, kernel_size, kernel_size) if upscale else (
-            out_channels, in_channels, kernel_size, kernel_size)
-        modules = ModuleDict()
-        conv_args = (in_channels, out_channels,
-                     kernel_size + 1, stride, padding)
-
-        modules['conv_layer'] = nn.ConvTranspose2d(
-            *conv_args, output_padding) if upscale else nn.Conv2d(*conv_args)
-
-        super().__init__(in_channels, out_channels, modules, **kwargs)
-
-        self.register_parameter(
-            name='kernel', param=nn.parameter.Parameter(torch.ones(weights_shape)))
-        self.register_forward_pre_hook(self.kernel_padding_hook)
-        self.conv_layer = spectral_norm(self.conv_layer)
-
-    @staticmethod
-    def kernel_padding_hook(module, *args):
-        weights = F.pad(module.weight, [1, 1, 1, 1])
-        module.kernel = Parameter(
-            weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
-
-    def forward(self, input: Tensor, **kwargs) -> Tensor:
-        net = input
-        batch_size, channels, image_width, image_height = input.shape
-        for module in self.children():
-            if type(module) == ConvTranspose2d:
-                net = module(net, output_size=(
-                    batch_size, channels, image_width * 2, image_height * 2))
-            else:
-                net = module(net, **kwargs)
-        return net
