@@ -1,3 +1,6 @@
+from torch.nn.utils.spectral_norm import spectral_norm
+from models.generative.Initialization.XavierInitializer import XavierInitializer
+from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 from models.generative.ConvolutionalBlock import ConvolutionalBlock
 import torch
@@ -6,24 +9,8 @@ import torch.nn.functional as F
 from .ResidualBlock import ResidualBlock
 from .AttentionBlock import AttentionBlock
 from .DenseBlock import DenseBlock
-from .ConvolutionalScale import ConvolutionalScaleVanilla
-
-'''
-TODO: Remove soon
-output, logits = discriminator_resnet
-(
-        images=images,
-        layers=self.layers, 5
-        spectral=True,
-        activation=leakyReLU, alpha = 0.2
-        reuse=reuse,
-        attention=self.attention, 28
-        init=init, 
-        regularizer=orthogonal_reg(self.regularizer_scale), scale 10e-4
-        label=label_input, None
-        label_t=self.label_t
-)
-'''
+from .ConvolutionalScale import ConvScaleBlock
+import copy
 
 class DiscriminatorResnet(nn.Module):
     def __init__(
@@ -46,9 +33,12 @@ class DiscriminatorResnet(nn.Module):
 
         default_kwargs = {
             'normalization': None,
-            'regularization': 'spectral',
-            'noise_input': False
+            'regularization': spectral_norm,
+            'noise_input': None,
+            'activation': LeakyReLU(0.2),
+            'initializer': XavierInitializer
         }
+
 
         for layer in range(layers):
             # Spectral norm, init mode, regularizer and activation should be added
@@ -78,8 +68,8 @@ class DiscriminatorResnet(nn.Module):
 
             # Downsample
 
-            down = ConvolutionalScaleVanilla(
-                in_channels=in_channels, out_channels=out_channels, kernel_size=4, stride=1, padding=2, **default_kwargs)
+            down = ConvScaleBlock(
+                in_channels=in_channels, out_channels=out_channels, kernel_size=4, stride=2, padding=2, **default_kwargs)
 
             self.conv_part.add_module(f'DownScale_{layer}', down)
             in_channels = out_channels
@@ -104,7 +94,8 @@ class DiscriminatorResnet(nn.Module):
         with torch.enable_grad():
             orth_loss = torch.zeros(1)
             for name, param in self.named_parameters():
-                if 'bias' not in name and 'Scale' not in name and 'gamma' not in name or 'Scale' in name and 'kernel' in name:
+                # Ignore bias, scalars and scale layers
+                if 'bias' not in name and 'Scale' not in name and len(param.shape) > 1:
                     param_flat = param.view(param.shape[0], -1)
                     sym = torch.mm(param_flat, torch.t(param_flat))
                     sym -= torch.eye(param_flat.shape[0])
@@ -117,6 +108,7 @@ class DiscriminatorResnet(nn.Module):
 
         for m in self.conv_part.children():
             data = m(data, **kwargs)
+            print(data.shape)
 
         # Flatten
         data = data.reshape((batch_size, -1))

@@ -8,18 +8,12 @@ from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 from torch import nn
 from typing import Union, Dict, Any, Optional, List
+from utils import max_singular_value
 
 from .Block import Block
-from .ConvolutionalBlock import ConvolutionalBlock
 
 
-def kernel_padding_hook(module, *args):
-    weights = F.pad(module.weight, [1, 1, 1, 1])
-    module.kernel = nn.Parameter(
-        weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
-
-
-class ConvolutionalScale(nn.Module):
+class ConvScaleBlock(Block):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
@@ -30,7 +24,26 @@ class ConvolutionalScale(nn.Module):
                  output_size: List[int] = None,
                  **kwargs) -> None:
 
-        super().__init__()
+        layer__name = 'upscale_layer' if upscale else 'downscale_layer'
+        layer_dict = ModuleDict()
+        layer = ConvolutionalScale(
+            in_channels, out_channels, kernel_size, stride, padding, upscale, output_size)
+        layer_dict[layer__name] = layer
+        kwargs['regularization'] = lambda x: x
+        super().__init__(in_channels, out_channels, layer_dict, **kwargs)
+
+
+class ConvolutionalScale(nn.Conv2d):
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int,
+                 stride: int = 2,
+                 padding: Union[int, tuple] = 1,
+                 upscale: bool = False,
+                 output_size: List[int] = None,
+                 **kwargs) -> None:
+        super().__init__(in_channels, out_channels, kernel_size)
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = (kernel_size + 1, kernel_size + 1)
@@ -43,24 +56,34 @@ class ConvolutionalScale(nn.Module):
         if self.upscale:
             self.weight = Parameter(torch.Tensor(
                 in_channels, out_channels, kernel_size, kernel_size))
-            self.kernel = Parameter(torch.Tensor(
-                in_channels, out_channels, *self.kernel_size))
         else:
             self.weight = Parameter(torch.Tensor(
                 out_channels, in_channels, kernel_size, kernel_size))
-            self.kernel = Parameter(torch.Tensor(
-                out_channels, in_channels, *self.kernel_size))
 
         self.bias = Parameter(torch.Tensor(out_channels))
-        self.register_forward_hook(kernel_padding_hook)
+        if self.upscale:
+            self.register_buffer('u', torch.Tensor(1, in_channels).normal_())
+        else:
+            self.register_buffer('u', torch.Tensor(1, out_channels).normal_())
+
+    @property
+    def W_(self):
+        weights = F.pad(self.weight, [1, 1, 1, 1])
+        weights = weights[:, :, 1:, 1:] + weights[:, :, 1:, :-
+                                                  1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1]
+        w_mat = weights.view(weights.size(0), -1)
+        sigma, _u = max_singular_value(w_mat, self.u, 1)
+        self.u.copy_(_u)
+        return weights / sigma
 
     def forward(self, input: Tensor, **kwargs: Dict[str, Any]) -> Tensor:
+
         if self.upscale:
             output_padding = self._output_padding(
                 input, self.output_size, self.stride, self.padding, self.kernel_size)
-            return F.conv_transpose2d(input, self.kernel, self.bias, self.stride, self.padding, output_padding=output_padding, groups=1, dilation=1)
+            return F.conv_transpose2d(input, self.W_, self.bias, self.stride, self.padding, output_padding=output_padding, groups=1, dilation=1)
         else:
-            return F.conv2d(input, self.kernel, self.bias, self.stride, self.padding, self.dilation, groups=1)
+            return F.conv2d(input, self.W_, self.bias, self.stride, self.padding, self.dilation, groups=1)
 
     '''
     This block was taken from torch source code 
@@ -131,8 +154,14 @@ class ConvolutionalScaleVanilla(Block):
 
         self.register_parameter(
             name='kernel', param=nn.parameter.Parameter(torch.ones(weights_shape)))
-        self.register_forward_hook(kernel_padding_hook)
+        self.register_forward_pre_hook(self.kernel_padding_hook)
         self.conv_layer = spectral_norm(self.conv_layer)
+
+    @staticmethod
+    def kernel_padding_hook(module, *args):
+        weights = F.pad(module.weight, [1, 1, 1, 1])
+        module.kernel = Parameter(
+            weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
 
     def forward(self, input: Tensor, **kwargs) -> Tensor:
         net = input

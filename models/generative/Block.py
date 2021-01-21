@@ -4,8 +4,8 @@ from torch import Tensor
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
-from .normalization.AbstractNormalization import AbstractNormalization
-from .initialization.AbstractInitializer import AbstractInitializer
+from .Normalization.AbstractNormalization import AbstractNormalization
+from .Initialization.AbstractInitializer import AbstractInitializer
 
 class Block(nn.Module):
     def __init__(self,
@@ -43,8 +43,9 @@ class Block(nn.Module):
         
         if initializer is not None:
             self.initializer = initializer(self)
+            self.initializer.initialize_weights()
     
-    def forward(self, inputs: Tensor, latent_input: Tensor) -> Tensor: 
+    def forward(self, inputs: Tensor, latent_input: Optional[Tensor] = None) -> Tensor: 
         net = inputs
         for module in self.children():
             net = module(net, latent_input) if isinstance(module, AbstractNormalization) else module(net)
