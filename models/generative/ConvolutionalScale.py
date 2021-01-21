@@ -1,62 +1,106 @@
 import torch
 from torch import Tensor
 from torch.nn.modules.conv import ConvTranspose2d
+from torch.nn.parameter import Parameter
 from torch.nn.utils.spectral_norm import spectral_norm
 import torch.nn.functional as F
 from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 from torch import nn
-from typing import Optional, Tuple, Union
+from typing import Union, Dict, Any, Optional, List
 
 from .Block import Block
 from .ConvolutionalBlock import ConvolutionalBlock
 
 
 def kernel_padding_hook(module, *args):
-    weights = F.pad(module.kernel, [1, 1, 1, 1])
-    module.conv_layer.weight = nn.Parameter(
-            weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
+    weights = F.pad(module.weight, [1, 1, 1, 1])
+    module.kernel = nn.Parameter(
+        weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
 
-class ConvolutionalScale(ConvolutionalBlock):
+
+class ConvolutionalScale(nn.Module):
     def __init__(self,
-                 *args,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int,
+                 stride: int = 2,
+                 padding: Union[int, tuple] = 1,
+                 upscale: bool = False,
+                 output_size: List[int] = None,
                  **kwargs) -> None:
 
-        kwargs['transpose'] = kwargs['upscale']
-        del kwargs['upscale']
+        super().__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = (kernel_size + 1, kernel_size + 1)
+        self.stride = (stride, stride)
+        self.padding = padding if type(padding) != int else (padding, padding)
+        self.upscale = upscale
+        self.output_size = output_size
+        self.dilation = 1
 
-        super().__init__(*args, **kwargs)
-        
-        # Set the stride to 2 for both Up and Downscaling
-        self.conv_layer.stride = 2
-
-        # Additional weight initialization used by authors for Up and Downscaling
-        weights = F.pad(self.conv_layer.weight, [1, 1, 1, 1])
-        self.conv_layer.weight = nn.Parameter(
-            weights[:, :, 1:, 1:] + weights[:, :, 1:, :-1] + weights[:, :, :-1, 1:] + weights[:, :, :-1, :-1])
-
-        # The filter is incremented in both directions
-        filter_size = self.conv_layer.kernel_size[0] + 1
-        self.conv_layer.kernel_size = (filter_size, filter_size)
-
-    def forward(self, input: Tensor) -> Tensor:
-        return self.conv_layer(input)
-
-    @staticmethod
-    def calculate_padding_upscale(input_size: int,
-                          stride: int, kernel_size: int) -> Tuple[int, int]:
-        # Rest = out_pad - 2 * pad
-        output_size = 2 * input_size
-        rest = output_size - (input_size - 1) * stride  - (kernel_size -1) - 1
-        if rest == 0:
-            return 0, 0
-        elif rest < 0:
-            if rest % 2 == 0:
-                return rest // -2, 0
-            else:
-                return rest // -2 + 1, 1
+        if self.upscale:
+            self.weight = Parameter(torch.Tensor(
+                in_channels, out_channels, kernel_size, kernel_size))
+            self.kernel = Parameter(torch.Tensor(
+                in_channels, out_channels, *self.kernel_size))
         else:
-            return 0, rest
+            self.weight = Parameter(torch.Tensor(
+                out_channels, in_channels, kernel_size, kernel_size))
+            self.kernel = Parameter(torch.Tensor(
+                out_channels, in_channels, *self.kernel_size))
+
+        self.bias = Parameter(torch.Tensor(out_channels))
+        self.register_forward_hook(kernel_padding_hook)
+
+    def forward(self, input: Tensor, **kwargs: Dict[str, Any]) -> Tensor:
+        if self.upscale:
+            output_padding = self._output_padding(
+                input, self.output_size, self.stride, self.padding, self.kernel_size)
+            return F.conv_transpose2d(input, self.kernel, self.bias, self.stride, self.padding, output_padding=output_padding, groups=1, dilation=1)
+        else:
+            return F.conv2d(input, self.kernel, self.bias, self.stride, self.padding, self.dilation, groups=1)
+
+    '''
+    This block was taken from torch source code 
+    '''
+
+    def _output_padding(self, input, output_size, stride, padding, kernel_size):
+        # type: (Tensor, Optional[List[int]], List[int], List[int], List[int]) -> List[int]
+        k = input.dim() - 2
+        if len(output_size) == k + 2:
+            output_size = output_size[2:]
+        if len(output_size) != k:
+            raise ValueError(
+                "output_size must have {} or {} elements (got {})"
+                .format(k, k + 2, len(output_size)))
+
+        min_sizes = torch.jit.annotate(List[int], [])
+        max_sizes = torch.jit.annotate(List[int], [])
+        for d in range(k):
+            dim_size = ((input.size(d + 2) - 1) * stride[d] -
+                        2 * padding[d] + kernel_size[d])
+            min_sizes.append(dim_size)
+            max_sizes.append(min_sizes[d] + stride[d] - 1)
+
+        for i in range(len(output_size)):
+            size = output_size[i]
+            min_size = min_sizes[i]
+            max_size = max_sizes[i]
+            if size < min_size or size > max_size:
+                raise ValueError((
+                    "requested an output size of {}, but valid sizes range "
+                    "from {} to {} (for an input of {})").format(
+                        output_size, min_sizes, max_sizes, input.size()[2:]))
+
+        res = torch.jit.annotate(List[int], [])
+        for d in range(k):
+            res.append(output_size[d] - min_sizes[d])
+
+        ret = res
+        return ret
+
 
 class ConvolutionalScaleVanilla(Block):
     def __init__(self,
@@ -64,35 +108,39 @@ class ConvolutionalScaleVanilla(Block):
                  out_channels: int,
                  kernel_size: int,
                  stride: int,
-                 padding: Union[int,tuple],
+                 padding: Union[int, tuple],
                  output_padding: int = 0,
                  upscale: bool = False,
                  **kwargs
                  ) -> None:
-        
+
         stride = 2
         regularization = None
         self.upscale = upscale
 
-        weights_shape = (in_channels, out_channels, kernel_size, kernel_size) if upscale else (out_channels, in_channels, kernel_size, kernel_size)
+        weights_shape = (in_channels, out_channels, kernel_size, kernel_size) if upscale else (
+            out_channels, in_channels, kernel_size, kernel_size)
         modules = ModuleDict()
-        conv_args = (in_channels, out_channels, kernel_size + 1, stride, padding)
-        
-        modules['conv_layer'] = nn.ConvTranspose2d(*conv_args, output_padding) if upscale else nn.Conv2d(*conv_args)
-        
+        conv_args = (in_channels, out_channels,
+                     kernel_size + 1, stride, padding)
+
+        modules['conv_layer'] = nn.ConvTranspose2d(
+            *conv_args, output_padding) if upscale else nn.Conv2d(*conv_args)
+
         super().__init__(in_channels, out_channels, modules, **kwargs)
 
-        self.register_parameter(name='kernel', param = nn.parameter.Parameter(torch.ones(weights_shape)))
+        self.register_parameter(
+            name='kernel', param=nn.parameter.Parameter(torch.ones(weights_shape)))
         self.register_forward_hook(kernel_padding_hook)
         self.conv_layer = spectral_norm(self.conv_layer)
 
-    def forward(self, input : Tensor, **kwargs) -> Tensor: 
+    def forward(self, input: Tensor, **kwargs) -> Tensor:
         net = input
         batch_size, channels, image_width, image_height = input.shape
         for module in self.children():
             if type(module) == ConvTranspose2d:
-                net = module(net, output_size=(batch_size, channels, image_width * 2, image_height * 2))
+                net = module(net, output_size=(
+                    batch_size, channels, image_width * 2, image_height * 2))
             else:
                 net = module(net, **kwargs)
         return net
-
