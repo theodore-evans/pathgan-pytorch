@@ -11,7 +11,7 @@ class Block(nn.Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 modules: Optional[ModuleDict] = None,
+                 module_dict: Optional[ModuleDict] = None,
                  latent_dim: Optional[int] = None,
                  regularization: Optional[Callable[[nn.Module], nn.Module]] = lambda x: x,
                  noise_input: Optional[Callable[[int], nn.Module]] = None,
@@ -25,8 +25,8 @@ class Block(nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         
-        if modules is not None:
-            for module_name, module in modules.items():
+        if module_dict is not None:
+            for module_name, module in module_dict.items():
                 self.add_module(module_name, regularization(module))
                         
         if noise_input is not None:

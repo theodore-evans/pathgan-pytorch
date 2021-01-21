@@ -11,7 +11,6 @@ from typing import Optional, Tuple, Union
 from .Block import Block
 from .ConvolutionalBlock import ConvolutionalBlock
 
-
 def kernel_padding_hook(module, *args):
     weights = F.pad(module.kernel, [1, 1, 1, 1])
     module.conv_layer.weight = nn.Parameter(
