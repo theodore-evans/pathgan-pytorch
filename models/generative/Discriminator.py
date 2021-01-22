@@ -1,5 +1,5 @@
 from torch.nn.utils.spectral_norm import spectral_norm
-from models.generative.Initialization.XavierInitializer import XavierInitializer
+from models.generative.initialization.XavierInitializer import XavierInitializer
 from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 from models.generative.ConvolutionalBlock import ConvolutionalBlock
@@ -69,7 +69,7 @@ class DiscriminatorResnet(nn.Module):
             # Downsample
 
             down = ConvScaleBlock(
-                in_channels=in_channels, out_channels=out_channels, kernel_size=4, stride=2, padding=2, **default_kwargs)
+                in_channels=in_channels, out_channels=out_channels, kernel_size=4, padding=2, **default_kwargs)
 
             self.conv_part.add_module(f'DownScale_{layer}', down)
             in_channels = out_channels
