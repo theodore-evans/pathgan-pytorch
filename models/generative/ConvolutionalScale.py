@@ -1,13 +1,12 @@
 import torch
+import torch.jit
 from torch import Tensor
 from torch.nn.modules.conv import ConvTranspose2d
 from torch.nn.parameter import Parameter
-from torch.nn.utils.spectral_norm import spectral_norm
 import torch.nn.functional as F
-from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 from torch import nn
-from typing import Union, Dict, Any, Optional, List
+from typing import Tuple, Union, Dict, Any, Optional, List
 from utils import max_singular_value
 
 from .Block import Block
@@ -32,25 +31,23 @@ class ConvScaleBlock(Block):
         super().__init__(in_channels, out_channels, layer_dict, **kwargs)
 
 
-class ConvolutionalScale(nn.Conv2d):
+class ConvolutionalScale(nn.ConvTranspose2d):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 kernel_size: int,
-                 stride: int = 2,
-                 padding: Union[int, tuple] = 1,
+                 kernel_size: Union[int, Tuple[int, int]],
+                 stride: Union[int, Tuple[int, int]] = 2,
+                 padding: Union[int, Tuple[int, int]] = 1,
                  upscale: bool = False,
                  output_size: List[int] = None,
                  **kwargs) -> None:
-        super().__init__(in_channels, out_channels, kernel_size)
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.kernel_size = (kernel_size + 1, kernel_size + 1)
-        self.stride = (stride, stride)
-        self.padding = padding if type(padding) != int else (padding, padding)
+        
+        kernel_size = (kernel_size[0] + 1, kernel_size[1] + 1) if isinstance(kernel_size, tuple) else (kernel_size + 1, kernel_size + 1)
+        
+        super().__init__(in_channels, out_channels, kernel_size, stride, padding, **kwargs)
+        
         self.upscale = upscale
         self.output_size = output_size
-        self.dilation = 1
 
         if self.upscale:
             self.weight = Parameter(torch.Tensor(
@@ -82,50 +79,10 @@ class ConvolutionalScale(nn.Conv2d):
         self.u.copy_(_u)
         return weights / sigma
 
-    def forward(self, input: Tensor, **kwargs: Dict[str, Any]) -> Tensor:
+    def forward(self, inputs: Tensor, **kwargs: Dict[str, Any]) -> Tensor:
         if self.upscale:
             output_padding = self._output_padding(
-                input, self.output_size, self.stride, self.padding, self.kernel_size)
-            return F.conv_transpose2d(input, self.W_, self.bias, self.stride, self.padding, output_padding=output_padding, groups=1, dilation=1)
+                inputs, self.output_size, list(self.stride), list(self.padding), list(self.kernel_size))
+            return F.conv_transpose2d(inputs, self.W_, self.bias, self.stride, self.padding, output_padding=output_padding, groups=1, dilation=1)
         else:
-            return F.conv2d(input, self.W_, self.bias, self.stride, self.padding, self.dilation, groups=1)
-
-    '''
-    This block was taken from torch source code 
-    '''
-
-    def _output_padding(self, input, output_size, stride, padding, kernel_size):
-        # type: (Tensor, Optional[List[int]], List[int], List[int], List[int]) -> List[int]
-        k = input.dim() - 2
-        if len(output_size) == k + 2:
-            output_size = output_size[2:]
-        if len(output_size) != k:
-            raise ValueError(
-                "output_size must have {} or {} elements (got {})"
-                .format(k, k + 2, len(output_size)))
-
-        min_sizes = torch.jit.annotate(List[int], [])
-        max_sizes = torch.jit.annotate(List[int], [])
-        for d in range(k):
-            dim_size = ((input.size(d + 2) - 1) * stride[d] -
-                        2 * padding[d] + kernel_size[d])
-            min_sizes.append(dim_size)
-            max_sizes.append(min_sizes[d] + stride[d] - 1)
-
-        for i in range(len(output_size)):
-            size = output_size[i]
-            min_size = min_sizes[i]
-            max_size = max_sizes[i]
-            if size < min_size or size > max_size:
-                raise ValueError((
-                    "requested an output size of {}, but valid sizes range "
-                    "from {} to {} (for an input of {})").format(
-                        output_size, min_sizes, max_sizes, input.size()[2:]))
-
-        res = torch.jit.annotate(List[int], [])
-        for d in range(k):
-            res.append(output_size[d] - min_sizes[d])
-
-        ret = res
-        return ret
-
+            return F.conv2d(inputs, self.W_, self.bias, self.stride, self.padding, self.dilation, groups=1)
