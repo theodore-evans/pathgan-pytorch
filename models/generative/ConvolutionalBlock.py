@@ -7,6 +7,7 @@ from torch.nn.modules.conv import Conv2d
 
 from .Block import Block
 from .ConvolutionalScale import ConvolutionalScale
+from .utils import apply_same_padding
 
 class ConvolutionalBlock(Block):
     def __init__(self,
@@ -20,7 +21,7 @@ class ConvolutionalBlock(Block):
         out_channels = conv_layer.out_channels
         
         if same_padding:
-            self.apply_same_padding(conv_layer)
+            apply_same_padding(conv_layer)
         
         if layer_name is None:
             layer_name = 'conv_layer' if isinstance(conv_layer, nn.Conv2d) else 'conv_transpose_layer'
@@ -28,14 +29,6 @@ class ConvolutionalBlock(Block):
         module_dict = ModuleDict({layer_name : conv_layer})
         
         super().__init__(in_channels, out_channels, module_dict, **kwargs)
-    
-    def apply_same_padding(self, conv_layer):
-        effective_filter_size = lambda i : conv_layer.dilation[i] * (conv_layer.kernel_size[i] - 1) + 1
-        for dim in range(2):
-            if effective_filter_size(dim) % 2 == 0:
-                raise Exception("In order to correctly pad input, filter size (dilation*(kernel-1)+1) must be odd")
-        conv_layer.padding = ( (effective_filter_size(0) - 1) // 2, (effective_filter_size(1) - 1) // 2 )
-
 class UpscaleBlock(ConvolutionalBlock):
     def __init__(self,
                  in_channels: int,

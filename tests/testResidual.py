@@ -1,7 +1,5 @@
 import unittest
 import torch
-import numpy as np
-import torch.nn.functional as F
 from torch import nn
 
 from models.generative.ConvolutionalBlock import ConvolutionalBlock
@@ -13,7 +11,7 @@ class TestResidual(unittest.TestCase):
 
     def test_vanilla_deep_copy(self):
         conv = ConvolutionalBlock(
-            in_channels=3, out_channels=3, kernel_size=3, stride=1, normalization =None, maintain_size=True)
+            nn.Conv2d(in_channels=3, out_channels=3, kernel_size=3, stride=1), normalization =None)
         res = ResidualBlock(2, conv)
         res.part_1.conv_layer.weight[0,0,1,1] += 3.5
         out = res(self.data)

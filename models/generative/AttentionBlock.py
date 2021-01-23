@@ -17,15 +17,15 @@ class AttentionBlock(Block):
 
         super().__init__(channels, channels, None)
 
-        conv_kwargs = dict({'kernel_size': 1, 'stride': 1,
-                            'padding': 0, 'regularization': regularization})
+        conv_kwargs = dict({'kernel_size': 1, 'stride': 1})
+        kwargs = ({'regularization': regularization})
 
-        self.attention_f = ConvolutionalBlock(
-            in_channels=channels, out_channels=f_g_channels, **conv_kwargs, **kwargs)
-        self.attention_g = ConvolutionalBlock(
-            in_channels=channels, out_channels=f_g_channels, **conv_kwargs, **kwargs)
-        self.attention_h = ConvolutionalBlock(
-            in_channels=channels, out_channels=channels, **conv_kwargs, **kwargs)
+        self.attention_f = ConvolutionalBlock(nn.Conv2d(
+            in_channels=channels, out_channels=f_g_channels, **conv_kwargs), **kwargs)
+        self.attention_g = ConvolutionalBlock(nn.Conv2d(
+            in_channels=channels, out_channels=f_g_channels, **conv_kwargs), **kwargs)
+        self.attention_h = ConvolutionalBlock(nn.Conv2d(
+            in_channels=channels, out_channels=channels, **conv_kwargs), **kwargs)
 
         self.gamma = nn.Parameter(torch.zeros(1), requires_grad=True)
 
