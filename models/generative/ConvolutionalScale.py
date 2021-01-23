@@ -3,56 +3,29 @@ import torch.jit
 from torch import Tensor
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
-from torch.nn.modules.container import ModuleDict
 from torch import nn
-from typing import Tuple, Union, Dict, Any, Optional, List
-from warnings import warn
+from typing import Tuple, Union
 
-from .Block import Block
 from .utils import max_singular_value
-
-class ConvScaleBlock(Block):
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 kernel_size: Union[int, tuple],
-                 padding: Union[int, tuple] = 1,
-                 upscale: bool = False,
-                 **kwargs) -> None:
-
-        layer__name = 'upscale_layer' if upscale else 'downscale_layer'
-        layer_dict = ModuleDict()
-        layer = ConvolutionalScale(
-            in_channels, out_channels, kernel_size, padding, upscale)
-        layer_dict[layer__name] = layer
-        kwargs['regularization'] = lambda x: x
-        super().__init__(in_channels, out_channels, layer_dict, **kwargs)
-
-
 class ConvolutionalScale(nn.ConvTranspose2d):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
                  kernel_size: Union[int, Tuple[int, int]],
-                 padding: Union[int, Tuple[int, int]] = 1,
+                 padding: Union[int, Tuple[int, int]] = 0,
                  upscale: bool = False,
                  **kwargs) -> None:
-        
+
+        # FIXME: this step doesn't make sense, as we are essentially incrementing the kernel size twice
+        # which causes all sorts of problems further down the line, including making sure that 
+        # _output_padding doesn't work correctly, which is why the tests are failing
         kernel_size = (kernel_size[0] + 1, kernel_size[1] + 1) if isinstance(kernel_size, tuple) else (kernel_size + 1, kernel_size + 1)
         
-        stride = 2
-        super().__init__(in_channels, out_channels, kernel_size, stride, padding, **kwargs)
+        super().__init__(in_channels, out_channels, kernel_size, stride=2, padding=padding)
         
         self.upscale = upscale
-
-        if self.upscale:
-            ineq = lambda i: self.dilation[i] * (self.kernel_size[i] - 1) - 2 * self.padding[i]
-            for i in range(2):
-                if ineq(i) < 0 or ineq(i) > 2:
-                    raise Exception("Invalid parameters for upscale layer. For correct output padding,",
-                                    "the following inequality must hold: ",
-                                    "0 <= dilation * (kernel_size - 1) - 2 * padding <= 2")
         
+        if self.upscale:
             self.weight = Parameter(
                 torch.Tensor(in_channels, out_channels, kernel_size[0], kernel_size[1])
                 )

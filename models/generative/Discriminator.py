@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from .ResidualBlock import ResidualBlock
 from .AttentionBlock import AttentionBlock
 from .DenseBlock import DenseBlock
-from .ConvolutionalScale import ConvScaleBlock
+from .ConvolutionalBlock import UpscaleBlock, DownscaleBlock, ConvolutionalBlock
 import copy
 
 class DiscriminatorResnet(nn.Module):
@@ -53,8 +53,7 @@ class DiscriminatorResnet(nn.Module):
             # TODOs: implement orho regularizer, inits and spectral norms
 
             # Res Block
-            inner_res = ConvolutionalBlock(
-                in_channels=in_channels, out_channels=in_channels, kernel_size=3, stride=1, padding=1, **default_kwargs)
+            inner_res = ConvolutionalBlock(nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1) **default_kwargs)
             res_block = ResidualBlock(
                 num_blocks=2, block_template=inner_res, **default_kwargs)
 
@@ -68,8 +67,8 @@ class DiscriminatorResnet(nn.Module):
 
             # Downsample
 
-            down = ConvScaleBlock(
-                in_channels=in_channels, out_channels=out_channels, kernel_size=4, padding=2, **default_kwargs)
+            down = DownscaleBlock(
+                in_channels=in_channels, out_channels=out_channels, kernel_size=4, **default_kwargs)
 
             self.conv_part.add_module(f'DownScale_{layer}', down)
             in_channels = out_channels

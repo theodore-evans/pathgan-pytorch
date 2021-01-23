@@ -13,7 +13,7 @@ class TestResidual(unittest.TestCase):
 
     def test_vanilla_deep_copy(self):
         conv = ConvolutionalBlock(
-            in_channels=3, out_channels=3, kernel_size=3, stride=1, normalization =None, pad_to_maintain_size=True)
+            in_channels=3, out_channels=3, kernel_size=3, stride=1, normalization =None, maintain_size=True)
         res = ResidualBlock(2, conv)
         res.part_1.conv_layer.weight[0,0,1,1] += 3.5
         out = res(self.data)
