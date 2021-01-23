@@ -11,14 +11,15 @@ class XavierInitializer(AbstractInitializer):
         self.module = module
     
     def initialize_weights(self) -> None:
-        nonlinearity_lookup = dict({
+        gain_param_lookup = dict({
                 nn.Tanh : dict({'nonlinearity' : 'tanh'}),
                 nn.ReLU : dict({'nonlinearity' :'relu'}),
                 nn.LeakyReLU : dict({'nonlinearity' : 'leaky_relu', 'param' : 0.2})
             })
         
-        if self.module.activation is not None and type(self.module.activation) in nonlinearity_lookup:
-            gain = calculate_gain(**nonlinearity_lookup[type(self.module.activation)])
+        activation = self.module.activation
+        if activation is not None and type(activation) in gain_param_lookup:
+            gain = calculate_gain(**gain_param_lookup[type(activation)])
         else:
             gain = 1
         

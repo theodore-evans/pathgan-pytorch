@@ -12,15 +12,15 @@ class ConvolutionalBlock(Block):
     def __init__(self,
                  conv_layer: Union[nn.Conv2d, nn.ConvTranspose2d],
                  layer_name: Optional[str] = None,
-                 keep_input_size: bool = True,
+                 same_padding: bool = True,
                  **kwargs
                  ) -> None:
         
         in_channels = conv_layer.in_channels
         out_channels = conv_layer.out_channels
         
-        if keep_input_size:
-            self.pad_to_maintain_size(conv_layer)
+        if same_padding:
+            self.apply_same_padding(conv_layer)
         
         if layer_name is None:
             layer_name = 'conv_layer' if isinstance(conv_layer, nn.Conv2d) else 'conv_transpose_layer'
@@ -29,11 +29,11 @@ class ConvolutionalBlock(Block):
         
         super().__init__(in_channels, out_channels, module_dict, **kwargs)
     
-    def pad_to_maintain_size(self, conv_layer):
+    def apply_same_padding(self, conv_layer):
         effective_filter_size = lambda i : conv_layer.dilation[i] * (conv_layer.kernel_size[i] - 1) + 1
         for dim in range(2):
             if effective_filter_size(dim) % 2 == 0:
-                raise Exception("In order to correctly pad input, effective filter size must be odd")
+                raise Exception("In order to correctly pad input, filter size (dilation*(kernel-1)+1) must be odd")
         conv_layer.padding = ( (effective_filter_size(0) - 1) // 2, (effective_filter_size(1) - 1) // 2 )
 
 class UpscaleBlock(ConvolutionalBlock):
