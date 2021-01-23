@@ -3,22 +3,21 @@ from torch import Tensor
 import torch
 import torch.nn as nn
 
-#https://github.com/lernapparat/lernapparat/blob/master/style_gan/pytorch_style_gan.ipynb
+# https://github.com/lernapparat/lernapparat/blob/master/style_gan/pytorch_style_gan.ipynb
 class NoiseInput(nn.Module):
     def __init__(self,
                  channels : int
                  ) -> None:
         super().__init__()
-        self.weight = nn.Parameter(torch.rand(channels))
-        self.noise = None
+        self.weight = nn.Parameter(torch.randn(1, channels, 1, 1))
 
     def forward(self, inputs : Tensor, noise : Optional[Tensor] = None) -> Tensor:
         if noise is None:
             # here is a little trick: if you get all the noiselayers and set each
             # modules .noise attribute, you can have pre-defined noise.
             # Very useful for analysis
-            if self.noise is not None:
-                noise = self.noise
+            if hasattr(self, 'noise') and self.noise is not None:
+                noise = self.noise # type: ignore
             else:
                 noise = torch.randn(inputs.size(0), 1, inputs.size(2), inputs.size(3), device=inputs.device, dtype=inputs.dtype)
         
