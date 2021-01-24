@@ -1,6 +1,4 @@
 import torch
-from torch._C import Value
-import torch.jit
 from torch import Tensor
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
@@ -18,18 +16,15 @@ class ConvolutionalScale(nn.ConvTranspose2d):
                  same_padding: bool = True,
                  **kwargs) -> None:
 
-        self.upscale = upscale
+        self._upscale = upscale
        
         super().__init__(in_channels, out_channels, kernel_size, stride=2, padding=padding)
         
-        # FIXME?: apply_same_padding method made static and inserted here for testing, 
-        # the same padding also happens in ConvolutionalBlock
-        # there may be a better place for it
         if same_padding:
-                apply_same_padding(self)
+                apply_same_padding(self) #FIXME: I don't really like that this is a global method, but it will have to do for now
 
         channels = (in_channels, out_channels) if upscale else (out_channels, in_channels)
-        reduced_kernel_size = tuple(k - 1 for k in self.kernel_size)
+        reduced_kernel_size = (self.kernel_size[0] - 1, self.kernel_size[1] - 1)
         
         self.weight = Parameter(torch.Tensor(*channels, *reduced_kernel_size))
         self.bias = Parameter(torch.Tensor(out_channels))
@@ -55,12 +50,15 @@ class ConvolutionalScale(nn.ConvTranspose2d):
 
     def forward(self, inputs: Tensor, output_size: Optional[List[int]] = None) -> Tensor:
         conv_parameters = dict({'stride': self.stride, 'padding': self.padding, 'dilation': self.dilation})
-        if self.upscale:
+        
+        weight = self.W_
+        filter_size = (weight.size(2), weight.size(3))
+        
+        if self._upscale:
             if output_size is None:
                 output_size = [inputs.size(2) * 2, inputs.size(3) * 2]
-
-            output_padding = self._output_padding(
-                inputs, output_size, list(self.stride), list(self.padding), list(self.kernel_size), list(self.dilation))
-            return F.conv_transpose2d(inputs, self.W_, self.bias, output_padding=output_padding, groups=1, **conv_parameters)
+            params = (list(param) for param in (self.stride, self.padding, filter_size, self.dilation))
+            output_padding = self._output_padding(inputs, output_size, *params)
+            return F.conv_transpose2d(inputs, weight, self.bias, **conv_parameters, output_padding=output_padding, groups=1)
         else:
-            return F.conv2d(inputs, self.W_, self.bias, groups=1, **conv_parameters)
+            return F.conv2d(inputs, weight, self.bias, **conv_parameters, groups=1)

@@ -25,7 +25,7 @@ class AdaptiveInstanceNormalization(AbstractNormalization, nn.Module):
         if intermediate_channels is not None:
             self.dense_layer = nn.Linear(latent_dim, intermediate_channels)
             in_channels = intermediate_channels
-            self.dense_activation = dense_activation
+            self.dense_activation = dense_activation if dense_activation is not None else lambda x:x
         else: 
             self.dense_layer = None
             in_channels = latent_dim
@@ -33,14 +33,14 @@ class AdaptiveInstanceNormalization(AbstractNormalization, nn.Module):
         out_channels = channels
         
         self.gamma_layer = nn.Linear(in_channels, out_channels)
-        self.gamma_activation = gamma_activation
+        self.gamma_activation = gamma_activation if gamma_activation is not None else lambda x:x
         
         self.beta_layer = nn.Linear(in_channels, out_channels)
-        self.beta_activation = beta_activation
+        self.beta_activation = beta_activation if beta_activation is not None else lambda x:x
 
     def forward(self, 
-                input_tensor: Tensor, 
-                latent_input: Optional[Tensor] = None
+                input_tensor: Tensor,
+                latent_input: Optional[Tensor]
                 ) -> Tensor:
         
         if latent_input is None:
@@ -50,18 +50,14 @@ class AdaptiveInstanceNormalization(AbstractNormalization, nn.Module):
         normalized_input = self.instance_norm(input_tensor)
         
         if self.dense_layer is not None:
-            intermediate_result = self.dense_layer(latent_input)
-            if self.dense_activation is not None: 
-                intermediate_result = self.dense_activation(intermediate_result)
+            intermediate_result = self.dense_activation(self.dense_layer(latent_input))
         else: intermediate_result = latent_input
         
-        gamma = self.gamma_layer(intermediate_result)[:, :]
-        if self.gamma_activation is not None:
-            gamma = self.gamma_activation(gamma)
+        gamma = self.gamma_activation(self.gamma_layer(intermediate_result))
+        beta = self.beta_activation(self.beta_layer(intermediate_result))
         
-        beta = self.beta_layer(intermediate_result)[:, :]
-        if self.beta_activation is not None:
-            beta = self.beta_activation(beta)
+        style_shift_transform = beta[:, : , None , None]
+        style_scale_transform = gamma[:, :, None, None]
         
-        transformed_input = gamma * normalized_input + beta
+        transformed_input = style_scale_transform * normalized_input + style_shift_transform
         return transformed_input

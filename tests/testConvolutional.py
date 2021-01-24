@@ -55,5 +55,5 @@ class TestConvolutional(unittest.TestCase):
                                    stride=2, padding=0, normalization=None, upscale=True, output_padding=1)
 
         self.assertEqual(scale.weight.shape, (in_channels, out_channels, kernel_size - 1, kernel_size - 1), "kernel should be reduced in weights")
-        self.assertEqual(scale.W_.shape, (3, 6, kernel_size, kernel_size), "kernel in forward pass should match constructor arg")
+        self.assertEqual(scale.W_.shape, (3, 6, kernel_size, kernel_size), "kernel in forward pass should match constructor argument")
         

@@ -29,6 +29,7 @@ class ConvolutionalBlock(Block):
         module_dict = ModuleDict({layer_name : conv_layer})
         
         super().__init__(in_channels, out_channels, module_dict, **kwargs)
+        
 class UpscaleBlock(ConvolutionalBlock):
     def __init__(self,
                  in_channels: int,
