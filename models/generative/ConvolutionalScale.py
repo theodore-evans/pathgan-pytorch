@@ -5,7 +5,7 @@ from torch import Tensor
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch import nn
-from typing import Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from .utils import max_singular_value, apply_same_padding
 class ConvolutionalScale(nn.ConvTranspose2d):
@@ -53,10 +53,11 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         self.u.copy_(_u) # type: ignore
         return weights / sigma
 
-    def forward(self, inputs: Tensor) -> Tensor:
+    def forward(self, inputs: Tensor, output_size: Optional[List[int]] = None) -> Tensor:
         conv_parameters = dict({'stride': self.stride, 'padding': self.padding, 'dilation': self.dilation})
         if self.upscale:
-            output_size = [inputs.size(2) * 2, inputs.size(3) * 2]
+            if output_size is None:
+                output_size = [inputs.size(2) * 2, inputs.size(3) * 2]
 
             output_padding = self._output_padding(
                 inputs, output_size, list(self.stride), list(self.padding), list(self.kernel_size), list(self.dilation))

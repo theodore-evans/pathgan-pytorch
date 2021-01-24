@@ -10,12 +10,9 @@ class TestNoiseInput(unittest.TestCase):
         self.test_noise_samples = 20
         self.fake_images = torch.randn(self.test_noise_samples, self.test_noise_channels, 10, 10)
         self.inject_noise = NoiseInput(self.test_noise_channels)
+        nn.init.ones_(self.inject_noise.weight)
         return super().setUp()
-    
-    def test_noise_is_gaussian(self):
-        assert torch.abs(self.inject_noise.weight.std() - 1) < 0.1
-        assert torch.abs(self.inject_noise.weight.mean()) < 0.1
-        
+
     def test_weight_is_correct_shape(self):
         assert type(self.inject_noise.weight) == nn.parameter.Parameter
         assert tuple(self.inject_noise.weight.shape) == (1, self.test_noise_channels, 1, 1)

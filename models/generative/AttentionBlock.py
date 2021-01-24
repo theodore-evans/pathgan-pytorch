@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import Callable, Optional
 from torch import Tensor
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.utils.spectral_norm import spectral_norm
 
 from .Block import Block
 from .ConvolutionalBlock import ConvolutionalBlock
@@ -10,22 +11,22 @@ from .ConvolutionalBlock import ConvolutionalBlock
 class AttentionBlock(Block):
     def __init__(self,
                  channels: int,
-                 regularization: Optional[str] = 'spectral',
                  **kwargs,
                  ) -> None:
-        f_g_channels = channels // 8
 
         super().__init__(channels, channels, None)
 
-        conv_kwargs = dict({'kernel_size': 1, 'stride': 1})
-        kwargs = ({'regularization': regularization})
+        f_g_channels = channels // 8
+        kernel_size = 1
+        stride = 1
 
-        self.attention_f = ConvolutionalBlock(nn.Conv2d(
-            in_channels=channels, out_channels=f_g_channels, **conv_kwargs), **kwargs)
-        self.attention_g = ConvolutionalBlock(nn.Conv2d(
-            in_channels=channels, out_channels=f_g_channels, **conv_kwargs), **kwargs)
-        self.attention_h = ConvolutionalBlock(nn.Conv2d(
-            in_channels=channels, out_channels=channels, **conv_kwargs), **kwargs)
+        f_conv_layer = nn.Conv2d(channels, f_g_channels, kernel_size, stride)
+        g_conv_layer = nn.Conv2d(channels, f_g_channels, kernel_size, stride)
+        h_conv_layer = nn.Conv2d(channels, channels, kernel_size, stride)
+        
+        self.attention_f = ConvolutionalBlock(f_conv_layer, **kwargs)
+        self.attention_g = ConvolutionalBlock(g_conv_layer, **kwargs)
+        self.attention_h = ConvolutionalBlock(h_conv_layer, **kwargs)
 
         self.gamma = nn.Parameter(torch.zeros(1), requires_grad=True)
 

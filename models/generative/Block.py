@@ -13,7 +13,7 @@ class Block(nn.Module):
                  out_channels: int,
                  module_dict: Optional[ModuleDict] = None,
                  latent_dim: Optional[int] = None,
-                 regularization: Optional[Callable[[nn.Module], nn.Module]] = lambda x: x,
+                 regularization: Optional[Callable[[nn.Module], nn.Module]] = None,
                  noise_input: Optional[Callable[[int], nn.Module]] = None,
                  normalization: Optional[Callable[..., AbstractNormalization]] = None,
                  activation: Optional[nn.Module] = None,
@@ -24,6 +24,9 @@ class Block(nn.Module):
         
         self.in_channels = in_channels
         self.out_channels = out_channels
+        
+        if regularization is None:
+            regularization = lambda x: x
         
         if module_dict is not None:
             for module_name, module in module_dict.items():
