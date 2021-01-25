@@ -10,7 +10,7 @@ class AdaptiveInstanceNormalization(AbstractNormalization, nn.Module):
     def __init__(self,
                  channels : int,
                  latent_dim : int,
-                 intermediate_layer: bool = False,
+                 intermediate_layer: bool = True,
                  intermediate_channels : Optional[int] = None,
                  dense_activation : Optional[nn.Module] = nn.ReLU(),
                  gamma_activation : Optional[nn.Module] = nn.ReLU(),

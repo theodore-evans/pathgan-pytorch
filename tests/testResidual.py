@@ -17,3 +17,5 @@ class TestResidual(unittest.TestCase):
         out = res(self.data)
         self.assertEqual(out.shape, (64, 3, 224, 224),"Dimensions Should Match")
         assert res.part_1.conv_layer.weight[0,0,1,1] != res.part_2.conv_layer.weight[0,0,1,1] 
+        
+    # TODO: write more init tests to make sure residual block is working correctly

@@ -6,17 +6,15 @@ import torch.nn as nn
 from models.generative.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 
 class TestAdaIN(unittest.TestCase):
-    #unit tests from https://zhangruochi.com/Components-of-StyleGAN/2020/10/13/
     def setUp(self) -> None:
         self.w_channels = 3
-        self.intermediate_channels = None
         self.image_channels = 2
         image_size = 3
         n_test = 1
         self.input_shape = (n_test, self.image_channels, image_size, image_size)
         self.test_input = torch.ones(self.input_shape)
         self.test_w = torch.ones(n_test, self.w_channels)
-        self.adain = AdaptiveInstanceNormalization(self.image_channels, self.w_channels, self.intermediate_channels)
+        self.adain = AdaptiveInstanceNormalization(self.image_channels, self.w_channels, intermediate_layer=False)
 
         nn.init.constant_(self.adain.gamma_layer.weight, 0.25)
         nn.init.constant_(self.adain.beta_layer.weight, 0.2)
@@ -40,3 +38,6 @@ class TestAdaIN(unittest.TestCase):
         test_output = self.adain(self.test_input, self.test_w)
         assert(torch.abs(test_output[0, 0, 0, 0] - 3 / 5 + torch.sqrt(torch.tensor(9 / 8))) < 1e-4)
         assert(torch.abs(test_output[0, 0, 1, 0] - 3 / 5 - torch.sqrt(torch.tensor(9 / 32))) < 1e-4)
+        # from https://zhangruochi.com/Components-of-StyleGAN/2020/10/13/ (deeplearning.ai course material)
+        # I don't know how strong a test this is, but is seems to work as intended, 
+        # at least without the intermediate layer
