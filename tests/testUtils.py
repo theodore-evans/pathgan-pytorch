@@ -6,7 +6,7 @@ from torch import nn
 from torch.nn.modules import conv
 
 from models.generative.Discriminator import DiscriminatorResnet
-from models.generative.utils import apply_same_padding
+from models.generative.utils import use_same_padding
 
 class TestUtils(unittest.TestCase):
     def setUp(self) -> None:
@@ -35,7 +35,7 @@ class TestUtils(unittest.TestCase):
         assert output.size(2) != self.data.size(2), "Output height should not match input height"
         assert output.size(3) != self.data.size(3), "Output width should not match input width"
         
-        apply_same_padding(conv_layer)
+        use_same_padding(conv_layer)
         same_padding_output = conv_layer(self.data)
         
         assert same_padding_output.size(2) == self.data.size(2), "Output height should match input height"

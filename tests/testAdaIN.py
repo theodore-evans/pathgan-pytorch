@@ -1,7 +1,6 @@
 from typing import Callable, Tuple
 import unittest
 import torch
-from torch.tensor import Tensor
 import torch.nn as nn
 from models.generative.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 
@@ -36,8 +35,8 @@ class TestAdaIN(unittest.TestCase):
     def test_conditional_norm(self) -> None:
         self.test_input[:, :, 0] = 0
         test_output = self.adain(self.test_input, self.test_w)
-        assert(torch.abs(test_output[0, 0, 0, 0] - 3 / 5 + torch.sqrt(torch.tensor(9 / 8))) < 1e-4)
-        assert(torch.abs(test_output[0, 0, 1, 0] - 3 / 5 - torch.sqrt(torch.tensor(9 / 32))) < 1e-4)
+        assert(torch.abs(test_output[0, 0, 0, 0] - 3 / 5 + torch.sqrt(torch.tensor(9 / 8))) < 1e-4) # type: ignore
+        assert(torch.abs(test_output[0, 0, 1, 0] - 3 / 5 - torch.sqrt(torch.tensor(9 / 32))) < 1e-4) # type: ignore
         # from https://zhangruochi.com/Components-of-StyleGAN/2020/10/13/ (deeplearning.ai course material)
         # I don't know how strong a test this is, but is seems to work as intended, 
         # at least without the intermediate layer
