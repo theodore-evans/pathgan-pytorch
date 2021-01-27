@@ -70,18 +70,20 @@ class TestConvolutional(unittest.TestCase):
     def test_spectral_norm(self):
         in_channels, out_channels, kernel_size = 3, 6, 3
         scale = spectral_norm(UpscaleConv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size))
-        has_spectral_norm_hook, spectral_norm_hook_id = self.has_hook(scale, SpectralNorm, '_forward_pre_hooks')
+        has_spectral_norm_hook, spectral_norm_hook_id, spectral_parameter = self.has_hook(scale, SpectralNorm, '_forward_pre_hooks')
         self.assertTrue(has_spectral_norm_hook, "Layer should have spectral norm pre-forward hook")
         
-        has_fused_scale_hook, fused_scale_hook_id = self.has_hook(scale, FusedScale, '_forward_pre_hooks')
+        has_fused_scale_hook, fused_scale_hook_id, fused_scale_parameter = self.has_hook(scale, FusedScale, '_forward_pre_hooks')
         if has_fused_scale_hook:
             self.assertGreater(spectral_norm_hook_id, fused_scale_hook_id, 
                                "Spectral norm hook should follow fused scale hook")
+            self.assertEqual(spectral_parameter, fused_scale_parameter, 
+                             "Spectral norm hook should act same filter as fused scale")
         
     def has_hook(self, module: nn.Module, hook_class: type, hook_type: str = '_forward_pre_hooks'):
         hooks = getattr(module, hook_type)
         for k, hook in hooks.items():
             if isinstance(hook, hook_class):
-                return True, k
-        return False, None
+                return True, k, hook.name
+        return False, None, None
             
