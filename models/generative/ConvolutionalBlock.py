@@ -1,13 +1,10 @@
-from typing import Callable, Optional, Tuple, Union
+from typing import Optional, Union
 import torch.nn as nn
-from torch.nn.modules import conv
 from torch.nn.modules.container import ModuleDict
-from torch.nn.modules.conv import ConvTranspose2d
-from torch.nn.modules.module import Module
 
 from .Block import Block
-from .ConvolutionalScale import ConvolutionalScale, UpscaleConv2d, DownscaleConv2d
-from .utils import use_same_padding
+from .ConvolutionalScale import UpscaleConv2d, DownscaleConv2d
+from .utils import apply_same_padding
 
 default_layer_names = dict({nn.Conv2d : "conv_layer",
                             nn.ConvTranspose2d : "conv_transpose_layer",
@@ -26,7 +23,7 @@ class ConvolutionalBlock(Block):
         out_channels = conv_layer.out_channels
         
         if same_padding:
-            use_same_padding(conv_layer)
+            apply_same_padding(conv_layer)
             
         if layer_name is None:
             layer_name = default_layer_names[type(conv_layer)]

@@ -1,4 +1,3 @@
-# from .utils import max_singular_value
 import torch
 from torch import Tensor
 from torch.nn.parameter import Parameter
@@ -6,6 +5,7 @@ import torch.nn.functional as F
 from torch import nn
 from typing import Any, List, Optional, OrderedDict, Tuple, Union
 from torch.nn.utils.spectral_norm import SpectralNorm
+from .utils import apply_same_padding
 
 class ConvolutionalScale(nn.ConvTranspose2d):
     def __init__(self,
@@ -22,7 +22,7 @@ class ConvolutionalScale(nn.ConvTranspose2d):
             self.use_fused_scale()
         
         if same_padding:
-            self.apply_same_padding()
+            apply_same_padding(self)
 
     def use_fused_scale(self):
         channels = (self.in_channels, self.out_channels) 
@@ -38,18 +38,9 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         self._forward_pre_hooks.move_to_end(fused_scale_hook.id, False)
         
         for k, hook in self._forward_pre_hooks.items():
-            if isinstance(hook, SpectralNorm) and hook.name = 'weight':
+            if isinstance(hook, SpectralNorm) and hook.name == 'weight':
                 dim = 1 if isinstance(self, UpscaleConv2d) else 0
                 self._forward_pre_hooks[k] = SpectralNorm(name=filter_name, dim=dim)
-
-    def apply_same_padding(self):
-        effective_kernel_size = tuple(self.dilation[i] * (self.kernel_size[i] - 1) + 1 for i in range(2))
-        padding = []
-        for k in effective_kernel_size:
-            if k % 2 == 0:
-                raise ValueError("In order to correctly pad input, effective kernel size (dilation*(kernel-1)+1) must be odd")
-            padding.append((k - 1) // 2)
-        self.padding = tuple(padding)
         
 class FusedScale:
     def __init__(self, name: str = 'filter'):

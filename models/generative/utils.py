@@ -1,4 +1,3 @@
-from models.generative.ConvolutionalScale import ConvolutionalScale
 from typing import Tuple, Union
 import torch
 from torch._C import Value
@@ -26,7 +25,7 @@ def max_singular_value(W, u=None, Ip=1):
     sigma = torch.sum(F.linear(_u, torch.transpose(W.data, 0, 1)) * _v) # type: ignore
     return sigma, _u
 
-def use_same_padding(conv_layer: Union[nn.Conv2d, nn.ConvTranspose2d]) -> None:
+def apply_same_padding(conv_layer: Union[nn.Conv2d, nn.ConvTranspose2d]) -> None:
         
     effective_kernel_size = tuple(conv_layer.dilation[i] * (conv_layer.kernel_size[i] - 1) + 1 for i in range(2))
     
