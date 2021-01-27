@@ -10,7 +10,6 @@ from .DenseBlock import DenseBlock
 from .ConvolutionalBlock import ConvolutionalBlock
 from .initialization.XavierInitializer import XavierInitializer
 from .ConvolutionalScale import DownscaleConv2d
-from .ConvolutionalBlock import ConvolutionalBlock
 
 class DiscriminatorResnet(nn.Module):
     def __init__(

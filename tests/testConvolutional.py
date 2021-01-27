@@ -78,7 +78,6 @@ class TestConvolutional(unittest.TestCase):
             self.assertGreater(spectral_norm_hook_id, fused_scale_hook_id, 
                                "Spectral norm hook should follow fused scale hook")
         
-        
     def has_hook(self, module: nn.Module, hook_class: type, hook_type: str = '_forward_pre_hooks'):
         hooks = getattr(module, hook_type)
         for k, hook in hooks.items():
