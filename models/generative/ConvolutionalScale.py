@@ -32,16 +32,8 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         self.bias = Parameter(torch.Tensor(self.out_channels))
         self.filter = Parameter(torch.ones(*channels, *self.kernel_size))
         
-        #self.filter = torch.zeros_like(self.weight)
         self.register_forward_pre_hook(FusedScale(name='filter'))
-        
-        #self._forward_pre_hooks.move_to_end(fused_scale_hook.id, False)
-        
-        #for k, hook in self._forward_pre_hooks.items():
-        #    if isinstance(hook, SpectralNorm) and hook.name == 'weight':
-        #        dim = 1 if isinstance(self, UpscaleConv2d) else 0
-        #        self._forward_pre_hooks[k] = SpectralNorm(name=filter_name, dim=dim)
-        
+
 class FusedScale:
     def __init__(self, name: str = 'filter'):
         self.name = name
