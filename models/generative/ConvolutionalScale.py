@@ -3,7 +3,7 @@ from torch import Tensor
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch import nn
-from typing import Any, List, Optional, OrderedDict, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 from torch.nn.utils.spectral_norm import SpectralNorm
 from .utils import apply_same_padding
 
@@ -30,17 +30,17 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         reduced_kernel_size = (self.kernel_size[0] - 1, self.kernel_size[1] - 1)
         self.weight = Parameter(torch.Tensor(*channels, *reduced_kernel_size))
         self.bias = Parameter(torch.Tensor(self.out_channels))
-        self.register_buffer('u', torch.Tensor(1, channels[0]).normal_())
+        self.filter = Parameter(torch.Tensor(*channels, *self.kernel_size))
         
-        self.filter = torch.zeros_like(self.weight)
+        #self.filter = torch.zeros_like(self.weight)
         filter_name = 'filter'
         fused_scale_hook = self.register_forward_pre_hook(FusedScale(name=filter_name))
-        self._forward_pre_hooks.move_to_end(fused_scale_hook.id, False)
+        #self._forward_pre_hooks.move_to_end(fused_scale_hook.id, False)
         
-        for k, hook in self._forward_pre_hooks.items():
-            if isinstance(hook, SpectralNorm) and hook.name == 'weight':
-                dim = 1 if isinstance(self, UpscaleConv2d) else 0
-                self._forward_pre_hooks[k] = SpectralNorm(name=filter_name, dim=dim)
+        #for k, hook in self._forward_pre_hooks.items():
+        #    if isinstance(hook, SpectralNorm) and hook.name == 'weight':
+        #        dim = 1 if isinstance(self, UpscaleConv2d) else 0
+        #        self._forward_pre_hooks[k] = SpectralNorm(name=filter_name, dim=dim)
         
 class FusedScale:
     def __init__(self, name: str = 'filter'):

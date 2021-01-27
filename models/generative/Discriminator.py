@@ -8,7 +8,7 @@ from .ResidualBlock import ResidualBlock
 from .AttentionBlock import AttentionBlock
 from .DenseBlock import DenseBlock
 from .ConvolutionalBlock import ConvolutionalBlock
-from .initialization.XavierInitializer import XavierInitializer
+from .Initialization.XavierInitializer import XavierInitializer
 from .ConvolutionalScale import DownscaleConv2d
 
 class DiscriminatorResnet(nn.Module):
@@ -67,7 +67,7 @@ class DiscriminatorResnet(nn.Module):
             # Downsample
 
             down = ConvolutionalBlock(DownscaleConv2d(
-                in_channels=in_channels, out_channels=out_channels, kernel_size=5), **default_kwargs)
+                in_channels=in_channels, out_channels=out_channels, kernel_size=5), **{**default_kwargs, 'regularization': lambda x: spectral_norm(x,'filter')})
 
             self.conv_part.add_module(f'DownScale_{layer}', down)
             in_channels = out_channels
