@@ -4,7 +4,10 @@ from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch import nn
 from typing import Any, Callable, List, Optional, Tuple, Union
-from .utils import apply_same_padding
+
+from torch.nn.utils.spectral_norm import SpectralNorm
+from torch.utils.hooks import RemovableHandle
+from .utils import apply_same_padding, max_singular_value
 
 class ConvolutionalScale(nn.ConvTranspose2d):
     def __init__(self,
@@ -17,11 +20,18 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         
         super().__init__(in_channels, out_channels, kernel_size, stride=2, **kwargs)
         
-        if fused_scale:
-            self.use_fused_scale()
+        self.filter = lambda x: x
         
         if same_padding:
             apply_same_padding(self)
+        
+        if fused_scale:
+            self.use_fused_scale()
+            
+    def register_forward_pre_hook(self, hook: Callable[..., None]) -> RemovableHandle:
+        if isinstance(hook, SpectralNorm):
+            self.filter = lambda x: self.spectral_norm(self.filter(x))
+        return super().register_forward_pre_hook(hook)
 
     def use_fused_scale(self):
         channels = (self.in_channels, self.out_channels) 
@@ -29,22 +39,18 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         reduced_kernel_size = (self.kernel_size[0] - 1, self.kernel_size[1] - 1)
         self.weight = Parameter(torch.Tensor(*channels, *reduced_kernel_size))
         self.bias = Parameter(torch.Tensor(self.out_channels))
-        self.filter = Parameter(torch.ones(*channels, *self.kernel_size))
+        self.filter = self.fused_scale_filter
         
-        self.register_forward_pre_hook(FusedScale(name='filter'))
-
-class FusedScale:
-    def __init__(self, name: str = 'filter'):
-        self.name = name
+    def fused_scale_filter(self, weight: Tensor) -> Tensor:
+        weight = F.pad(weight, [1, 1, 1, 1])
+        weight = weight[:, :, 1:, 1:] + weight[:, :, 1:, :-1] + weight[:, :, :-1, 1:] + weight[:, :, :-1, :-1]
+        return weight
     
-    def __call__(self, module, _):
-        filter = self.fused_scale(module.weight)
-        setattr(module, self.name+"_orig", Parameter(filter))
-
-    def fused_scale(self, weight: Tensor) -> Tensor:
-        padded = F.pad(weight, [1, 1, 1, 1])
-        filter = padded[:, :, 1:, 1:] + padded[:, :, 1:, :-1] + padded[:, :, :-1, 1:] + padded[:, :, :-1, :-1]
-        return filter
+    def spectral_norm(self, weight: Tensor) -> Tensor:
+        w_mat = weight.view(weight.size(0), -1)
+        sigma, _u = max_singular_value(w_mat, self.u, 1)
+        self.u.copy_(_u) # type: ignore
+        return weight / sigma
          
 class UpscaleConv2d(ConvolutionalScale):
     def __init__(self,
@@ -63,7 +69,7 @@ class UpscaleConv2d(ConvolutionalScale):
         params = (list(param) for param in (self.stride, self.padding, self.kernel_size, self.dilation))
         output_padding = self._output_padding(inputs, output_size, *params)
         
-        return F.conv_transpose2d(inputs, self.filter, self.bias, self.stride, self.padding,
+        return F.conv_transpose2d(inputs, self.filter(self.weight), self.bias, self.stride, self.padding,
                                   output_padding=output_padding)
 
 class DownscaleConv2d(ConvolutionalScale):
@@ -76,4 +82,4 @@ class DownscaleConv2d(ConvolutionalScale):
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
 
     def forward(self, inputs: Tensor) -> Tensor:
-        return F.conv2d(inputs, self.filter, self.bias, self.stride, self.padding, self.dilation)
+        return F.conv2d(inputs, self.filter(self.weight), self.bias, self.stride, self.padding, self.dilation)
