@@ -4,7 +4,6 @@ from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch import nn
 from typing import Any, Callable, List, Optional, Tuple, Union
-from torch.nn.utils.spectral_norm import SpectralNorm, spectral_norm
 from .utils import apply_same_padding
 
 class ConvolutionalScale(nn.ConvTranspose2d):
@@ -39,9 +38,13 @@ class FusedScale:
         self.name = name
     
     def __call__(self, module, _):
-        fused_scale_filter = F.pad(module.weight, [1, 1, 1, 1])
-        fused_scale_filter = Parameter(fused_scale_filter[:, :, 1:, 1:] + fused_scale_filter[:, :, 1:, :-1] + fused_scale_filter[:, :, :-1, 1:] + fused_scale_filter[:, :, :-1, :-1])
-        setattr(module, self.name+"_orig", fused_scale_filter)
+        filter = self.fused_scale(module.weight)
+        setattr(module, self.name+"_orig", Parameter(filter))
+
+    def fused_scale(self, weight: Tensor) -> Tensor:
+        padded = F.pad(weight, [1, 1, 1, 1])
+        filter = padded[:, :, 1:, 1:] + padded[:, :, 1:, :-1] + padded[:, :, :-1, 1:] + padded[:, :, :-1, :-1]
+        return filter
          
 class UpscaleConv2d(ConvolutionalScale):
     def __init__(self,
