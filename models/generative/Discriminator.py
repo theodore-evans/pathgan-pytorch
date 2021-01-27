@@ -1,5 +1,5 @@
 from torch.nn.utils.spectral_norm import spectral_norm
-from models.generative.initialization.XavierInitializer import XavierInitializer
+from models.generative.Initialization.XavierInitializer import XavierInitializer
 from torch.nn.modules.activation import LeakyReLU
 from torch.nn.modules.container import ModuleDict
 from models.generative.ConvolutionalBlock import ConvolutionalBlock

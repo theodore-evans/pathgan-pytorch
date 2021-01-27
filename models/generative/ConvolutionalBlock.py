@@ -53,7 +53,7 @@ class DownscaleBlock(ConvolutionalBlock):
 
         layer_name = 'downscale_layer'
         layer = ConvolutionalScale(
-            out_channels, in_channels, kernel_size) #TODO: check why we switch in and out channels
+            in_channels, out_channels, kernel_size) #TODO: check why we switch in and out channels
         kwargs['regularization'] = lambda x: x
             
         super().__init__(layer, layer_name, **kwargs)

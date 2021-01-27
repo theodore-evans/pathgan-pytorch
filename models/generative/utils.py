@@ -27,7 +27,7 @@ def max_singular_value(W, u=None, Ip=1):
 
 def apply_same_padding(conv_layer: Union[nn.Conv2d, nn.ConvTranspose2d]) -> None:
     effective_kernel_size = tuple(conv_layer.dilation[i] * (conv_layer.kernel_size[i] - 1) + 1 for i in range(2))
-    print(f'dilation: {conv_layer.dilation}, kernel_size: {conv_layer.kernel_size}, effective kernel size: {effective_kernel_size}')
+    #print(f'dilation: {conv_layer.dilation}, kernel_size: {conv_layer.kernel_size}, effective kernel size: {effective_kernel_size}')
     for dim in range(2):
         if effective_kernel_size[dim] % 2 == 0:
             raise ValueError("In order to correctly pad input, effective kernel size (dilation*(kernel-1)+1) must be odd")

@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn.functional as F
 from torch import nn
 
-from models.generative.ConvolutionalBlock import ConvolutionalBlock, UpscaleBlock
+from models.generative.ConvolutionalBlock import ConvolutionalBlock, UpscaleBlock, DownscaleBlock
 from models.generative.ConvolutionalScale import ConvolutionalScale
 
 class TestConvolutional(unittest.TestCase):
@@ -24,8 +24,7 @@ class TestConvolutional(unittest.TestCase):
                          "Dimensions Should Match")
 
     def test_downscale(self):
-        scale = ConvolutionalScale(in_channels=3, out_channels=6, kernel_size=5,
-                                   stride=2, padding=2, normalization=None, upscale=False)
+        scale = DownscaleBlock(in_channels=3, out_channels=6, kernel_size=5, normalization=None)
         out = scale(self.data)
         
         self.assertEqual(out.shape, (64, 6, *self.halved_image_shape),
