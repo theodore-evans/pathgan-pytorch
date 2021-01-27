@@ -48,8 +48,8 @@ class FusedScale:
     
     def __call__(self, module, _):
         fused_scale_filter = F.pad(module.weight, [1, 1, 1, 1])
-        fused_scale_filter = fused_scale_filter[:, :, 1:, 1:] + fused_scale_filter[:, :, 1:, :-1] + fused_scale_filter[:, :, :-1, 1:] + fused_scale_filter[:, :, :-1, :-1]
-        setattr(module, self.name, fused_scale_filter)
+        fused_scale_filter = Parameter(fused_scale_filter[:, :, 1:, 1:] + fused_scale_filter[:, :, 1:, :-1] + fused_scale_filter[:, :, :-1, 1:] + fused_scale_filter[:, :, :-1, :-1])
+        setattr(module, self.name+"_orig", fused_scale_filter)
          
 class UpscaleConv2d(ConvolutionalScale):
     def __init__(self,
