@@ -30,7 +30,7 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         reduced_kernel_size = (self.kernel_size[0] - 1, self.kernel_size[1] - 1)
         self.weight = Parameter(torch.Tensor(*channels, *reduced_kernel_size))
         self.bias = Parameter(torch.Tensor(self.out_channels))
-        self.filter = Parameter(torch.Tensor(*channels, *self.kernel_size))
+        self.filter = Parameter(torch.ones(*channels, *self.kernel_size))
         
         #self.filter = torch.zeros_like(self.weight)
         filter_name = 'filter'
