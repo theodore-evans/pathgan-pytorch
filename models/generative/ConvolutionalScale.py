@@ -30,7 +30,7 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         reduced_kernel_size = (self.kernel_size[0] - 1, self.kernel_size[1] - 1)
         self.weight = Parameter(torch.Tensor(*channels, *reduced_kernel_size))
         self.bias = Parameter(torch.Tensor(self.out_channels))
-        self.filter = Parameter(torch.Tensor(*channels, *self.kernel_size))
+        self.filter = Parameter(torch.ones(*channels, *self.kernel_size))
         
         #self.filter = torch.zeros_like(self.weight)
         self.register_forward_pre_hook(FusedScale(name='filter'))
@@ -48,8 +48,8 @@ class FusedScale:
     
     def __call__(self, module, _):
         fused_scale_filter = F.pad(module.weight, [1, 1, 1, 1])
-        fused_scale_filter = fused_scale_filter[:, :, 1:, 1:] + fused_scale_filter[:, :, 1:, :-1] + fused_scale_filter[:, :, :-1, 1:] + fused_scale_filter[:, :, :-1, :-1]
-        setattr(module, self.name, Parameter(fused_scale_filter))
+        fused_scale_filter = Parameter(fused_scale_filter[:, :, 1:, 1:] + fused_scale_filter[:, :, 1:, :-1] + fused_scale_filter[:, :, :-1, 1:] + fused_scale_filter[:, :, :-1, :-1])
+        setattr(module, self.name+"_orig", fused_scale_filter)
          
 class UpscaleConv2d(ConvolutionalScale):
     def __init__(self,
