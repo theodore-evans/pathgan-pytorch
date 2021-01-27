@@ -3,17 +3,17 @@ from torch import Tensor
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch import nn
-from typing import Any, List, Optional, Tuple, Union
-from torch.nn.utils.spectral_norm import SpectralNorm
+from typing import Any, Callable, List, Optional, Tuple, Union
+from torch.nn.utils.spectral_norm import SpectralNorm, spectral_norm
 from .utils import apply_same_padding
 
 class ConvolutionalScale(nn.ConvTranspose2d):
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 same_padding = True,
-                 fused_scale = True,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: Union[int, Tuple[int, int]],
+                 same_padding: bool = True,
+                 fused_scale: bool = True,
                  **kwargs):
         
         super().__init__(in_channels, out_channels, kernel_size, stride=2, **kwargs)
@@ -33,8 +33,8 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         self.filter = Parameter(torch.Tensor(*channels, *self.kernel_size))
         
         #self.filter = torch.zeros_like(self.weight)
-        filter_name = 'filter'
-        fused_scale_hook = self.register_forward_pre_hook(FusedScale(name=filter_name))
+        self.register_forward_pre_hook(FusedScale(name='filter'))
+        
         #self._forward_pre_hooks.move_to_end(fused_scale_hook.id, False)
         
         #for k, hook in self._forward_pre_hooks.items():
@@ -49,7 +49,7 @@ class FusedScale:
     def __call__(self, module, _):
         fused_scale_filter = F.pad(module.weight, [1, 1, 1, 1])
         fused_scale_filter = fused_scale_filter[:, :, 1:, 1:] + fused_scale_filter[:, :, 1:, :-1] + fused_scale_filter[:, :, :-1, 1:] + fused_scale_filter[:, :, :-1, :-1]
-        setattr(module, self.name, fused_scale_filter)
+        setattr(module, self.name, Parameter(fused_scale_filter))
          
 class UpscaleConv2d(ConvolutionalScale):
     def __init__(self,
