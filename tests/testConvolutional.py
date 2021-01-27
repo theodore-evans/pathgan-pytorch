@@ -1,3 +1,4 @@
+from typing import Callable
 import unittest
 import torch
 import numpy as np
@@ -8,7 +9,7 @@ from torch.nn.utils import spectral_norm
 from torch.nn.utils.spectral_norm import SpectralNorm
 
 from models.generative.ConvolutionalBlock import ConvolutionalBlock
-from models.generative.ConvolutionalScale import ConvolutionalScale, DownscaleConv2d, UpscaleConv2d
+from models.generative.ConvolutionalScale import ConvolutionalScale, DownscaleConv2d, FusedScale, UpscaleConv2d
 
 class TestConvolutional(unittest.TestCase):
     def setUp(self) -> None:
@@ -54,11 +55,38 @@ class TestConvolutional(unittest.TestCase):
         in_channels, out_channels, kernel_size = 3, 6, 3
         scale = UpscaleConv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size)
 
-        self.assertEqual(scale.weight.shape, (in_channels, out_channels, kernel_size - 1, kernel_size - 1), "kernel should be reduced in weights")
+        self.assertEqual(scale.weight.shape, (in_channels, out_channels, kernel_size - 1, kernel_size - 1), 
+                         "kernel should be reduced in weights")
         scale(self.data)
-        self.assertEqual(scale.filter.shape, (3, 6, kernel_size, kernel_size), "kernel in forward pass should match constructor argument")
-
+        self.assertEqual(scale.filter.shape, (3, 6, kernel_size, kernel_size), 
+                         "kernel in forward pass should match constructor argument")
+    
+    def test_fused_scale_hook(self):
+        in_channels, out_channels, kernel_size = 3, 6, 3
+        scale = UpscaleConv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, fused_scale=True)
+        
+        has_fused_scale_hook, _ = self.has_hook(scale, FusedScale, '_forward_pre_hooks')
+        self.assertTrue(has_fused_scale_hook, "Fused scale transform should be registered as pre-forward hook")
+        self.assertEqual(type(scale._forward_pre_hooks.popitem(last=False)[1]), FusedScale,
+                         "Fused scale hook should be first pre-forward hook")
+        
+        
     def test_spectral_norm(self):
         in_channels, out_channels, kernel_size = 3, 6, 3
         scale = spectral_norm(UpscaleConv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size))
-        self.assertIn(SpectralNorm, scale._forward_pre_hooks.keys())
+        has_spectral_norm_hook, spectral_norm_hook_id = self.has_hook(scale, SpectralNorm, '_forward_pre_hooks')
+        self.assertTrue(has_spectral_norm_hook, "Layer should have spectral norm pre-forward hook")
+        
+        has_fused_scale_hook, fused_scale_hook_id = self.has_hook(scale, FusedScale, '_forward_pre_hooks')
+        if has_fused_scale_hook:
+            self.assertGreater(spectral_norm_hook_id, fused_scale_hook_id, 
+                               "Spectral norm hook should follow fused scale hook")
+        
+        
+    def has_hook(self, module: nn.Module, hook_class: type, hook_type: str = '_forward_pre_hooks'):
+        hooks = getattr(module, hook_type)
+        for k, hook in hooks.items():
+            if isinstance(hook, hook_class):
+                return True, k
+        return False, None
+            
