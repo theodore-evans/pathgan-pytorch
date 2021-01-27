@@ -5,12 +5,10 @@ from torch.nn.modules.container import ModuleDict
 from models.generative.ConvolutionalBlock import ConvolutionalBlock
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from .ResidualBlock import ResidualBlock
 from .AttentionBlock import AttentionBlock
 from .DenseBlock import DenseBlock
-from .ConvolutionalBlock import UpscaleBlock, DownscaleBlock, ConvolutionalBlock
-import copy
+from .ConvolutionalBlock import DownscaleBlock, ConvolutionalBlock
 
 class DiscriminatorResnet(nn.Module):
     def __init__(
@@ -85,9 +83,6 @@ class DiscriminatorResnet(nn.Module):
         dense = DenseBlock(in_channels=in_channels, out_channels=1,
                            **default_kwargs)
         self.dense_part.add_module('Dense_2', dense)
-
-    def initialize_modules(self):
-        pass
 
     def get_orthogonal_reg_loss(self):
         with torch.enable_grad():
