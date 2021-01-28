@@ -26,13 +26,11 @@ class Mapping(nn.Module):
             inner_res = DenseBlock(in_channels=z_dim, out_channels=z_dim, **default_kwargs)
             res_block = ResidualBlock(num_blocks=2, block_template= inner_res, **default_kwargs)
             self.add_module(f'ResDense_{layer}',res_block)
-		
+           	
         w_map = DenseBlock(in_channels=z_dim,out_channels=w_dim, **default_kwargs)
         self.add_module('w_map', w_map)
 
-        
     def forward(self, data: Tensor, **kwargs):
         for m in self.children():
             data = m(data, *kwargs)
-        return data
-    
+        return data  
