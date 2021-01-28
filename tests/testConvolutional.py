@@ -1,15 +1,12 @@
 
-import copy
 import unittest
 import torch
-import torch.nn.functional as F
 from torch import nn
 from torch.nn.utils import spectral_norm 
 from torch.nn.utils.spectral_norm import SpectralNorm
-from torch.nn.init import constant_
 
-from models.generative.ConvolutionalBlock import ConvolutionalBlock
-from models.generative.ConvolutionalScale import DownscaleConv2d, UpscaleConv2d
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
+from modules.blocks.ConvolutionalScale import DownscaleConv2d, UpscaleConv2d
 
 class TestConvolutional(unittest.TestCase):
     def setUp(self) -> None:

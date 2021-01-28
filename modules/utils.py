@@ -1,9 +1,7 @@
-from typing import Tuple, Union
+from typing import  Union
 import torch
-from torch._C import Value
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.tensor import Tensor
 
 #define _l2normalization
 def _l2normalize(v, eps=1e-12):

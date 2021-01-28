@@ -7,7 +7,7 @@ from typing import Any, Callable, List, Optional, Tuple, Union
 
 from torch.nn.utils.spectral_norm import SpectralNorm
 from torch.utils.hooks import RemovableHandle
-from .utils import apply_same_padding, max_singular_value
+from modules.utils import apply_same_padding, max_singular_value
 
 class ConvolutionalScale(nn.ConvTranspose2d):
     def __init__(self,
