@@ -28,7 +28,7 @@ class TestConvolutional(unittest.TestCase):
                          "Dimensions Should Match")
 
     def test_downscale(self):
-        scale = DownscaleConv2d(in_channels=3, out_channels=6, kernel_size=5)
+        scale = ConvolutionalBlock(DownscaleConv2d(in_channels=3, out_channels=6, kernel_size=5),regularization= spectral_norm)
         out = scale(self.data)
         
         self.assertEqual(out.shape, (64, 6, *self.halved_image_shape),
@@ -39,7 +39,7 @@ class TestConvolutional(unittest.TestCase):
             UpscaleConv2d(in_channels=3, out_channels=6, kernel_size=2)
         
     def test_upscale(self):
-        scale = UpscaleConv2d(in_channels=3, out_channels=6, kernel_size=3)
+        scale = ConvolutionalBlock(UpscaleConv2d(in_channels=3, out_channels=6, kernel_size=3),regularization= spectral_norm)
         out = scale(self.data)
         
         self.assertEqual(out.shape, (64, 6, *self.doubled_image_shape),
