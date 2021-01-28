@@ -1,12 +1,9 @@
 import unittest
 import torch
-import numpy as np
-import torch.nn.functional as F
 from torch import nn
-from torch.nn.modules import conv
 
-from models.generative.Discriminator import DiscriminatorResnet
-from models.generative.utils import apply_same_padding
+from modules.generative.Discriminator import DiscriminatorResnet
+from modules.utils import apply_same_padding
 
 class TestUtils(unittest.TestCase):
     def setUp(self) -> None:

@@ -1,8 +1,7 @@
-from typing import Callable, Tuple
 import unittest
 import torch
 import torch.nn as nn
-from models.generative.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
+from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 
 class TestAdaIN(unittest.TestCase):
     def setUp(self) -> None:

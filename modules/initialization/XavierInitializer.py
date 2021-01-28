@@ -1,7 +1,5 @@
-from typing import Union
 import torch.nn as nn
 from torch.nn.init import calculate_gain, xavier_uniform_
-from torch.nn.modules.activation import LeakyReLU, ReLU
 
 
 from .AbstractInitializer import AbstractInitializer

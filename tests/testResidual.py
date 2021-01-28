@@ -2,8 +2,8 @@ import unittest
 import torch
 from torch import nn
 
-from models.generative.ConvolutionalBlock import ConvolutionalBlock
-from models.generative.ResidualBlock import ResidualBlock
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
+from modules.blocks.ResidualBlock import ResidualBlock
 
 class TestResidual(unittest.TestCase):
     def setUp(self) -> None:
