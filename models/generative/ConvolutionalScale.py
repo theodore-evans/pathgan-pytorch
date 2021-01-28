@@ -42,9 +42,9 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         self.filter = self.fused_scale_filter
         
     def fused_scale_filter(self, weight: Tensor) -> Tensor:
-        weight = F.pad(weight, [1, 1, 1, 1])
-        weight = weight[:, :, 1:, 1:] + weight[:, :, 1:, :-1] + weight[:, :, :-1, 1:] + weight[:, :, :-1, :-1]
-        return weight
+        w = F.pad(weight, [1, 1, 1, 1])
+        w = w[:, :, 1:, 1:] + w[:, :, 1:, :-1] + w[:, :, :-1, 1:] + w[:, :, :-1, :-1]
+        return w
     
     def spectral_norm(self, weight: Tensor) -> Tensor:
         w_mat = weight.view(weight.size(0), -1)
@@ -61,16 +61,21 @@ class UpscaleConv2d(ConvolutionalScale):
         ) -> None:
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
                    
-    def forward(self, inputs: Tensor, output_size: Optional[List[int]] = None) -> Tensor:
+    def forward(self, 
+                inputs: Tensor, 
+                output_size: Optional[List[int]] = None
+                ) -> Tensor:
         
         if output_size is None:
             output_size = [inputs.size(2) * 2, inputs.size(3) * 2]
 
-        params = (list(param) for param in (self.stride, self.padding, self.kernel_size, self.dilation))
+        params = (list(param) for param in (self.stride, self.padding,
+                                            self.kernel_size, self.dilation))
+        
         output_padding = self._output_padding(inputs, output_size, *params)
         
-        return F.conv_transpose2d(inputs, self.filter(self.weight), self.bias, self.stride, self.padding,
-                                  output_padding=output_padding)
+        return F.conv_transpose2d(inputs, self.filter(self.weight), self.bias,
+                                  self.stride, self.padding, output_padding)
 
 class DownscaleConv2d(ConvolutionalScale):
     def __init__(self,
@@ -82,4 +87,5 @@ class DownscaleConv2d(ConvolutionalScale):
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
 
     def forward(self, inputs: Tensor) -> Tensor:
-        return F.conv2d(inputs, self.filter(self.weight), self.bias, self.stride, self.padding, self.dilation)
+        return F.conv2d(inputs, self.filter(self.weight), self.bias,
+                        self.stride, self.padding, self.dilation)
