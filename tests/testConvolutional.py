@@ -61,13 +61,18 @@ class TestConvolutional(unittest.TestCase):
         self.assertEqual(scale.filter(scale.weight).shape, (3, 6, kernel_size, kernel_size), 
                          "kernel in forward pass should match constructor argument")
         
-    def test_spectral_norm_hook(self):
+    def test_spectral_norm(self):
         in_channels, out_channels, kernel_size = 3, 6, 3
-        scale = spectral_norm(UpscaleConv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, fused_scale=False))
-        has_spectral_norm_hook, _, _ = self.has_hook(scale, SpectralNorm, '_forward_pre_hooks')
+        spectral_upscale = spectral_norm(UpscaleConv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size))
+        spectral_downscale = spectral_norm(DownscaleConv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size))
+        
+        has_spectral_norm_hook, _, _ = self.has_hook(spectral_upscale, SpectralNorm, '_forward_pre_hooks')
         self.assertTrue(has_spectral_norm_hook, 
                         "Layer should have spectral norm pre-forward hook")
         
+        out_upscale = spectral_upscale(self.data)
+        out_downscale = spectral_downscale(self.data)
+            
         
     def has_hook(self, module: nn.Module, hook_class: type, hook_type: str = '_forward_pre_hooks'):
         hooks = getattr(module, hook_type)

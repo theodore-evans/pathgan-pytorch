@@ -15,48 +15,40 @@ class ConvolutionalScale(nn.ConvTranspose2d):
                  out_channels: int,
                  kernel_size: Union[int, Tuple[int, int]],
                  same_padding: bool = True,
-                 fused_scale: bool = True,
                  **kwargs):
         
         super().__init__(in_channels, out_channels, kernel_size, stride=2, **kwargs)
         
-        self.filter = lambda x: x
+        channels = (self.in_channels, self.out_channels) 
+        channels = channels if isinstance(self, UpscaleConv2d) else channels[::-1]
+        reduced_kernel_size = (self.kernel_size[0] - 1, self.kernel_size[1] - 1)
+        
+        self.weight = Parameter(torch.Tensor(*channels, *reduced_kernel_size))
+        self.bias = Parameter(torch.Tensor(self.out_channels))
+        self.register_buffer('_u', torch.Tensor(1, channels[0]).normal_())
+        self.filter = self.fused_scale_filter
         
         if same_padding:
             apply_same_padding(self)
         
-        if fused_scale:
-            self.use_fused_scale()
-            
     def register_forward_pre_hook(self, hook: Callable[..., None]) -> RemovableHandle:
         if isinstance(hook, SpectralNorm):
-            self.filter = self.spectral_norm_wrapper(self.filter)
+            self.filter = lambda x: self.spectral_norm(self.fused_scale_filter(x))
+            # dim = 1 if isinstance(self, UpscaleConv2d) else 0
+            # setattr(hook, 'dim', dim)
+            # trying to modify the dim manually actually makes it fail, surprisingly
+            
         return super().register_forward_pre_hook(hook)
-
-    def use_fused_scale(self):
-        channels = (self.in_channels, self.out_channels) 
-        channels = channels if isinstance(self, UpscaleConv2d) else channels[::-1]
-        reduced_kernel_size = (self.kernel_size[0] - 1, self.kernel_size[1] - 1)
-        self.weight = Parameter(torch.Tensor(*channels, *reduced_kernel_size))
-        self.bias = Parameter(torch.Tensor(self.out_channels))
-        self.filter = self.fused_scale_filter
         
     def fused_scale_filter(self, weight: Tensor) -> Tensor:
         w = F.pad(weight, [1, 1, 1, 1])
         w = w[:, :, 1:, 1:] + w[:, :, 1:, :-1] + w[:, :, :-1, 1:] + w[:, :, :-1, :-1]
         return w
-    
-    def spectral_norm_wrapper(self, filter_func: Callable):
-        def normalized(weight: Tensor):
-            return self.spectral_norm(filter_func(weight))
-        return normalized
 
     def spectral_norm(self, weight: Tensor) -> Tensor:
         w_mat = weight.view(weight.size(0), -1)
-        #TODO: self.u is not initialized. Two options if we are going to execute super().register_pre hook we can directly use self.weight_u
-        # else we can initialize a buffer called self.u in use_fused scale method
-        sigma, _u = max_singular_value(w_mat, self.u, 1)
-        self.u.copy_(_u) # type: ignore
+        sigma, _u = max_singular_value(w_mat, self._u, 1)
+        self._u.copy_(_u) # type: ignore
         return weight / sigma
          
 class UpscaleConv2d(ConvolutionalScale):
@@ -90,7 +82,7 @@ class DownscaleConv2d(ConvolutionalScale):
         out_channels: int,
         kernel_size: Union[int, Tuple[int, int]],
         **kwargs
-        ) -> None: #TODO: Flip weight matrix here,
+        ) -> None:
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
 
     def forward(self, inputs: Tensor) -> Tensor:
