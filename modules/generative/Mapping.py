@@ -1,10 +1,10 @@
 import torch.nn as nn
 from torch.tensor import Tensor
 from torch.nn.utils.spectral_norm import spectral_norm
-from models.generative.initialization.XavierInitializer import XavierInitializer
+from modules.initialization.XavierInitializer import XavierInitializer
 from torch.nn.modules.activation import ReLU
-from models.generative.DenseBlock import DenseBlock
-from models.generative.ResidualBlock import ResidualBlock
+from modules.blocks.DenseBlock import DenseBlock
+from modules.blocks.ResidualBlock import ResidualBlock
 
 class Mapping(nn.Module):
     def __init__(

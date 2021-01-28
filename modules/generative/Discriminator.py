@@ -4,12 +4,12 @@ from torch.nn.modules.container import ModuleDict
 import torch
 import torch.nn as nn
 
-from .ResidualBlock import ResidualBlock
-from .AttentionBlock import AttentionBlock
-from .DenseBlock import DenseBlock
-from .ConvolutionalBlock import ConvolutionalBlock
-from .Initialization.XavierInitializer import XavierInitializer
-from .ConvolutionalScale import DownscaleConv2d
+from modules.blocks.ResidualBlock import ResidualBlock
+from modules.blocks.AttentionBlock import AttentionBlock
+from modules.blocks.DenseBlock import DenseBlock
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
+from modules.initialization.XavierInitializer import XavierInitializer
+from modules.blocks.ConvolutionalScale import DownscaleConv2d
 
 class DiscriminatorResnet(nn.Module):
     def __init__(
@@ -38,18 +38,7 @@ class DiscriminatorResnet(nn.Module):
             'initializer': XavierInitializer
         }
 
-
         for layer in range(layers):
-            # Spectral norm, init mode, regularizer and activation should be added
-            # init is xavier
-            # normalization=None,
-            # noise_input_f=False,
-            # use_bias=True,
-            # spectral=True,
-            # activation=leakyRelu,
-            # init='xavier',
-            # regularizer= Orthogonal Reg,
-            # TODOs: implement orho regularizer, inits and spectral norms
 
             # Res Block
             inner_res = ConvolutionalBlock(nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1), **default_kwargs)
@@ -67,7 +56,7 @@ class DiscriminatorResnet(nn.Module):
             # Downsample
 
             down = ConvolutionalBlock(DownscaleConv2d(
-                in_channels=in_channels, out_channels=out_channels, kernel_size=5), **{**default_kwargs, 'regularization': lambda x: spectral_norm(x,'filter')})
+                in_channels=in_channels, out_channels=out_channels, kernel_size=5), **default_kwargs)
 
             self.conv_part.add_module(f'DownScale_{layer}', down)
             in_channels = out_channels

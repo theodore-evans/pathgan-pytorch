@@ -4,8 +4,8 @@ from torch import Tensor
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
-from .normalization.AbstractNormalization import AbstractNormalization
-from .initialization.AbstractInitializer import AbstractInitializer
+from modules.normalization.AbstractNormalization import AbstractNormalization
+from modules.initialization.AbstractInitializer import AbstractInitializer
 
 class Block(nn.Module):
     def __init__(self,

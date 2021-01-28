@@ -1,4 +1,3 @@
-from typing import Callable, Optional
 from torch import Tensor
 import torch
 import torch.nn as nn
