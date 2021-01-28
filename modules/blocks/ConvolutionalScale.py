@@ -26,14 +26,14 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         self.weight = Parameter(torch.Tensor(*channels, *reduced_kernel_size))
         self.bias = Parameter(torch.Tensor(self.out_channels))
         self.register_buffer('_u', torch.Tensor(1, channels[0]).normal_())
-        self.filter = self.fused_scale_filter
+        self.calculate_filter = self.fused_scale_filter
         
         if same_padding:
             apply_same_padding(self)
         
     def register_forward_pre_hook(self, hook: Callable[..., None]) -> RemovableHandle:
         if isinstance(hook, SpectralNorm):
-            self.filter = lambda x: self.spectral_norm(self.fused_scale_filter(x))
+            self.calculate_filter = lambda x: self.spectral_norm(self.fused_scale_filter(x))
             
         return super().register_forward_pre_hook(hook)
         
@@ -70,7 +70,7 @@ class UpscaleConv2d(ConvolutionalScale):
         
         output_padding = self._output_padding(inputs, output_size, *params)
         
-        return F.conv_transpose2d(inputs, self.filter(self.weight), self.bias,
+        return F.conv_transpose2d(inputs, self.calculate_filter(self.weight), self.bias,
                                   self.stride, self.padding, output_padding)
 
 class DownscaleConv2d(ConvolutionalScale):
@@ -83,5 +83,5 @@ class DownscaleConv2d(ConvolutionalScale):
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
 
     def forward(self, inputs: Tensor) -> Tensor:
-        return F.conv2d(inputs, self.filter(self.weight), self.bias,
+        return F.conv2d(inputs, self.calculate_filter(self.weight), self.bias,
                         self.stride, self.padding, self.dilation)

@@ -55,7 +55,7 @@ class TestConvolutional(unittest.TestCase):
         self.assertEqual(scale.weight.shape, (in_channels, out_channels, kernel_size - 1, kernel_size - 1), 
                          "kernel should be reduced in weights")
         scale(self.data)
-        self.assertEqual(scale.filter(scale.weight).shape, (3, 6, kernel_size, kernel_size), 
+        self.assertEqual(scale.calculate_filter(scale.weight).shape, (3, 6, kernel_size, kernel_size), 
                          "kernel in forward pass should match constructor argument")
         
     def test_spectral_norm(self):

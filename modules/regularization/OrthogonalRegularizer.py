@@ -8,7 +8,7 @@ class OrthogonalRegularizer(AbstractRegularizer):
     def __init__(self, module: nn.Module, regularizer_scale: float = 1e-4):
         super().__init__(module, regularizer_scale)
     
-    def get_regularizer_loss(self) -> None:
+    def get_regularizer_loss(self) -> Tensor:
         loss_func = self.get_orthogonality
         return super().get_regularizer_loss(loss_func)
 

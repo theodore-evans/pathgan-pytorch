@@ -19,7 +19,7 @@ class AbstractRegularizer(ABC):
 
         with torch.enable_grad():
             loss = torch.zeros(1)
-            for name, param in self.module.named_parameter():
+            for name, param in self.module.named_parameters():
                 if 'bias' not in name and 'Scale' not in name:
                     loss += self.regularizer_scale * loss_function(param)
             return loss
