@@ -34,9 +34,6 @@ class ConvolutionalScale(nn.ConvTranspose2d):
     def register_forward_pre_hook(self, hook: Callable[..., None]) -> RemovableHandle:
         if isinstance(hook, SpectralNorm):
             self.filter = lambda x: self.spectral_norm(self.fused_scale_filter(x))
-            # dim = 1 if isinstance(self, UpscaleConv2d) else 0
-            # setattr(hook, 'dim', dim)
-            # trying to modify the dim manually actually makes it fail, surprisingly
             
         return super().register_forward_pre_hook(hook)
         
