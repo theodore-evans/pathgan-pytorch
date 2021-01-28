@@ -1,14 +1,11 @@
 from collections import OrderedDict
-from models.generative.ConvolutionalScale import UpscaleConv2d
-from models.generative.AttentionBlock import AttentionBlock
-from models.generative.ConvolutionalBlock import ConvolutionalBlock
-from .Block import Block
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.tensor import Tensor
 
-from .ResidualBlock import ResidualBlock
-from .DenseBlock import DenseBlock
+from modules.blocks.ResidualBlock import ResidualBlock
+from modules.blocks.DenseBlock import DenseBlock
+from modules.blocks.ConvolutionalScale import UpscaleConv2d
+from modules.blocks.AttentionBlock import AttentionBlock
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
 
 class Model(nn.Module):
     def __init__(self) -> None:

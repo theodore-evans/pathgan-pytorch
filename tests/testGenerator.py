@@ -1,10 +1,10 @@
-from models.generative.ResidualBlock import ResidualBlock
-from models.generative.DenseBlock import DenseBlock
-from models.generative.ConvolutionalBlock import ConvolutionalBlock
-from models.generative.AttentionBlock import AttentionBlock
+from modules.blocks.ResidualBlock import ResidualBlock
+from modules.blocks.DenseBlock import DenseBlock
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
+from modules.blocks.AttentionBlock import AttentionBlock
 
 import unittest
-from models.generative.Generator import Generator
+from modules.generative.Generator import Generator
 from collections import OrderedDict
 import torch.nn as nn
 
