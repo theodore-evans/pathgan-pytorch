@@ -30,7 +30,7 @@ class ConvolutionalScale(nn.ConvTranspose2d):
             
     def register_forward_pre_hook(self, hook: Callable[..., None]) -> RemovableHandle:
         if isinstance(hook, SpectralNorm):
-            self.filter = lambda x: self.spectral_norm(self.filter(x))
+            self.filter = self.spectral_norm_wrapper(self.filter)
         return super().register_forward_pre_hook(hook)
 
     def use_fused_scale(self):
@@ -46,8 +46,15 @@ class ConvolutionalScale(nn.ConvTranspose2d):
         w = w[:, :, 1:, 1:] + w[:, :, 1:, :-1] + w[:, :, :-1, 1:] + w[:, :, :-1, :-1]
         return w
     
+    def spectral_norm_wrapper(self, filter_func: Callable):
+        def normalized(weight: Tensor):
+            return self.spectral_norm(filter_func(weight))
+        return normalized
+
     def spectral_norm(self, weight: Tensor) -> Tensor:
         w_mat = weight.view(weight.size(0), -1)
+        #TODO: self.u is not initialized. Two options if we are going to execute super().register_pre hook we can directly use self.weight_u
+        # else we can initialize a buffer called self.u in use_fused scale method
         sigma, _u = max_singular_value(w_mat, self.u, 1)
         self.u.copy_(_u) # type: ignore
         return weight / sigma
@@ -83,7 +90,7 @@ class DownscaleConv2d(ConvolutionalScale):
         out_channels: int,
         kernel_size: Union[int, Tuple[int, int]],
         **kwargs
-        ) -> None:
+        ) -> None: #TODO: Flip weight matrix here,
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
 
     def forward(self, inputs: Tensor) -> Tensor:
