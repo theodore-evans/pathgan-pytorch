@@ -1,7 +1,7 @@
 from torch import Tensor
 import copy
 
-from .Block import Block
+from modules.blocks.Block import Block
 
 class ResidualBlock(Block):
     def __init__(self, 

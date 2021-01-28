@@ -1,10 +1,9 @@
 from typing import  Optional, Union
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
-from torch.nn.utils.spectral_norm import spectral_norm
 
-from .Block import Block
-from .ConvolutionalScale import UpscaleConv2d, DownscaleConv2d
+from modules.blocks.Block import Block
+from modules.blocks.ConvolutionalScale import UpscaleConv2d, DownscaleConv2d
 from modules.utils import apply_same_padding
 
 default_layer_names = dict({nn.Conv2d : "conv_layer",
