@@ -6,6 +6,7 @@ from models.generative.AttentionBlock import AttentionBlock
 import unittest
 from models.generative.Generator import Generator
 from collections import OrderedDict
+import torch.nn as nn
 
 class TestGenerator(unittest.TestCase):
     def setUp(self):
@@ -39,16 +40,21 @@ class TestGenerator(unittest.TestCase):
         self.assertEqual(sum(1 for _ in self.generator_blocks), len(self.pathgan_blocks),
                          "Number of blocks should match configuration")
     
-    def test_that_block_order_is_correct(self):      
+    def test_that_block_order_is_correct(self):
         for generator_block, correct_block in zip(self.generator_blocks, self.pathgan_blocks):
             generator_block_type = type(generator_block[1])
             correct_block_type = correct_block[1]
             self.assertIs(generator_block_type, correct_block_type, 
                           "Type and order of generator blocks should match configuration")
             
-    # def test_that_block_names_are_correct(self):        
-    #     for generator_block, correct_block in zip(self.generator_blocks, self.pathgan_blocks):
-    #         generator_block_name = generator_block[0]
-    #         correct_block_name = correct_block[0]
-    #         self.assertIs(generator_block_name, correct_block_name, 
-    #                       "Name of generator blocks should match configuration")
+    def test_that_block_names_are_correct(self):
+        for generator_block, correct_block in zip(self.generator_blocks, self.pathgan_blocks):
+            generator_block_name = generator_block[0]
+            correct_block_name = correct_block[0]
+            self.assertIs(generator_block_name, correct_block_name, 
+                          "Name of generator blocks should match configuration")
+            
+    def test_that_blocks_have_correct_activations(self):
+        for block in self.pathgan_generator.named_children():
+            if type(block[1]) in (DenseBlock, ConvolutionalBlock) and block[0] != 'sigmoid_block':
+                self.assertIs(block[1].activation, nn.LeakyReLU)

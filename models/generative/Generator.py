@@ -17,34 +17,31 @@ class Model(nn.Module):
 class Generator(Model):
     def __init__(self) -> None:
         super().__init__()
-
-        dense = DenseBlock(8,8)
-        residual = ResidualBlock(8, dense)
-        upscale = ConvolutionalBlock(UpscaleConv2d(8,8,3))
-        attention = AttentionBlock(8)
         
         pathgan_blocks = OrderedDict({
-            ("dense_block_1", dense) : 1,
-            ("dense_block_2", dense) : 2,
+            ("dense_block_1", DenseBlock(8,8, activation=nn.LeakyReLU)) : 1,
+            ("dense_block_2", DenseBlock(8,8, activation=nn.LeakyReLU)) : 2,
             
-            ("res_block_1", residual) : 3,
-            ("upscale_block_1", upscale) : 4,
+            ("res_block_1", ResidualBlock(1, DenseBlock(8,8, activation=nn.LeakyReLU))) : 3,
+            ("upscale_block_1", ConvolutionalBlock(UpscaleConv2d(8,8,3), activation=nn.LeakyReLU)) : 4,
             
-            ("res_block_2", residual) : 5,
-            ("upscale_block_2", upscale) : 6,
+            ("res_block_2", ResidualBlock(1, DenseBlock(8,8, activation=nn.LeakyReLU))) : 5,
+            ("upscale_block_2", ConvolutionalBlock(UpscaleConv2d(8,8,3), activation=nn.LeakyReLU)) : 6,
             
-            ("res_block_3", residual) : 7,
-            ("attention_block_3", attention) : 8,
-            ("upscale_block_3", upscale) : 9,
+            ("res_block_3", ResidualBlock(1, DenseBlock(8,8, activation=nn.LeakyReLU))) : 7,
+            ("attention_block_3", AttentionBlock(8)) : 8,
+            ("upscale_block_3", ConvolutionalBlock(UpscaleConv2d(8,8,3), activation=nn.LeakyReLU)) : 9,
             
-            ("res_block_4", residual) : 10,
-            ("upscale_block_4", upscale) : 11,
+            ("res_block_4", ResidualBlock(1, DenseBlock(8,8, activation=nn.LeakyReLU))) : 10,
+            ("upscale_block_4", ConvolutionalBlock(UpscaleConv2d(8,8,3), activation=nn.LeakyReLU)) : 11,
             
-            ("res_block_5", residual) : 12,
-            ("upscale_block_5", upscale) : 13,
+            ("res_block_5", ResidualBlock(1, DenseBlock(8,8, activation=nn.LeakyReLU))) : 12,
+            ("upscale_block_5", ConvolutionalBlock(UpscaleConv2d(8,8,3), activation=nn.LeakyReLU)) : 13,
             
-            ("sigmoid_block", upscale) : 14
+            ("sigmoid_block", ConvolutionalBlock(UpscaleConv2d(8,8,3), activation=nn.Sigmoid)) : 14
         })
+        
+        
         
         for name, module in pathgan_blocks:
             self.add_module(name, module)
