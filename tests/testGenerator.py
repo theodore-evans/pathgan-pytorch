@@ -15,50 +15,49 @@ class TestGenerator(unittest.TestCase):
         self.generator_blocks = self.pathgan_generator.named_children()
 
         self.pathgan_blocks = OrderedDict({
-            ("dense_block_1", DenseBlock) : 1,
-            ("dense_block_2", DenseBlock) : 2,
+            ("dense_block_0", DenseBlock) : 1,
+            ("dense_block_1", DenseBlock) : 2,
             
-            ("res_block_1", ResidualBlock) : 3,
-            ("upscale_block_1", UpscaleBlock) : 4,
+            ("res_block_0", ResidualBlock) : 3,
+            ("upscale_block_0", UpscaleBlock) : 4,
             
-            ("res_block_2", ResidualBlock) : 5,
-            ("upscale_block_2", UpscaleBlock) : 6,
+            ("res_block_1", ResidualBlock) : 5,
+            ("upscale_block_1", UpscaleBlock) : 6,
             
-            ("res_block_3", ResidualBlock) : 7,
-            ("attention_block_3", AttentionBlock) : 8,
-            ("upscale_block_3", UpscaleBlock) : 9,
+            ("res_block_2", ResidualBlock) : 7,
+            ("attention_block_2", AttentionBlock) : 8,
+            ("upscale_block_2", UpscaleBlock) : 9,
             
-            ("res_block_4", ResidualBlock) : 10,
-            ("upscale_block_4", UpscaleBlock) : 11,
+            ("res_block_3", ResidualBlock) : 10,
+            ("upscale_block_3", UpscaleBlock) : 11,
             
-            ("res_block_5", ResidualBlock) : 12,
-            ("upscale_block_5", UpscaleBlock) : 13,
+            ("res_block_4", ResidualBlock) : 12,
+            ("upscale_block_4", UpscaleBlock) : 13,
             
             ("sigmoid_block", ConvolutionalBlock) : 14
         })
         
         self.pathgan_channels = dict({
-            "dense_block_1" : (100,1024),
-            "dense_block_2" : (1024,12544),
+            "dense_block_0" : (200,1024),
+            "dense_block_1" : (1024,12544),
             
-            "res_block_1" : (256,256),
-            "upscale_block_1",  : (,),
+            "res_block_0" : (256,256),
+            "upscale_block_0" : (256,512),
             
-            "res_block_2" : (,),
-            "upscale_block_2",  : (,),
+            "res_block_1" : (512,512),
+            "upscale_block_1" : (512,256),
             
-            "res_block_3" : (,),
-            "attention_block_3" : (,),
-            "upscale_block_3",  : (,),
+            "res_block_2" : (256,256),
+            "attention_block_2" : (256,256),
+            "upscale_block_2" : (256,128),
             
-            "res_block_4" : (,),
-            "upscale_block_4",  : (,),
+            "res_block_3" : (128,128),
+            "upscale_block_3" : (128,64),
             
-            "res_block_5" : (,),
-            "upscale_block_5",  : (,),
+            "res_block_4" : (64,64),
+            "upscale_block_4" : (64,32),
             
-            "sigmoid_block" : (,),
-        })
+            "sigmoid_block" : (32,3),
         })
     
     def test_that_number_of_blocks_is_correct(self):
@@ -98,4 +97,7 @@ class TestGenerator(unittest.TestCase):
                                   f"Normalization should be AdaIN ({res_block})")
                 
     def test_that_blocks_have_correct_in_and_out_channels(self):
-        pass
+        for name, block in self.pathgan_generator.named_children():
+            block_channels = (block.in_channels, block.out_channels)
+            self.assertEqual(block_channels, self.pathgan_channels[name],
+                             f"Blocks should have correct in_ and out_channels")

@@ -19,10 +19,11 @@ class Model(nn.Module):
 
 class Generator(Model):
     def __init__(self,
-                 latent_dim: int = 100,
-                 number_of_dense_blocks: int = 2,
+                 latent_dim: int = 200,
+                 kernel_size: Union[int, Tuple[int,int]] = 3,
+                 number_of_dense_layers: int = 2,
                  number_of_synthesis_blocks: int = 5,
-                 synthesis_block_with_attention: int = 3) -> None:
+                 synthesis_block_with_attention: int = 2) -> None:
         super().__init__()
         
         default_kwargs = {
@@ -34,15 +35,29 @@ class Generator(Model):
             'latent_dim' : latent_dim
         }
         
-        for scope in range(1, number_of_dense_blocks + 1):
-            self.add_dense_block(scope=scope, in_channels=8, out_channels=8, **default_kwargs)
+        in_channels = latent_dim
+        dense_out_channels = [1024, 12544]
         
-        for scope in range(1, number_of_synthesis_blocks + 1):
+        for scope in range(number_of_dense_layers):
+            out_channels=dense_out_channels[scope]
+            self.add_dense_block(scope, in_channels, out_channels, **default_kwargs)
+            in_channels = out_channels
+        
+        # TODO: implement input reshape
+        
+        in_channels = 256
+        synthesis_out_channels = [512, 256, 128, 64, 32]
+        
+        for scope in range(number_of_synthesis_blocks):
             attention_block = True if scope == synthesis_block_with_attention else False
-            self.add_synthesis_block(scope=scope, in_channels=8, out_channels=8, kernel_size=3, 
+            out_channels = synthesis_out_channels[scope]
+            self.add_synthesis_block(scope, in_channels, out_channels, kernel_size, 
                                      attention_block=attention_block, **default_kwargs)
-            
-        self.add_sigmoid_block(in_channels=8, out_channels=8, kernel_size=3, **default_kwargs)
+            in_channels = out_channels
+        
+        image_channels = 3
+        
+        self.add_sigmoid_block(in_channels, image_channels, kernel_size, **default_kwargs)
         
     def add_dense_block(self, scope, in_channels, out_channels, **kwargs):
         self.add_module(f"dense_block_{scope}", DenseBlock(in_channels, out_channels, **kwargs))
@@ -56,11 +71,11 @@ class Generator(Model):
                             blocks_in_residual = 2,
                             **kwargs):
         
-        residual_block_template = ConvolutionalBlock(Conv2d(in_channels, out_channels, kernel_size), **kwargs)
+        residual_block_template = ConvolutionalBlock(Conv2d(in_channels, in_channels, kernel_size), **kwargs)
         
         self.add_module(f"res_block_{scope}", ResidualBlock(blocks_in_residual, residual_block_template))
         if attention_block:
-            self.add_module(f"attention_block_{scope}", AttentionBlock(out_channels))
+            self.add_module(f"attention_block_{scope}", AttentionBlock(in_channels))
         self.add_module(f"upscale_block_{scope}", UpscaleBlock(in_channels, out_channels, kernel_size, **kwargs))
         
     def add_sigmoid_block(self, in_channels, out_channels, kernel_size, **kwargs):
