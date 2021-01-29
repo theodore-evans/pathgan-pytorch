@@ -1,4 +1,4 @@
-from typing import  Optional, Union
+from typing import  Optional, Tuple, Union
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
@@ -32,3 +32,22 @@ class ConvolutionalBlock(Block):
         
         super().__init__(in_channels, out_channels, layers, **kwargs)
         
+class UpscaleBlock(ConvolutionalBlock):
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: Union[int, Tuple[int, int]],
+                 **kwargs
+                 )->None:
+        
+        super().__init__(UpscaleConv2d(in_channels, out_channels, kernel_size), **kwargs)
+        
+class DownscaleBlock(ConvolutionalBlock):
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: Union[int, Tuple[int, int]],
+                 **kwargs
+                 )->None:
+        
+        super().__init__(DownscaleConv2d(in_channels, out_channels, kernel_size), **kwargs)

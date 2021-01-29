@@ -1,6 +1,6 @@
 from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.DenseBlock import DenseBlock
-from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, UpscaleBlock
 from modules.blocks.AttentionBlock import AttentionBlock
 
 import unittest
@@ -18,20 +18,20 @@ class TestGenerator(unittest.TestCase):
             ("dense_block_2", DenseBlock) : 2,
             
             ("res_block_1", ResidualBlock) : 3,
-            ("upscale_block_1", ConvolutionalBlock) : 4,
+            ("upscale_block_1", UpscaleBlock) : 4,
             
             ("res_block_2", ResidualBlock) : 5,
-            ("upscale_block_2", ConvolutionalBlock) : 6,
+            ("upscale_block_2", UpscaleBlock) : 6,
             
             ("res_block_3", ResidualBlock) : 7,
             ("attention_block_3", AttentionBlock) : 8,
-            ("upscale_block_3", ConvolutionalBlock) : 9,
+            ("upscale_block_3", UpscaleBlock) : 9,
             
             ("res_block_4", ResidualBlock) : 10,
-            ("upscale_block_4", ConvolutionalBlock) : 11,
+            ("upscale_block_4", UpscaleBlock) : 11,
             
             ("res_block_5", ResidualBlock) : 12,
-            ("upscale_block_5", ConvolutionalBlock) : 13,
+            ("upscale_block_5", UpscaleBlock) : 13,
             
             ("sigmoid_block", ConvolutionalBlock) : 14
         })
@@ -44,17 +44,19 @@ class TestGenerator(unittest.TestCase):
         for generator_block, correct_block in zip(self.generator_blocks, self.pathgan_blocks):
             generator_block_type = type(generator_block[1])
             correct_block_type = correct_block[1]
-            self.assertIs(generator_block_type, correct_block_type, 
-                          "Type and order of generator blocks should match configuration")
+            self.assertIs(generator_block_type, correct_block_type,
+                          f"Type and order of generator blocks should match configuration ({generator_block[0]})")
             
     def test_that_block_names_are_correct(self):
         for generator_block, correct_block in zip(self.generator_blocks, self.pathgan_blocks):
             generator_block_name = generator_block[0]
             correct_block_name = correct_block[0]
-            self.assertIs(generator_block_name, correct_block_name, 
-                          "Name of generator blocks should match configuration")
+            self.assertEqual(generator_block_name, correct_block_name, 
+                          f"Name of generator blocks should match configuration ({generator_block_name})")
             
     def test_that_blocks_have_correct_activations(self):
         for block in self.pathgan_generator.named_children():
             if type(block[1]) in (DenseBlock, ConvolutionalBlock) and block[0] != 'sigmoid_block':
-                self.assertIs(block[1].activation, nn.LeakyReLU)
+                self.assertIs(type(block[1].activation), nn.LeakyReLU)
+                
+    

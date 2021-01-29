@@ -4,10 +4,9 @@ import copy
 from modules.blocks.Block import Block
 
 class ResidualBlock(Block):
-    def __init__(self, 
-                 num_blocks : int, 
-                 block_template : Block,
-                 **kwargs
+    def __init__(self,
+                 num_blocks : int,
+                 block_template : Block
                  ) -> None:
         
         super().__init__(block_template.in_channels, block_template.out_channels)
