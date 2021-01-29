@@ -4,27 +4,25 @@ import torch
 import torch.nn as nn
 from torch.nn.modules.instancenorm import InstanceNorm2d
 
-from .AbstractNormalization import AbstractNormalization
+from modules.normalization.AbstractNormalization import AbstractNormalization
 
-class AdaptiveInstanceNormalization(AbstractNormalization, nn.Module):
+class AdaptiveInstanceNormalization(AbstractNormalization):
     def __init__(self,
                  channels : int,
                  latent_dim : int,
                  intermediate_layer: bool = True,
-                 intermediate_channels : Optional[int] = None,
                  dense_activation : Optional[nn.Module] = nn.ReLU(),
                  gamma_activation : Optional[nn.Module] = nn.ReLU(),
                  beta_activation : Optional[nn.Module] = None
                  ) -> None:
         
-        nn.Module.__init__(self)
+        super().__init__()
         
         self.latent_dim = latent_dim
         self.instance_norm = InstanceNorm2d(channels)
         
         if intermediate_layer:
-            if intermediate_channels is None:
-                intermediate_channels = (latent_dim + channels) // 2
+            intermediate_channels = (latent_dim + channels) // 2
             self.dense_layer = nn.Linear(latent_dim, intermediate_channels)
             in_channels = intermediate_channels
             self.dense_activation = dense_activation

@@ -31,9 +31,10 @@ class TestConvolutional(unittest.TestCase):
         self.assertEqual(out.shape, (64, 6, *self.halved_image_shape),
                          "Dimensions Should Match")
     
-    def test_upscale_requires_correct_arguments(self):
-        with self.assertRaises(ValueError): 
+    def test_scale_blocks_require_odd_filter(self):
+        with self.assertRaises(ValueError):
             UpscaleConv2d(in_channels=3, out_channels=6, kernel_size=2)
+            DownscaleConv2d(in_channels=3, out_channels=6, kernel_size=2)
         
     def test_upscale(self):
         scale = ConvolutionalBlock(UpscaleConv2d(in_channels=3, out_channels=6, kernel_size=3),regularization= spectral_norm)

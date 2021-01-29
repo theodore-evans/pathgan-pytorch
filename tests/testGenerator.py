@@ -1,3 +1,4 @@
+from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.DenseBlock import DenseBlock
 from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, UpscaleBlock
@@ -35,6 +36,30 @@ class TestGenerator(unittest.TestCase):
             
             ("sigmoid_block", ConvolutionalBlock) : 14
         })
+        
+        self.pathgan_channels = dict({
+            "dense_block_1" : (100,1024),
+            "dense_block_2" : (1024,12544),
+            
+            "res_block_1" : (256,256),
+            "upscale_block_1",  : (,),
+            
+            "res_block_2" : (,),
+            "upscale_block_2",  : (,),
+            
+            "res_block_3" : (,),
+            "attention_block_3" : (,),
+            "upscale_block_3",  : (,),
+            
+            "res_block_4" : (,),
+            "upscale_block_4",  : (,),
+            
+            "res_block_5" : (,),
+            "upscale_block_5",  : (,),
+            
+            "sigmoid_block" : (,),
+        })
+        })
     
     def test_that_number_of_blocks_is_correct(self):
         self.assertEqual(sum(1 for _ in self.generator_blocks), len(self.pathgan_blocks),
@@ -59,4 +84,18 @@ class TestGenerator(unittest.TestCase):
             if type(block[1]) in (DenseBlock, ConvolutionalBlock) and block[0] != 'sigmoid_block':
                 self.assertIs(type(block[1].activation), nn.LeakyReLU)
                 
-    
+    def test_that_blocks_have_adaptive_instance_normalization(self):
+        for block in self.pathgan_generator.children():
+            if type(block) in (DenseBlock, UpscaleBlock):
+                self.assertTrue(hasattr(block, 'normalization'),
+                                f"Dense and convolution blocks should have normalization ({block})")
+                self.assertIs(type(block.normalization), AdaptiveInstanceNormalization,
+                              f"Normalization should be AdaIN ({block})")
+                
+            if type(block) is ResidualBlock:
+                for res_block in block.children():
+                    self.assertIs(type(res_block.normalization), AdaptiveInstanceNormalization, 
+                                  f"Normalization should be AdaIN ({res_block})")
+                
+    def test_that_blocks_have_correct_in_and_out_channels(self):
+        pass

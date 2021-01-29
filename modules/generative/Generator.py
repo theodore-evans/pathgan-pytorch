@@ -9,25 +9,29 @@ from modules.blocks.DenseBlock import DenseBlock
 from modules.blocks.AttentionBlock import AttentionBlock
 from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, UpscaleBlock
 from modules.initialization.XavierInitializer import XavierInitializer
+from modules.blocks.NoiseInput import NoiseInput
+from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
+
 
 class Model(nn.Module):
     def __init__(self) -> None:
         super().__init__()
 
 class Generator(Model):
-    def __init__(self) -> None:
+    def __init__(self,
+                 latent_dim: int = 100,
+                 number_of_dense_blocks: int = 2,
+                 number_of_synthesis_blocks: int = 5,
+                 synthesis_block_with_attention: int = 3) -> None:
         super().__init__()
         
-        number_of_dense_blocks = 2
-        number_of_synthesis_blocks = 5
-        synthesis_block_with_attention = 3
-        
         default_kwargs = {
-            'normalization': None,
+            'normalization': AdaptiveInstanceNormalization,
             'regularization': spectral_norm,
-            'noise_input': None,
+            'noise_input': NoiseInput,
             'activation': nn.LeakyReLU(0.2),
-            'initializer': XavierInitializer
+            'initializer': XavierInitializer,
+            'latent_dim' : latent_dim
         }
         
         for scope in range(1, number_of_dense_blocks + 1):
