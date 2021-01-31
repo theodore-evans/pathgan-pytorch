@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../pathgan"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.venvPath": "/Users/theoevans/anaconda3/envs/",
+		"python.pythonPath": "/Users/theoevans/anaconda3/envs/pathgan-torch/bin/python"
+	}
+}

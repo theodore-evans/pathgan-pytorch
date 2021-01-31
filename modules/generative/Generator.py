@@ -1,3 +1,4 @@
+from modules.blocks.ReshapeBlock import ReshapeBlock
 from typing import Tuple, Union
 import torch.nn as nn
 from torch.nn.utils.spectral_norm import spectral_norm
@@ -20,10 +21,12 @@ class Model(nn.Module):
 class Generator(Model):
     def __init__(self,
                  latent_dim: int = 200,
+                 dense_out_channels: list = [1024, 12544],
+                 synthesis_out_channels: list = [512, 256, 128, 64, 32],
                  kernel_size: Union[int, Tuple[int,int]] = 3,
-                 number_of_dense_layers: int = 2,
-                 number_of_synthesis_blocks: int = 5,
-                 synthesis_block_with_attention: int = 2) -> None:
+                 synthesis_block_with_attention: int = 2,
+                 image_channels: int = 3
+                 ) -> None:
         super().__init__()
         
         default_kwargs = {
@@ -36,17 +39,15 @@ class Generator(Model):
         }
         
         in_channels = latent_dim
-        dense_out_channels = [1024, 12544]
+        number_of_dense_layers = len(dense_out_channels)
+        number_of_synthesis_blocks = len(synthesis_out_channels)
         
         for scope in range(number_of_dense_layers):
             out_channels=dense_out_channels[scope]
             self.add_dense_block(scope, in_channels, out_channels, **default_kwargs)
             in_channels = out_channels
         
-        # TODO: implement input reshape
-        
-        in_channels = 256
-        synthesis_out_channels = [512, 256, 128, 64, 32]
+        self.add_module("reshape_block", ReshapeBlock(dense_out_channels[-1], out_channels=256))
         
         for scope in range(number_of_synthesis_blocks):
             attention_block = True if scope == synthesis_block_with_attention else False
@@ -54,8 +55,6 @@ class Generator(Model):
             self.add_synthesis_block(scope, in_channels, out_channels, kernel_size, 
                                      attention_block=attention_block, **default_kwargs)
             in_channels = out_channels
-        
-        image_channels = 3
         
         self.add_sigmoid_block(in_channels, image_channels, kernel_size, **default_kwargs)
         
