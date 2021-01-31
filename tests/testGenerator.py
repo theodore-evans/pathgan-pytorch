@@ -101,6 +101,3 @@ class TestGenerator(unittest.TestCase):
     def test_checks_for_valid_output_image_size(self):
         with self.assertRaises(ValueError):
             Generator(synthesis_out_channels = [512, 256, 128, 64, 32], output_image_size = 223)
-            
-    def test_that_starting_input_shape_is_calculated(self):
-        
