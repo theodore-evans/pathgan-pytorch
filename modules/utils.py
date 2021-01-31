@@ -2,6 +2,7 @@ from typing import  Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from modules.types import size_2_t
 
 #define _l2normalization
 def _l2normalize(v, eps=1e-12):
@@ -34,3 +35,6 @@ def apply_same_padding(conv_layer: Union[nn.Conv2d, nn.ConvTranspose2d]) -> None
         padding.append((k - 1) // 2)
         
     conv_layer.padding = tuple(padding)
+    
+def pair(parameter: size_2_t):
+    return parameter if isinstance(parameter, tuple) else (parameter, parameter)

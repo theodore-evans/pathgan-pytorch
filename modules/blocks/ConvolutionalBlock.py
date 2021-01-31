@@ -1,10 +1,11 @@
-from typing import  Optional, Tuple, Union
+from typing import  Optional, Union
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
 from modules.blocks.Block import Block
 from modules.blocks.ConvolutionalScale import UpscaleConv2d, DownscaleConv2d
 from modules.utils import apply_same_padding
+from modules.types import size_2_t
 
 default_layer_names = dict({nn.Conv2d : "conv_layer",
                             nn.ConvTranspose2d : "conv_transpose_layer",
@@ -36,7 +37,7 @@ class UpscaleBlock(ConvolutionalBlock):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 kernel_size: Union[int, Tuple[int, int]],
+                 kernel_size: size_2_t,
                  **kwargs
                  )->None:
         
@@ -46,7 +47,7 @@ class DownscaleBlock(ConvolutionalBlock):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 kernel_size: Union[int, Tuple[int, int]],
+                 kernel_size: size_2_t,
                  **kwargs
                  )->None:
         

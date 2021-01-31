@@ -1,15 +1,15 @@
-from typing import Optional, Tuple, Union
+from typing import Optional
 import torch
 import math
-import torch.nn as nn
 from torch.tensor import Tensor
 from modules.blocks.Block import Block
-
+from modules.types import size_2_t
+from modules.utils import pair
 class ReshapeBlock(Block):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 image_shape: Optional[Union[int, Tuple[int,int]]] = None,
+                 image_shape: Optional[size_2_t] = None,
                  **kwargs
                  ) -> None:
         
@@ -23,11 +23,10 @@ class ReshapeBlock(Block):
         image_area = in_channels // out_channels
         
         if image_shape is not None:
-            self.image_shape = image_shape if isinstance(image_shape, tuple) else (image_shape, image_shape)
+            self.image_shape = pair(image_shape)
             image_shape_factorises_in_channels = image_area == self.image_shape[0] * self.image_shape[1]
             if not image_shape_factorises_in_channels:
                 raise ValueError("input channels must factorise into out channels, image height and width")
-
         else:
             if not is_perfect_square(image_area):
                 raise ValueError('''Image width * height must be perfect square, 
@@ -35,7 +34,6 @@ class ReshapeBlock(Block):
             image_side = int(math.sqrt(in_channels // out_channels))
             self.image_shape = (image_side, image_side)
                 
-
     def forward(self, inputs: Tensor) -> Tensor:
         if inputs.size(1) != self.in_channels:
             raise ValueError("in_channels of block does not match in_channels of input")

@@ -1,3 +1,4 @@
+from modules.blocks.ReshapeBlock import ReshapeBlock
 from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.DenseBlock import DenseBlock
@@ -6,7 +7,6 @@ from modules.blocks.AttentionBlock import AttentionBlock
 
 import unittest
 from modules.generative.Generator import Generator
-from collections import OrderedDict
 import torch.nn as nn
 
 class TestGenerator(unittest.TestCase):
@@ -14,33 +14,29 @@ class TestGenerator(unittest.TestCase):
         self.pathgan_generator = Generator()
         self.generator_blocks = self.pathgan_generator.named_children()
 
-        self.pathgan_blocks = OrderedDict({
-            ("dense_block_0", DenseBlock) : 1,
-            ("dense_block_1", DenseBlock) : 2,
-            
-            ("res_block_0", ResidualBlock) : 3,
-            ("upscale_block_0", UpscaleBlock) : 4,
-            
-            ("res_block_1", ResidualBlock) : 5,
-            ("upscale_block_1", UpscaleBlock) : 6,
-            
-            ("res_block_2", ResidualBlock) : 7,
-            ("attention_block_2", AttentionBlock) : 8,
-            ("upscale_block_2", UpscaleBlock) : 9,
-            
-            ("res_block_3", ResidualBlock) : 10,
-            ("upscale_block_3", UpscaleBlock) : 11,
-            
-            ("res_block_4", ResidualBlock) : 12,
-            ("upscale_block_4", UpscaleBlock) : 13,
-            
-            ("sigmoid_block", ConvolutionalBlock) : 14
-        })
+        self.pathgan_blocks = [
+            ("dense_block_0", DenseBlock),
+            ("dense_block_1", DenseBlock),
+            ("reshape_block", ReshapeBlock),
+            ("res_block_0", ResidualBlock),
+            ("upscale_block_0", UpscaleBlock),
+            ("res_block_1", ResidualBlock),
+            ("upscale_block_1", UpscaleBlock), 
+            ("res_block_2", ResidualBlock),
+            ("attention_block_2", AttentionBlock),
+            ("upscale_block_2", UpscaleBlock), 
+            ("res_block_3", ResidualBlock),
+            ("upscale_block_3", UpscaleBlock),
+            ("res_block_4", ResidualBlock),
+            ("upscale_block_4", UpscaleBlock),  
+            ("sigmoid_block", ConvolutionalBlock)
+        ]
         
         self.pathgan_channels = dict({
             "dense_block_0" : (200,1024),
             "dense_block_1" : (1024,12544),
-            
+            "reshape_block" : (12544, 256),
+
             "res_block_0" : (256,256),
             "upscale_block_0" : (256,512),
             
@@ -100,4 +96,11 @@ class TestGenerator(unittest.TestCase):
         for name, block in self.pathgan_generator.named_children():
             block_channels = (block.in_channels, block.out_channels)
             self.assertEqual(block_channels, self.pathgan_channels[name],
-                             f"Blocks should have correct in_ and out_channels")
+                             "Blocks should have correct in_ and out_channels")
+            
+    def test_checks_for_valid_output_image_size(self):
+        with self.assertRaises(ValueError):
+            Generator(synthesis_out_channels = [512, 256, 128, 64, 32], output_image_size = 223)
+            
+    def test_that_starting_input_shape_is_calculated(self):
+        

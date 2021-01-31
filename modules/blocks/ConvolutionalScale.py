@@ -1,19 +1,21 @@
+from typing import Callable, List, Optional
+
 import torch
 from torch import Tensor
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch import nn
-from typing import Any, Callable, List, Optional, Tuple, Union
-
 from torch.nn.utils.spectral_norm import SpectralNorm
 from torch.utils.hooks import RemovableHandle
+
 from modules.utils import apply_same_padding, max_singular_value
+from modules.types import size_2_t
 
 class ConvolutionalScale(nn.ConvTranspose2d):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 kernel_size: Union[int, Tuple[int, int]],
+                 kernel_size: size_2_t,
                  same_padding: bool = True,
                  **kwargs):
         
@@ -52,7 +54,7 @@ class UpscaleConv2d(ConvolutionalScale):
     def __init__(self,
         in_channels: int,
         out_channels: int,
-        kernel_size: Union[int, Tuple[int, int]],
+        kernel_size: size_2_t,
         **kwargs
         ) -> None:
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
@@ -77,7 +79,7 @@ class DownscaleConv2d(ConvolutionalScale):
     def __init__(self,
         in_channels: int,
         out_channels: int,
-        kernel_size: Union[int, Tuple[int, int]],
+        kernel_size: size_2_t,
         **kwargs
         ) -> None:
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
