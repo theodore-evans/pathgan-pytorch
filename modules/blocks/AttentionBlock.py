@@ -29,7 +29,7 @@ class AttentionBlock(Block):
 
         self.gamma = nn.Parameter(torch.zeros(1), requires_grad=True)
 
-    def forward(self, inputs: Tensor) -> Tensor:
+    def forward(self, inputs: Tensor, **kwargs) -> Tensor:
         batch_size, channels, height, width = inputs.shape
         f_flat = self.attention_f(inputs).view(
             (batch_size, channels//8, -1)).permute(0, 2, 1)

@@ -52,8 +52,8 @@ class Block(nn.Module):
             self.initializer = initializer(self)
             self.initializer.initialize_weights()
     
-    def forward(self, inputs: Tensor, latent_input: Optional[Tensor] = None) -> Tensor: 
+    def forward(self, inputs: Tensor, latent_input: Optional[Tensor] = None) -> Tensor:
         net = inputs
         for module in self.children():
-            net = module(net, latent_input) if isinstance(module, AbstractNormalization) else module(net)
+            net = module(net, latent_input) if isinstance(module, (Block, AbstractNormalization)) else module(net)
         return net

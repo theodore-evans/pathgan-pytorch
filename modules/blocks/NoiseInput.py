@@ -12,12 +12,11 @@ class NoiseInput(nn.Module):
 
     def forward(self, inputs : Tensor, noise : Optional[Tensor] = None) -> Tensor:
         if noise is None:
-            if hasattr(self, 'noise') and self.noise is not None:
+            if self.noise is not None:
                 noise = self.noise # type: ignore
             else:
-                noise = torch.randn(inputs.size(0), 1, inputs.size(2), inputs.size(3), 
+                noise = torch.randn(inputs.size(0), 1, inputs.size(2), inputs.size(3),
                                     device=inputs.device, dtype=inputs.dtype)
         
         net = inputs + self.weight.view(1, -1, 1, 1) * noise
         return net
-    

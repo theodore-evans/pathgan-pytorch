@@ -10,7 +10,6 @@ class ReshapeBlock(Block):
                  in_channels: int,
                  out_channels: int,
                  image_shape: size_2_t,
-                 **kwargs
                  ) -> None:
         
         super().__init__(in_channels, out_channels)
@@ -25,8 +24,8 @@ class ReshapeBlock(Block):
         if not image_shape_factorises_in_channels:
             raise ValueError("input channels must factorise into out channels, image height and width")
                 
-    def forward(self, inputs: Tensor) -> Tensor:
+    def forward(self, inputs: Tensor, *args, **kwargs) -> Tensor:
         if inputs.size(1) != self.in_channels:
             raise ValueError("in_channels of block does not match in_channels of input")
-        output_shape = (inputs.size(0), self.out_channels, self.image_shape[0], self.image_shape[1])
+        output_shape = (-1, self.out_channels, self.image_shape[0], self.image_shape[1])
         return torch.reshape(inputs, output_shape)

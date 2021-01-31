@@ -1,5 +1,6 @@
 from torch.nn.modules.container import ModuleDict
 import torch.nn as nn
+from torch.tensor import Tensor
 
 from .Block import Block
 class DenseBlock(Block):
@@ -11,3 +12,6 @@ class DenseBlock(Block):
         dense_layer = ModuleDict({'dense_layer' : nn.Linear(in_channels, out_channels)})
         
         super().__init__(in_channels, out_channels, dense_layer, **kwargs)
+        
+    def forward(self, *args, **kwargs) -> Tensor:
+        return super().forward(*args, **kwargs)

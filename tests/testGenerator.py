@@ -8,6 +8,7 @@ from modules.blocks.AttentionBlock import AttentionBlock
 import unittest
 from modules.generative.Generator import Generator
 import torch.nn as nn
+import torch
 
 class TestGenerator(unittest.TestCase):
     def setUp(self):
@@ -100,4 +101,10 @@ class TestGenerator(unittest.TestCase):
             
     def test_checks_for_valid_output_image_size(self):
         with self.assertRaises(ValueError):
-            Generator(synthesis_out_channels = [512, 256, 128, 64, 32], output_image_size = 223)
+            Generator(synthesis_out_channels = [512, 256, 128, 64, 32], output_shape = (223, 223, 3))
+            
+    def test_output_shape_is_correct(self):
+        data = torch.rand((1, 200))
+        latent_in = torch.rand((1, 200))
+        output = self.pathgan_generator(data, latent_in)
+        self.assertEqual(output.shape, (1, 3, 224, 224))

@@ -3,6 +3,7 @@ from torch import Tensor
 import torch
 import torch.nn as nn
 from torch.nn.modules.instancenorm import InstanceNorm2d
+from torch.nn.modules.normalization import LayerNorm
 
 from modules.normalization.AbstractNormalization import AbstractNormalization
 
@@ -19,7 +20,7 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
         super().__init__()
         
         self.latent_dim = latent_dim
-        self.instance_norm = InstanceNorm2d(channels)
+        self.channels = channels
         
         if intermediate_layer:
             intermediate_channels = (latent_dim + channels) // 2
@@ -39,14 +40,16 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
         self.beta_activation = beta_activation
 
     def forward(self,
-                input_tensor: Tensor,
+                inputs: Tensor,
                 latent_input: Optional[Tensor]
                 ) -> Tensor:
         
         if latent_input is None:
-            latent_input = torch.zeros(input_tensor.shape[0], self.latent_dim)
-            
-        normalized_input = self.instance_norm(input_tensor)
+            latent_input = torch.zeros(inputs.shape[0], self.latent_dim)
+        
+        instance_norm = InstanceNorm2d(self.channels) if inputs.dim == 4 else LayerNorm(self.channels)
+    
+        normalized_input = instance_norm(inputs)
         
         if self.dense_layer is not None:
             intermediate_result = self.dense_layer(latent_input)

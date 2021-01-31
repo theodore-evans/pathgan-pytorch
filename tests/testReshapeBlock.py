@@ -1,6 +1,5 @@
 import unittest
 import torch
-from torch._C import Value
 from modules.blocks.ReshapeBlock import ReshapeBlock
 
 class TestReshapeBlock(unittest.TestCase):

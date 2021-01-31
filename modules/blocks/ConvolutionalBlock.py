@@ -1,6 +1,7 @@
 from typing import  Optional, Union
 import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
+from torch.tensor import Tensor
 
 from modules.blocks.Block import Block
 from modules.blocks.ConvolutionalScale import UpscaleConv2d, DownscaleConv2d
@@ -33,6 +34,9 @@ class ConvolutionalBlock(Block):
         
         super().__init__(in_channels, out_channels, layers, **kwargs)
         
+    def forward(self, *args, **kwargs) -> Tensor:
+        return super().forward(*args, **kwargs)
+        
 class UpscaleBlock(ConvolutionalBlock):
     def __init__(self,
                  in_channels: int,
@@ -42,7 +46,7 @@ class UpscaleBlock(ConvolutionalBlock):
                  )->None:
         
         super().__init__(UpscaleConv2d(in_channels, out_channels, kernel_size), **kwargs)
-        
+    
 class DownscaleBlock(ConvolutionalBlock):
     def __init__(self,
                  in_channels: int,
@@ -52,3 +56,4 @@ class DownscaleBlock(ConvolutionalBlock):
                  )->None:
         
         super().__init__(DownscaleConv2d(in_channels, out_channels, kernel_size), **kwargs)
+        
