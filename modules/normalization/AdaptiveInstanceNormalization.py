@@ -1,9 +1,9 @@
 from typing import Optional
 from torch import Tensor
 import torch
+from torch._C import Value
 import torch.nn as nn
-from torch.nn.modules.instancenorm import InstanceNorm2d
-from torch.nn.modules.normalization import LayerNorm
+from torch.nn.modules import BatchNorm1d, BatchNorm2d
 
 from modules.normalization.AbstractNormalization import AbstractNormalization
 
@@ -47,9 +47,14 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
         if latent_input is None:
             latent_input = torch.zeros(inputs.shape[0], self.latent_dim)
         
-        instance_norm = InstanceNorm2d(self.channels) if inputs.dim == 4 else LayerNorm(self.channels)
-    
-        normalized_input = instance_norm(inputs)
+        valid_input_size = inputs.dim() in (2,4)
+        
+        if not valid_input_size:
+            raise ValueError("Expecting input dimension of either 4 or 2")
+        
+        input_is_image = inputs.dim() == 4
+        batch_norm_args = ({'num_features' : self.channels, 'affine' : False})
+        batch_norm = BatchNorm2d(**batch_norm_args) if input_is_image else BatchNorm1d(**batch_norm_args)
         
         if self.dense_layer is not None:
             intermediate_result = self.dense_layer(latent_input)
@@ -65,8 +70,8 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
         if self.beta_activation is not None:
             beta = self.beta_activation(beta)
         
-        style_shift_transform = beta[:, :, None , None]
-        style_scale_transform = gamma[:, :, None, None]
+        style_shift_transform = beta[:, :, None , None] if input_is_image else beta
+        style_scale_transform = gamma[:, :, None, None] if input_is_image else gamma
         
-        transformed_input = style_scale_transform * normalized_input + style_shift_transform
+        transformed_input = style_scale_transform * batch_norm(inputs) + style_shift_transform
         return transformed_input

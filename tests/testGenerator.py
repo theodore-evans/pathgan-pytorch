@@ -4,6 +4,7 @@ from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.DenseBlock import DenseBlock
 from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, UpscaleBlock
 from modules.blocks.AttentionBlock import AttentionBlock
+from modules.blocks.NoiseInput import NoiseInput
 
 import unittest
 from modules.generative.Generator import Generator
@@ -103,8 +104,23 @@ class TestGenerator(unittest.TestCase):
         with self.assertRaises(ValueError):
             Generator(synthesis_out_channels = [512, 256, 128, 64, 32], output_shape = (223, 223, 3))
             
-    def test_output_shape_is_correct(self):
-        data = torch.rand((1, 200))
-        latent_in = torch.rand((1, 200))
-        output = self.pathgan_generator(data, latent_in)
-        self.assertEqual(output.shape, (1, 3, 224, 224))
+    def test_output_shape_is_correct_vanilla_case(self):
+        generator = Generator(normalization=None, noise_input=None)
+        data = torch.rand((10, 200))
+        latent_in = torch.rand((10, 200))
+        output = generator(data, latent_in)
+        self.assertEqual(output.shape, (10, 3, 224, 224))
+        
+    def test_output_shape_is_correct_with_adain(self):
+        generator = Generator(normalization=AdaptiveInstanceNormalization, noise_input=None)
+        data = torch.rand((10, 200))
+        latent_in = torch.rand((10, 200))
+        output = generator(data, latent_in)
+        self.assertEqual(output.shape, (10, 3, 224, 224))
+        
+    def test_output_shape_is_correct_with_noise_input(self):
+        generator = Generator(normalization=None, noise_input=NoiseInput)
+        data = torch.rand((10, 200))
+        latent_in = torch.rand((10, 200))
+        output = generator(data, latent_in)
+        self.assertEqual(output.shape, (10, 3, 224, 224)) 

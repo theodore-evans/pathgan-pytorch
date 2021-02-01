@@ -5,6 +5,7 @@ import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
 from modules.normalization.AbstractNormalization import AbstractNormalization
+from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from modules.initialization.AbstractInitializer import AbstractInitializer
 
 class Block(nn.Module):
@@ -55,5 +56,5 @@ class Block(nn.Module):
     def forward(self, inputs: Tensor, latent_input: Optional[Tensor] = None) -> Tensor:
         net = inputs
         for module in self.children():
-            net = module(net, latent_input) if isinstance(module, (Block, AbstractNormalization)) else module(net)
+            net = module(net, latent_input) if isinstance(module, (Block, AdaptiveInstanceNormalization)) else module(net)
         return net

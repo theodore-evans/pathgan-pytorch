@@ -17,7 +17,6 @@ from modules.blocks.NoiseInput import NoiseInput
 from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 
 from modules.types import size_2_t
-from modules.utils import pair
 
 class Generator(nn.Module):
     def __init__(self,
@@ -28,6 +27,7 @@ class Generator(nn.Module):
                  kernel_size: size_2_t = (3,3),
                  synthesis_block_with_attention: int = 2,
                  blocks_in_residual: int = 2,
+                 **kwargs
                  ) -> None:
 
         self.latent_dim = latent_dim
@@ -49,25 +49,29 @@ class Generator(nn.Module):
             return all(side % upscale_factor == 0 for side in self.output_image_size)
         
         if not image_size_is_valid:
-            raise ValueError(f'''Output image size must be a multiple of 
+            raise ValueError(f'''Output image size must be a multiple of
                              2^{self.num_synthesis_blocks} (no. upscale layers)''')
         
         super().__init__()
 
         default_kwargs = {
-            'normalization': None,
+            'normalization': AdaptiveInstanceNormalization,
             'regularization': spectral_norm,
-            'noise_input': None,
+            'noise_input': NoiseInput,
             'activation': nn.LeakyReLU(0.2),
-            'initializer': None,
+            'initializer': XavierInitializer,
             'latent_dim' : latent_dim
         }
         
+        for name, value in default_kwargs.items():
+            if name not in kwargs:
+                kwargs[name] = value
+        
         next_in_channels = self.latent_dim
-        next_in_channels = self.add_dense_blocks(next_in_channels, **default_kwargs)
+        next_in_channels = self.add_dense_blocks(next_in_channels, **kwargs)
         next_in_channels = self.add_reshape_block(next_in_channels)
-        next_in_channels = self.add_synthesis_blocks(next_in_channels, **default_kwargs)
-        self.add_sigmoid_block(next_in_channels, **default_kwargs)
+        next_in_channels = self.add_synthesis_blocks(next_in_channels, **kwargs)
+        self.add_sigmoid_block(next_in_channels, **kwargs)
         
     def forward(self, inputs: Tensor, latent_input: Union[Tensor, List[Tensor]]) -> Tensor:
         net = inputs

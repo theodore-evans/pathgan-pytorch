@@ -11,12 +11,14 @@ class NoiseInput(nn.Module):
         self.weight = nn.Parameter(torch.zeros(1, channels, 1, 1))
 
     def forward(self, inputs : Tensor, noise : Optional[Tensor] = None) -> Tensor:
+        input_is_image = inputs.dim() == 4
         if noise is None:
-            if self.noise is not None:
+            if hasattr(self, 'noise') and self.noise is not None:
                 noise = self.noise # type: ignore
             else:
-                noise = torch.randn(inputs.size(0), 1, inputs.size(2), inputs.size(3),
-                                    device=inputs.device, dtype=inputs.dtype)
+                noise_shape = (inputs.size(0), 1, inputs.size(2), inputs.size(3)) if input_is_image else (inputs.size(0), 1)
+                noise = torch.randn(*noise_shape, device=inputs.device, dtype=inputs.dtype)
         
-        net = inputs + self.weight.view(1, -1, 1, 1) * noise
+        shape = (1, -1, 1, 1) if input_is_image else (1, -1)
+        net = inputs + self.weight.view(*shape) * noise
         return net
