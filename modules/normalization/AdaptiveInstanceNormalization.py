@@ -1,9 +1,8 @@
 from typing import Optional
 from torch import Tensor
 import torch
-from torch._C import Value
 import torch.nn as nn
-from torch.nn import InstanceNorm1d, InstanceNorm2d
+from torch.nn import InstanceNorm2d
 from torch.nn.modules.normalization import LayerNorm
 
 from modules.normalization.AbstractNormalization import AbstractNormalization

@@ -16,9 +16,8 @@ class TestReshapeBlock(unittest.TestCase):
             ReshapeBlock(12544, 256, (6,6))
             
     def test_checks_that_in_channels_matches_input_shape(self):
-        reshape = ReshapeBlock(9216, 256, (7,7))
         with self.assertRaises(ValueError):
-            reshape(self.dense_output)
+            ReshapeBlock(9216, 256, (7,7))(self.dense_output)
             
     def test_output_is_reshaped(self):
         output = self.reshape(self.dense_output)

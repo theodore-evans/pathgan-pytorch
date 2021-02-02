@@ -7,7 +7,7 @@ import torch.nn as nn
 from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.AttentionBlock import AttentionBlock
 from modules.blocks.DenseBlock import DenseBlock
-from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, DownscaleBlock
 from modules.initialization.XavierInitializer import XavierInitializer
 from modules.blocks.ConvolutionalScale import DownscaleConv2d
 
@@ -43,7 +43,7 @@ class DiscriminatorResnet(nn.Module):
             # Res Block
             inner_res = ConvolutionalBlock(nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1), **default_kwargs)
             res_block = ResidualBlock(
-                num_blocks=2, block_template=inner_res, **default_kwargs)
+                num_blocks=2, block_template=inner_res)
 
             self.conv_part.add_module(f'ResNet_{layer}', res_block)
 
@@ -55,8 +55,8 @@ class DiscriminatorResnet(nn.Module):
 
             # Downsample
 
-            down = ConvolutionalBlock(DownscaleConv2d(
-                in_channels=in_channels, out_channels=out_channels, kernel_size=5), **default_kwargs)
+            down = DownscaleBlock(
+                in_channels=in_channels, out_channels=out_channels, kernel_size=5, **default_kwargs)
 
             self.conv_part.add_module(f'DownScale_{layer}', down)
             in_channels = out_channels
