@@ -5,8 +5,8 @@ import torch.nn as nn
 from torch.nn.modules.container import ModuleDict
 
 from modules.normalization.AbstractNormalization import AbstractNormalization
-from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
-from modules.initialization.AbstractInitializer import AbstractInitializer
+
+from modules.types import regularization_t, noise_input_t, normalization_t, activation_t, initialization_t
 
 class Block(nn.Module):
     def __init__(self,
@@ -14,11 +14,11 @@ class Block(nn.Module):
                  out_channels: int,
                  layers: ModuleDict = None,
                  latent_dim: Optional[int] = None,
-                 regularization: Optional[Callable[[nn.Module], nn.Module]] = None,
-                 noise_input: Optional[Callable[[int], nn.Module]] = None,
-                 normalization: Optional[Callable[..., AbstractNormalization]] = None,
-                 activation: Optional[nn.Module] = None,
-                 initializer: Optional[Callable[[nn.Module], AbstractInitializer]] = None
+                 regularization: regularization_t = None,
+                 noise_input: noise_input_t = None,
+                 normalization: normalization_t = None,
+                 activation: activation_t = None,
+                 initializer: initialization_t = None
                  ) -> None:
         
         super().__init__()
@@ -34,17 +34,19 @@ class Block(nn.Module):
             for name, layer in layers.items():
                 self.add_module(name, regularization(layer))
                         
-        self._add_layer_epilogue(noise_input, normalization, activation)
+        self._add_layer_epilogue(noise_input, normalization, regularization, activation)
         self.initialize(initializer)
 
-    def _add_layer_epilogue(self, noise_input, normalization, activation):
+    def _add_layer_epilogue(self, noise_input, normalization, regularization, activation):
         if noise_input is not None:
             self.noise_input = noise_input(self.out_channels)
+            
         if normalization is not None:
             if self.latent_dim is not None:
-                self.normalization = normalization(self.out_channels, self.latent_dim)
+                self.normalization = normalization(self.out_channels, self.latent_dim, regularization)
             else:
-                self.normalization = normalization(self.out_channels)
+                self.normalization = normalization(self.out_channels, regularization)
+            
         if activation is not None:
             self.activation = activation
 
@@ -56,5 +58,5 @@ class Block(nn.Module):
     def forward(self, inputs: Tensor, latent_input: Optional[Tensor] = None) -> Tensor:
         net = inputs
         for module in self.children():
-            net = module(net, latent_input) if isinstance(module, (Block, AdaptiveInstanceNormalization)) else module(net)
+            net = module(net, latent_input) if isinstance(module, (Block, AbstractNormalization)) else module(net)
         return net

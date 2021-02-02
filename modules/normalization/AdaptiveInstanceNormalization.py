@@ -6,25 +6,30 @@ from torch.nn import InstanceNorm2d
 from torch.nn.modules.normalization import LayerNorm
 
 from modules.normalization.AbstractNormalization import AbstractNormalization
+from modules.types import regularization_t
 
 class AdaptiveInstanceNormalization(AbstractNormalization):
     def __init__(self,
                  channels : int,
                  latent_dim : int,
+                 regularization: regularization_t = None,
                  intermediate_layer: bool = True,
                  dense_activation : Optional[nn.Module] = nn.ReLU(),
                  gamma_activation : Optional[nn.Module] = nn.ReLU(),
                  beta_activation : Optional[nn.Module] = None
                  ) -> None:
         
-        super().__init__()
+        super().__init__(channels, latent_dim, regularization)
         
         self.latent_dim = latent_dim
         self.channels = channels
         
+        if regularization is None:
+            regularization = lambda x: x
+        
         if intermediate_layer:
             intermediate_channels = (latent_dim + channels) // 2
-            self.dense_layer = nn.Linear(latent_dim, intermediate_channels)
+            self.dense_layer = regularization(nn.Linear(latent_dim, intermediate_channels))
             in_channels = intermediate_channels
             self.dense_activation = dense_activation
         else:
@@ -33,10 +38,10 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
             
         out_channels = channels
         
-        self.gamma_layer = nn.Linear(in_channels, out_channels)
+        self.gamma_layer = regularization(nn.Linear(in_channels, out_channels))
         self.gamma_activation = gamma_activation
         
-        self.beta_layer = nn.Linear(in_channels, out_channels)
+        self.beta_layer = regularization(nn.Linear(in_channels, out_channels))
         self.beta_activation = beta_activation
 
     def forward(self,
