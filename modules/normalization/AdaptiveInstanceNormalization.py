@@ -3,7 +3,8 @@ from torch import Tensor
 import torch
 from torch._C import Value
 import torch.nn as nn
-from torch.nn.modules import BatchNorm1d, BatchNorm2d
+from torch.nn import InstanceNorm1d, InstanceNorm2d
+from torch.nn.modules.normalization import LayerNorm
 
 from modules.normalization.AbstractNormalization import AbstractNormalization
 
@@ -53,8 +54,9 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
             raise ValueError("Expecting input dimension of either 4 or 2")
         
         input_is_image = inputs.dim() == 4
-        batch_norm_args = ({'num_features' : self.channels, 'affine' : False})
-        batch_norm = BatchNorm2d(**batch_norm_args) if input_is_image else BatchNorm1d(**batch_norm_args)
+        norm_2d = InstanceNorm2d(self.channels, affine=False)
+        norm_1d = LayerNorm(inputs.size(), elementwise_affine=False)
+        normalize = norm_2d if input_is_image else norm_1d
         
         if self.dense_layer is not None:
             intermediate_result = self.dense_layer(latent_input)
@@ -73,5 +75,5 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
         style_shift_transform = beta[:, :, None , None] if input_is_image else beta
         style_scale_transform = gamma[:, :, None, None] if input_is_image else gamma
         
-        transformed_input = style_scale_transform * batch_norm(inputs) + style_shift_transform
+        transformed_input = style_scale_transform * normalize(inputs) + style_shift_transform
         return transformed_input
