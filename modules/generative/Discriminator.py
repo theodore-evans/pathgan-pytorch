@@ -8,7 +8,7 @@ from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.AttentionBlock import AttentionBlock
 from modules.blocks.DenseBlock import DenseBlock
 from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, DownscaleBlock
-from modules.initialization.XavierInitializer import XavierInitializer
+from modules.initialization.XavierInitialization import XavierInitialization
 from modules.blocks.ConvolutionalScale import DownscaleConv2d
 
 class DiscriminatorResnet(nn.Module):
@@ -35,7 +35,7 @@ class DiscriminatorResnet(nn.Module):
             'regularization': spectral_norm,
             'noise_input': None,
             'activation': LeakyReLU(0.2),
-            'initializer': XavierInitializer
+            'initialization': XavierInitialization
         }
 
         for layer in range(layers):

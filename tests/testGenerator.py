@@ -1,4 +1,4 @@
-from modules.blocks.ReshapeBlock import ReshapeBlock
+from modules.blocks.ReshapeLayer import ReshapeLayer
 from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.DenseBlock import DenseBlock
@@ -19,7 +19,7 @@ class TestGenerator(unittest.TestCase):
         self.pathgan_blocks = [
             ("dense_block_0", DenseBlock),
             ("dense_block_1", DenseBlock),
-            ("reshape_block", ReshapeBlock),
+            ("reshape_block", ReshapeLayer),
             ("res_block_0", ResidualBlock),
             ("upscale_block_0", UpscaleBlock),
             ("res_block_1", ResidualBlock),

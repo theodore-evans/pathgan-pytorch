@@ -4,12 +4,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.spectral_norm import spectral_norm
 
-from .Block import Block
-from .ConvolutionalBlock import ConvolutionalBlock
+from modules.blocks.Block import Block
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
 
+from modules.types import regularization_t, initialization_t
 class AttentionBlock(Block):
     def __init__(self,
                  channels: int,
+                 regularization: regularization_t = None,
+                 initialization: initialization_t = None,
                  **kwargs,
                  ) -> None:
 
@@ -18,14 +21,17 @@ class AttentionBlock(Block):
         f_g_channels = channels // 8
         kernel_size = 1
         stride = 1
+        
+        conv_block_args = ({'regularization' : regularization,
+                            'initialization' : initialization})
 
         f_conv_layer = nn.Conv2d(channels, f_g_channels, kernel_size, stride)
         g_conv_layer = nn.Conv2d(channels, f_g_channels, kernel_size, stride)
         h_conv_layer = nn.Conv2d(channels, channels, kernel_size, stride)
         
-        self.attention_f = ConvolutionalBlock(f_conv_layer, **kwargs)
-        self.attention_g = ConvolutionalBlock(g_conv_layer, **kwargs)
-        self.attention_h = ConvolutionalBlock(h_conv_layer, **kwargs)
+        self.attention_f = ConvolutionalBlock(f_conv_layer, **conv_block_args)
+        self.attention_g = ConvolutionalBlock(g_conv_layer, **conv_block_args)
+        self.attention_h = ConvolutionalBlock(h_conv_layer, **conv_block_args)
 
         self.gamma = nn.Parameter(torch.zeros(1), requires_grad=True)
 

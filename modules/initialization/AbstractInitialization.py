@@ -4,7 +4,7 @@ from typing import Callable, Optional
 import torch.nn as nn
 from torch.tensor import Tensor
 
-class AbstractInitializer(ABC):
+class AbstractInitialization(ABC):
     @abstractmethod
     def __init__(self, module: nn.Module):
         self.module = module

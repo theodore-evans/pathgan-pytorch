@@ -2,7 +2,7 @@
 from typing import List, Tuple, Union
 
 from torch.tensor import Tensor
-from modules.blocks.ReshapeBlock import ReshapeBlock
+from modules.blocks.ReshapeLayer import ReshapeLayer
 import torch.nn as nn
 from torch.nn.utils.spectral_norm import spectral_norm
 
@@ -12,7 +12,7 @@ from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.DenseBlock import DenseBlock
 from modules.blocks.AttentionBlock import AttentionBlock
 from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, UpscaleBlock
-from modules.initialization.XavierInitializer import XavierInitializer
+from modules.initialization.XavierInitialization import XavierInitialization
 from modules.blocks.NoiseInput import NoiseInput
 from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 
@@ -59,7 +59,7 @@ class Generator(nn.Module):
             'regularization': spectral_norm,
             'noise_input': NoiseInput,
             'activation': nn.LeakyReLU(0.2),
-            'initializer': XavierInitializer,
+            'initialization': XavierInitialization,
             'latent_dim' : latent_dim
         }
         
@@ -69,7 +69,7 @@ class Generator(nn.Module):
         
         next_in_channels = self.latent_dim
         next_in_channels = self.add_dense_blocks(next_in_channels, **kwargs)
-        next_in_channels = self.add_reshape_block(next_in_channels)
+        next_in_channels = self.add_reshape_layer(next_in_channels)
         next_in_channels = self.add_synthesis_blocks(next_in_channels, **kwargs)
         self.add_sigmoid_block(next_in_channels, **kwargs)
         
@@ -90,11 +90,11 @@ class Generator(nn.Module):
     def add_dense_block(self, scope, in_channels, out_channels, **kwargs):
         self.add_module(f"dense_block_{scope}", DenseBlock(in_channels, out_channels, **kwargs))
     
-    def add_reshape_block(self, in_channels):
+    def add_reshape_layer(self, in_channels):
         upscale_factor = 2 ** self.num_synthesis_blocks
         image_shape = tuple(side // upscale_factor for side in self.output_image_size)
         out_channels = in_channels // (image_shape[0] * image_shape[1])
-        self.add_module("reshape_block", ReshapeBlock(in_channels, out_channels, image_shape))
+        self.add_module("reshape_block", ReshapeLayer(in_channels, out_channels, image_shape))
         return out_channels
     
     def add_synthesis_blocks(self, in_channels, **kwargs):
@@ -119,7 +119,7 @@ class Generator(nn.Module):
         
         self.add_module(f"res_block_{scope}", ResidualBlock(self.blocks_in_residual, residual_block_template))
         if has_attention_block:
-            self.add_module(f"attention_block_{scope}", AttentionBlock(in_channels))
+            self.add_module(f"attention_block_{scope}", AttentionBlock(in_channels, **kwargs))
         self.add_module(f"upscale_block_{scope}", UpscaleBlock(in_channels, out_channels, kernel_size, **kwargs))
         
     def add_sigmoid_block(self, in_channels, **kwargs):

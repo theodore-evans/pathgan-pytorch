@@ -18,7 +18,7 @@ class Block(nn.Module):
                  noise_input: noise_input_t = None,
                  normalization: normalization_t = None,
                  activation: activation_t = None,
-                 initializer: initialization_t = None
+                 initialization: initialization_t = None
                  ) -> None:
         
         super().__init__()
@@ -35,7 +35,8 @@ class Block(nn.Module):
                 self.add_module(name, regularization(layer))
                         
         self._add_layer_epilogue(noise_input, normalization, regularization, activation)
-        self.initialize(initializer)
+        
+        self.initialize(initialization)
 
     def _add_layer_epilogue(self, noise_input, normalization, regularization, activation):
         if noise_input is not None:
@@ -50,10 +51,9 @@ class Block(nn.Module):
         if activation is not None:
             self.activation = activation
 
-    def initialize(self, initializer):
-        if initializer is not None:
-            self.initializer = initializer(self)
-            self.initializer.initialize_weights()
+    def initialize(self, initialization):
+        if initialization is not None:
+            initialization(self).initialize_weights()
     
     def forward(self, inputs: Tensor, latent_input: Optional[Tensor] = None) -> Tensor:
         net = inputs

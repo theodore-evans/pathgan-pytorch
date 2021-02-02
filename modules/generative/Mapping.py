@@ -1,7 +1,7 @@
 import torch.nn as nn
 from torch.tensor import Tensor
 from torch.nn.utils.spectral_norm import spectral_norm
-from modules.initialization.XavierInitializer import XavierInitializer
+from modules.initialization.XavierInitialization import XavierInitialization
 from torch.nn.modules.activation import ReLU
 from modules.blocks.DenseBlock import DenseBlock
 from modules.blocks.ResidualBlock import ResidualBlock
@@ -19,7 +19,7 @@ class Mapping(nn.Module):
             'regularization': spectral_norm,
             'noise_input': None,
             'activation': ReLU(),
-            'initializer': XavierInitializer
+            'initialization': XavierInitialization
         }
 
         for layer in range(layers):

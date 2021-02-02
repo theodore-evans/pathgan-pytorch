@@ -1,4 +1,4 @@
-from modules.initialization.AbstractInitializer import AbstractInitializer
+from modules.initialization.AbstractInitialization import AbstractInitialization
 from modules.normalization.AbstractNormalization import AbstractNormalization
 from typing import Callable, Optional, Tuple, TypeVar, Union
 import torch.nn as nn
@@ -16,4 +16,4 @@ regularization_t = Optional[Callable[[nn.Module], nn.Module]]
 noise_input_t = Optional[Callable[[int], nn.Module]]
 normalization_t = Optional[Callable[..., AbstractNormalization]]
 activation_t = Optional[nn.Module]
-initialization_t = Optional[Callable[[nn.Module], AbstractInitializer]]
+initialization_t = Optional[Callable[[nn.Module], AbstractInitialization]]

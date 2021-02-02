@@ -1,18 +1,20 @@
-from typing import Optional
+import torch.nn as nn
 import torch
-import math
 from torch.tensor import Tensor
 from modules.blocks.Block import Block
 from modules.types import size_2_t
 from modules.utils import pair
-class ReshapeBlock(Block):
+class ReshapeLayer(nn.Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
                  image_shape: size_2_t,
                  ) -> None:
         
-        super().__init__(in_channels, out_channels)
+        super().__init__()
+        
+        self.in_channels = in_channels
+        self.out_channels = out_channels
         
         out_channels_divides_in_channels = in_channels % out_channels == 0
         

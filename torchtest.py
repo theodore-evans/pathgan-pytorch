@@ -163,7 +163,6 @@ def assert_uses_gpu():
   GpuUnusedException
     If GPU is inaccessible
   """
-
   try:
     assert torch.cuda.is_available()
   except AssertionError:
