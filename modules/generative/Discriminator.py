@@ -54,7 +54,6 @@ class DiscriminatorResnet(nn.Module):
                 self.conv_part.add_module('Attention', att_block)
 
             # Downsample
-
             down = DownscaleBlock(
                 in_channels=in_channels, out_channels=out_channels, kernel_size=5, **default_kwargs)
 

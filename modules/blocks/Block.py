@@ -53,7 +53,11 @@ class Block(nn.Module):
 
     def initialize(self, initialization):
         if initialization is not None:
-            initialization(self).initialize_weights()
+            types_to_initialize = (nn.Conv2d, nn.ConvTranspose2d, nn.Linear)
+            for m in self.modules():
+                if isinstance(m, types_to_initialize) and not hasattr(m, 'initialization'):
+                    m.initialization = initialization(m)
+                    m.initialization.initialize_weights()
     
     def forward(self, inputs: Tensor, latent_input: Optional[Tensor] = None) -> Tensor:
         net = inputs

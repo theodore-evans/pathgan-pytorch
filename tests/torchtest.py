@@ -6,6 +6,8 @@ Chase Roberts lists out 4 basic tests in his medium post about mltest.
 https://medium.com/@keeper6928/mltest-automatically-test-neural-network-models-in-one-function-call-eb6f1fa5019d
 
 torchtest is sort of a pytorch port of mltest (which was written for tensorflow models).
+
+Adapted for use with latent input by Theodore Evans 02.02.2021
 """
 
 import torch
@@ -164,7 +166,7 @@ def assert_uses_gpu():
     If GPU is inaccessible
   """
   try:
-    assert torch.cuda.is_available()
+    assert torch.cuda.is_available() # type: ignore
   except AssertionError:
     raise GpuUnusedException(
         "GPU inaccessible"

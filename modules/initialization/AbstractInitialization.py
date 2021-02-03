@@ -18,5 +18,5 @@ class AbstractInitialization(ABC):
                     initialization(m.weight)
 
                 # Bias is initialized with constant 0 values, still trainable
-                if m.bias is not None: 
+                if m.bias is not None:
                     nn.init.constant_(m.bias, 0.)
