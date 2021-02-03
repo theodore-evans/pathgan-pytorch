@@ -1,10 +1,11 @@
 stages:
   - test
 
+before_script:
+  - docker info
+
 test:
   stage: test
   script:
-    - apt-get update -qy
-    - apt-get install -y python-dev python-pip
-    - pip install -r requirements.txt
-    - python -m unittest -v manage.py tests
+    - docker build -t pathgan-pytorch .
+    - docker run pathgan-pytorch --gpus=all --rm python -m unittest discover tests
