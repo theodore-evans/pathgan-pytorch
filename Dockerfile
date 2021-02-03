@@ -21,7 +21,7 @@ RUN pip install -r /tmp/requirements.txt
 
 ENV PYTHONPATH /root/.local/lib:${PYTHONPATH}
 
-RUN MKDIR /root/src
+RUN mkdir /root/src
 
 COPY . /root/src/
 
