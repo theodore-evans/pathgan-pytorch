@@ -8,4 +8,4 @@ test:
   stage: test
   script:
     - docker build -t pathgan-pytorch .
-    - docker run --gpus=all --rm pathgan-pytorch python -m unittest discover tests
+    - docker run --rm pathgan-pytorch python -m unittest discover tests
