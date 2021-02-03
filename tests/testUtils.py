@@ -13,8 +13,13 @@ class TestUtils(unittest.TestCase):
     # Self fulfilling prohecy, makes sure orthogonal init and orthogonal reg_loss are working
     def test_ortho_reg(self):
         disc = DiscriminatorResnet()
-        
+        reg_loss_without_init = disc.get_orthogonal_reg_loss()
+        for name, param in disc.named_parameters():
+                if 'bias' not in name and 'scale' not in name and 'gamma' not in name or 'Scale' in name and 'kernel' in name:
+                    nn.init.orthogonal(param)
         reg_loss = disc.get_orthogonal_reg_loss()
+
+        assert reg_loss_without_init > reg_loss, "Unitialized weights should have higher loss"
         assert reg_loss < self.epsilon , "Orthogonal Reg Loss should be close to 0"
 
         disc.ortho_reg_scale = 1e-2

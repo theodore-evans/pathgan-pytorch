@@ -79,7 +79,7 @@ class DiscriminatorResnet(nn.Module):
             orth_loss = torch.zeros(1)
             for name, param in self.named_parameters():
                 # Ignore bias, scalars and scale layers
-                if 'bias' not in name and 'Scale' not in name and len(param.shape) > 1:
+                if 'bias' not in name and 'scale' not in name and len(param.shape) > 1:
                     param_flat = param.view(param.shape[0], -1)
                     sym = torch.mm(param_flat, torch.t(param_flat))
                     sym -= torch.eye(param_flat.shape[0])
