@@ -20,6 +20,6 @@ class AbstractRegularizer(ABC):
             loss = torch.zeros(1)
             for name, param in module.named_parameters():
                 # Ignore biases and one dimensional params
-                if len(param.shape)!=1 and 'Scale' not in name:
+                if len(param.shape)!=1 and 'scale' not in name:
                     loss += self.regularizer_scale * loss_function(param)
             return loss

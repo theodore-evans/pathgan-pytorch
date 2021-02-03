@@ -1,3 +1,4 @@
+#%%
 import os 
 import argparse
 from modules.generative.PathologyGAN import PathologyGAN
@@ -39,6 +40,6 @@ loss_type = 'relativistic gradient penalty'
 
 data = Dataset(args.data_path, image_height, image_width, image_channels, batch_size, data_type='train')
 
-# TODO: add parameters
-pathgan = PathologyGAN(data)
+# TODO: add parameters and beta
+pathgan = PathologyGAN(data, learning_rate_d=learning_rate_d, learning_rate_g=learning_rate_g, beta=beta_1, epochs=15, z_dim=z_dim )
 pathgan.train(False,5)
