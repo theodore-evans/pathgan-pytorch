@@ -10,6 +10,7 @@ from modules.blocks.DenseBlock import DenseBlock
 from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, DownscaleBlock
 from modules.initialization.XavierInitialization import XavierInitialization
 from modules.blocks.ConvolutionalScale import DownscaleConv2d
+from modules.blocks.ConvolutionalBlock import DownscaleBlock
 
 class DiscriminatorResnet(nn.Module):
     def __init__(
@@ -45,19 +46,19 @@ class DiscriminatorResnet(nn.Module):
             res_block = ResidualBlock(
                 num_blocks=2, block_template=inner_res)
 
-            self.conv_part.add_module(f'ResNet_{layer}', res_block)
+            self.conv_part.add_module(f'residual_block_{layer}', res_block)
 
             # Attention Block
             if attention_size is not None and current_size == attention_size:
                 att_block = AttentionBlock(
                     channels=in_channels, **default_kwargs)
-                self.conv_part.add_module('Attention', att_block)
+                self.conv_part.add_module('attention_block', att_block)
 
             # Downsample
-            down = DownscaleBlock(
-                in_channels=in_channels, out_channels=out_channels, kernel_size=5, **default_kwargs)
 
-            self.conv_part.add_module(f'DownScale_{layer}', down)
+            down = DownscaleBlock(in_channels=in_channels, out_channels=out_channels, kernel_size=5, **default_kwargs)
+
+            self.conv_part.add_module(f'downscale_block_{layer}', down)
             in_channels = out_channels
             out_channels *= 2
             current_size //= 2
@@ -67,11 +68,11 @@ class DiscriminatorResnet(nn.Module):
         # Add orho regularizer later
         dense = DenseBlock(in_channels=flattened_shape, out_channels=in_channels,
                            **default_kwargs)
-        self.dense_part.add_module('Dense_1', dense)
+        self.dense_part.add_module('dense_block_0', dense)
         # Second Dense
         dense = DenseBlock(in_channels=in_channels, out_channels=1,
                            **default_kwargs)
-        self.dense_part.add_module('Dense_2', dense)
+        self.dense_part.add_module('dense_block_1', dense)
 
     def get_orthogonal_reg_loss(self):
         with torch.enable_grad():
