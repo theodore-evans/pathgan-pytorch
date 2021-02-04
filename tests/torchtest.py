@@ -53,7 +53,7 @@ def _train_step(model, loss_fn, optim, batch, device):
   optim : torch.optim.Optimizer
     an optimizer instance
   batch : list
-    a 2 element list of inputs and labels, to be fed to the model
+    a 3 element list of inputs, latent_input and labels, to be fed to the model
   """
 
   # put model in train mode
