@@ -20,6 +20,7 @@ class TestModel(unittest.TestCase):
     
     def test_weights_are_initialized(self):
         model = self.generator
+        
     
     def test_weights_change_due_to_training(self):
         model = self.generator

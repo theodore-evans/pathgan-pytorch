@@ -23,7 +23,7 @@ class XavierInitialization(AbstractInitialization):
         
         def has_parameter(param: str) -> bool:
             m = self.module
-            return hasattr(m, param) and isinstance(getattr(m, param), nn.Parameter)
+            return hasattr(m, param)
         
         if has_parameter('weight'):
             xavier_uniform_(self.module.weight, gain) #type: ignore

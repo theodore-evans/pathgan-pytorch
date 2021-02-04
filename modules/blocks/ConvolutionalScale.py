@@ -60,8 +60,9 @@ class UpscaleConv2d(ConvolutionalScale):
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
                    
     def forward(self, 
-                inputs: Tensor, 
-                output_size: Optional[List[int]] = None
+                inputs: Tensor,
+                output_size: Optional[List[int]] = None,
+                **kwargs
                 ) -> Tensor:
         
         if output_size is None:
@@ -84,6 +85,6 @@ class DownscaleConv2d(ConvolutionalScale):
         ) -> None:
             super().__init__(in_channels, out_channels, kernel_size, **kwargs)
 
-    def forward(self, inputs: Tensor) -> Tensor:
+    def forward(self, inputs: Tensor, **kwargs) -> Tensor:
         return F.conv2d(inputs, self.calculate_filter(self.weight), self.bias,
                         self.stride, self.padding, self.dilation)

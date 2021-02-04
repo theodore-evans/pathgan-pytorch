@@ -67,6 +67,7 @@ def _train_step(model, loss_fn, optim, batch, device):
   inputs, latent_input, targets = batch[0], batch[1], batch[2]
   # move data to DEVICE
   inputs = inputs.to(device)
+  latent_input = latent_input.to(device)
   targets = targets.to(device)
   # forward
   likelihood = model(inputs, latent_input)
