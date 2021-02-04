@@ -1,5 +1,5 @@
 from typing import no_type_check
-
+from tqdm import tqdm
 from torch.nn.modules import loss
 from .Mapping import Mapping
 from .Discriminator import DiscriminatorResnet
@@ -15,36 +15,48 @@ from modules.regularization.OrthogonalRegularizer import OrthogonalRegularizer
 
 
 class PathologyGAN(nn.Module):
-    def __init__(self, dataset: Dataset, learning_rate_d: float, learning_rate_g: float, beta: float, epochs: int, z_dim: int, checkpoint_path: str):
+    def __init__(
+            self,
+            dataset: Dataset,
+            learning_rate_d: float,
+            learning_rate_g: float,
+            beta_1: float,
+            beta_2: float,
+            epochs: int,
+            z_dim: int,
+            checkpoint_path: str,
+            gp_coeff: float
+    ) -> None:
         super().__init__()
         self.dataset = dataset
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
+
         self.build_model()
-        self.initialize_optimizers(learning_rate_d, learning_rate_g, beta)
+        self.initialize_optimizers(
+            learning_rate_d, learning_rate_g, beta_1, beta_2)
         self.regularizer = OrthogonalRegularizer(1e-4)
-        
+
         self.checkpoint_path = checkpoint_path
         self.epochs = epochs
         self.z_dim = z_dim
+        self.gp_coeff = gp_coeff
 
         self.multi_label_margin_loss = nn.MultiLabelSoftMarginLoss()
 
-    # Initialize the optimizer here?
-
-    def build_model(self):
+    def build_model(self) -> None:
         self.mapping = Mapping()
         self.disc = DiscriminatorResnet()
         self.gen = Generator()
 
-    def initialize_optimizers(self, learning_rate_d: float, learning_rate_g: float, beta: float):
+    def initialize_optimizers(self, learning_rate_d: float, learning_rate_g: float, beta_1: float, beta_2: float) -> None:
         disc_parameters = self.disc.parameters()
         gen_parameters = chain(self.mapping.parameters(),
                                self.gen.parameters())
         self.optimizerD = optim.Adam(
-            disc_parameters, lr=learning_rate_d, betas=(beta, 0.999))
+            disc_parameters, lr=learning_rate_d, betas=(beta_1, beta_2))
         self.optimizerG = optim.Adam(
-            gen_parameters, lr=learning_rate_g, betas=(beta, 0.999))
+            gen_parameters, lr=learning_rate_g, betas=(beta_1, beta_2))
 
     def load_weights(self) -> None:
         self.load_state_dict(self.checkpoint_path)
@@ -63,12 +75,40 @@ class PathologyGAN(nn.Module):
     def calculate_losses(self) -> torch.Tensor:
         pass
 
+    def get_gradient_penalty(self, epsilon: torch.Tensor, real_images: torch.Tensor, fake_images: torch.Tensor) -> torch.Tensor:
+        mixed_images = real_images * epsilon + fake_images * (1 - epsilon)
+
+        # Calculate the critic's scores on the mixed images
+        mixed_scores = self.disc(mixed_images)
+
+        # Take the gradient of the scores with respect to the images
+        gradient = torch.autograd.grad(
+            # Note: You need to take the gradient of outputs with respect to inputs.
+            # This documentation may be useful, but it should not be necessary:
+            # https://pytorch.org/docs/stable/autograd.html#torch.autograd.grad
+            #### START CODE HERE ####
+            inputs=mixed_images,
+            outputs=mixed_scores,
+            #### END CODE HERE ####
+            # These other parameters have to do with the pytorch autograd engine works
+            grad_outputs=torch.ones_like(mixed_scores),
+            create_graph=True,
+            retain_graph=True,
+        )[0]
+
+        gradient = gradient.view(len(gradient), -1)
+        gradient_norm = gradient.norm(2, dim=1)
+        penalty = torch.mean((gradient_norm - 1)**2)
+
+        return penalty
+
     def train_discriminator(self, real_images: torch.Tensor, fake_images: torch.Tensor) -> torch.Tensor:
 
         self.disc.zero_grad()
         out_real = self.disc(real_images)
         out_fake = self.disc(fake_images.detach())
 
+        # Relativistic Loss, take the diff of reals and fakes
         real_fake_diff = out_real - torch.mean(out_fake, dim=0, keepdim=True)
         fake_real_diff = out_fake - torch.mean(out_real, dim=0, keepdim=True)
 
@@ -77,9 +117,16 @@ class PathologyGAN(nn.Module):
         loss_dis_fake = self.multi_label_margin_loss(
             fake_real_diff, torch.zeros(*real_fake_diff.shape))
 
-        # TODO: Should we implement gradient penalty?
+        # Gradient Penalty Loss
+        epsilon = torch.rand(len(real_images), 1, 1, 1,
+                             device=self.device, requires_grad=True)
+        grad_penalty = self.get_gradient_penalty(
+            real_images, fake_images.detach(), epsilon)
+
+        # Orthogonality Loss
         orthogonality_loss = self.regularizer.get_regularizer_loss(self.disc)
-        loss_discriminator = loss_dis_fake + loss_dis_real + orthogonality_loss
+        loss_discriminator = loss_dis_fake + loss_dis_real + \
+            orthogonality_loss + grad_penalty * self.gp_coeff
         loss_discriminator.backward()
 
         self.optimizerD.step()
@@ -100,7 +147,8 @@ class PathologyGAN(nn.Module):
         loss_gen_fake = self.multi_label_margin_loss(
             real_fake_diff, torch.zeros(*real_fake_diff.shape))
 
-        orthogonality_loss = self.regularizer.get_regularizer_loss(self.gen) + self.regularizer.get_regularizer_loss(self.mapping)
+        orthogonality_loss = self.regularizer.get_regularizer_loss(
+            self.gen) + self.regularizer.get_regularizer_loss(self.mapping)
 
         loss_generator = loss_gen_fake + loss_gen_real + orthogonality_loss
         loss_generator.backward()
@@ -120,21 +168,25 @@ class PathologyGAN(nn.Module):
         print("Starting Training Loop")
 
         for epoch in range(self.epochs):
+            pbar = tqdm(total=self.dataset.size)
+            pbar.set_description(f"Epoch {epoch}")
             for images, labels in self.dataset:
-                
+
                 z_latent = torch.randn(
                     len(images), self.z_dim, device=self.device)
 
                 batch_images = images.to(self.device)
 
                 w_latent = self.mapping(z_latent)
-                fake_images = self.gen(w_latent,w_latent)
+                fake_images = self.gen(w_latent, w_latent)
 
-                self.train_discriminator(batch_images, fake_images)
+                loss_disc = self.train_discriminator(batch_images, fake_images)
 
                 if iters % n_critic == 0:
-                    self.train_generator(batch_images, fake_images)
+                    loss_gen = self.train_generator(batch_images, fake_images)
+                    pbar.set_postfix_str({"Loss Disc": loss_disc, "Loss Gen": loss_gen})
                 iters += 1
+                pbar.update(self.dataset.i)
 
             self.store_weights()
             self.dataset.reset()
