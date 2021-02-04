@@ -16,7 +16,7 @@ class TestUtils(unittest.TestCase):
         reg_loss_without_init = disc.get_orthogonal_reg_loss()
         for name, param in disc.named_parameters():
                 if 'bias' not in name and 'scale' not in name and 'gamma' not in name or 'Scale' in name and 'kernel' in name:
-                    nn.init.orthogonal(param)
+                    nn.init.orthogonal_(param)
         reg_loss = disc.get_orthogonal_reg_loss()
 
         assert reg_loss_without_init > reg_loss, "Unitialized weights should have higher loss"

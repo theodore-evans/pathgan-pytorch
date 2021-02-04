@@ -52,8 +52,8 @@ class TestDiscriminator(unittest.TestCase):
         })
 
         self.pathgan_channels_dense = dict({
-            "dense_block_0": (7*7*512, 512),
-            "dense_block_1": (512, 1)
+            "dense_block_0": (7*7*512, 1024),
+            "dense_block_1": (1024, 1)
         })
 
     def test_that_number_of_blocks_is_correct(self):

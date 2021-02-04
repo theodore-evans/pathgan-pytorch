@@ -12,6 +12,7 @@ from modules.initialization.XavierInitialization import XavierInitialization
 from modules.blocks.ConvolutionalScale import DownscaleConv2d
 from modules.blocks.ConvolutionalBlock import DownscaleBlock
 
+
 class DiscriminatorResnet(nn.Module):
     def __init__(
         self,
@@ -42,7 +43,8 @@ class DiscriminatorResnet(nn.Module):
         for layer in range(layers):
 
             # Res Block
-            inner_res = ConvolutionalBlock(nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1), **default_kwargs)
+            inner_res = ConvolutionalBlock(
+                nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1), **default_kwargs)
             res_block = ResidualBlock(
                 num_blocks=2, block_template=inner_res)
 
@@ -56,7 +58,8 @@ class DiscriminatorResnet(nn.Module):
 
             # Downsample
 
-            down = DownscaleBlock(in_channels=in_channels, out_channels=out_channels, kernel_size=5, **default_kwargs)
+            down = DownscaleBlock(
+                in_channels=in_channels, out_channels=out_channels, kernel_size=5, **default_kwargs)
 
             self.conv_part.add_module(f'downscale_block_{layer}', down)
             in_channels = out_channels
@@ -66,12 +69,12 @@ class DiscriminatorResnet(nn.Module):
         # First Dense
         flattened_shape = current_size * current_size * in_channels
         # Add orho regularizer later
-        dense = DenseBlock(in_channels=flattened_shape, out_channels=in_channels,
+        dense = DenseBlock(in_channels=flattened_shape, out_channels=in_channels * 2,
                            **default_kwargs)
         self.dense_part.add_module('dense_block_0', dense)
         # Second Dense
-        dense = DenseBlock(in_channels=in_channels, out_channels=1,
-                           **default_kwargs)
+        dense = DenseBlock(in_channels=in_channels * 2, out_channels=1,
+                           **{**default_kwargs, 'activation': None})
         self.dense_part.add_module('dense_block_1', dense)
 
     def get_orthogonal_reg_loss(self):
@@ -83,7 +86,8 @@ class DiscriminatorResnet(nn.Module):
                     param_flat = param.view(param.shape[0], -1)
                     sym = torch.mm(param_flat, torch.t(param_flat))
                     sym -= torch.eye(param_flat.shape[0])
-                    orth_loss = orth_loss + (self.ortho_reg_scale * sym.abs().sum())
+                    orth_loss = orth_loss + \
+                        (self.ortho_reg_scale * sym.abs().sum())
             return orth_loss
 
     def forward(self, data: torch.Tensor, **kwargs) -> torch.Tensor:
