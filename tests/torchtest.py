@@ -99,12 +99,19 @@ def _forward_step(model, batch, device):
 
   with torch.no_grad():
     # inputs and targets
-    inputs = batch[0]
-    # move data to DEVICE
-    inputs = inputs.to(device)
-    # forward
-    return model(inputs)
-
+    if len(batch) == 3:
+      inputs, latent_input, targets = batch[0], batch[1], batch[2]
+      # move data to DEVICE
+      inputs = inputs.to(device)
+      latent_input = latent_input.to(device)
+      # forward
+      return model(inputs, latent_input)
+    else:
+      inputs, targets = batch[0], batch[1]
+      # move data to DEVICE
+      inputs = inputs.to(device)
+      return model(inputs)
+      
 def _var_change_helper(vars_change, model, loss_fn, optim, batch, device, params=None): 
   """Check if given variables (params) change or not during training
 
@@ -378,7 +385,8 @@ def test_suite(model, loss_fn, optim, batch,
     test_nan_vals=False,
     test_inf_vals=False,
     test_gpu_available=False,
-    device='cpu'):
+    device='cpu',
+    **kwargs):
   """Test Suite : Runs the tests enabled by the user
 
   If output_range is None, output of model is tested against (MODEL_OUT_LOW, 
@@ -441,7 +449,7 @@ def test_suite(model, loss_fn, optim, batch,
     assert_vars_same(model, loss_fn, optim, batch, device, params=non_train_vars)
 
   # run forward once
-  model_out = _forward_step(model, batch, device)
+  model_out = _forward_step(model, batch, device, **kwargs)
 
   # range tests
   if test_output_range:
