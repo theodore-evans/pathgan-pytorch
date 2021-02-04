@@ -10,7 +10,7 @@ class NoiseInput(nn.Module):
         super().__init__()
         self.weight = nn.Parameter(torch.zeros(1, channels, 1, 1))
 
-    def forward(self, inputs : Tensor, noise : Optional[Tensor] = None) -> Tensor:
+    def forward(self, inputs : Tensor, noise : Optional[Tensor] = None, **kwargs) -> Tensor:
         input_is_image = inputs.dim() == 4
         if noise is None:
             if hasattr(self, 'noise') and self.noise is not None:

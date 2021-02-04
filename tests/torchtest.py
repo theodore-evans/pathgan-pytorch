@@ -53,7 +53,7 @@ def _train_step(model, loss_fn, optim, batch, device):
   optim : torch.optim.Optimizer
     an optimizer instance
   batch : list
-    a 2 element list of inputs and labels, to be fed to the model
+    a 3 element list of inputs, latent_input and labels, to be fed to the model
   """
 
   # put model in train mode
@@ -101,10 +101,11 @@ def _forward_step(model, batch, device):
   with torch.no_grad():
     # inputs and targets
     inputs = batch[0]
+    latent_input = batch[1]
     # move data to DEVICE
     inputs = inputs.to(device)
     # forward
-    return model(inputs)
+    return model(inputs, latent_input)
 
 def _var_change_helper(vars_change, model, loss_fn, optim, batch, device, params=None): 
   """Check if given variables (params) change or not during training

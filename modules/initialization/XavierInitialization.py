@@ -21,12 +21,8 @@ class XavierInitialization(AbstractInitialization):
             if activation is not None and type(activation) in gain_param_lookup:
                 gain = calculate_gain(**gain_param_lookup[type(activation)])
         
-        def has_parameter(param: str) -> bool:
-            m = self.module
-            return hasattr(m, param)
-        
-        if has_parameter('weight'):
+        if hasattr(self.module, 'weight'):
             xavier_uniform_(self.module.weight, gain) #type: ignore
         
-        if has_parameter('bias'):
+        if hasattr(self.module, 'bias'):
             nn.init.constant_(self.module.bias, 0.) #type: ignore
