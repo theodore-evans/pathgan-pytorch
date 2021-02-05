@@ -9,10 +9,10 @@ from torch import optim, nn
 from dataset import Dataset
 from itertools import chain
 from modules.regularization.OrthogonalRegularizer import OrthogonalRegularizer
+from modules.utils import output_sample_image_grid
 
 # Should we extend nn.Module here?
-# I don't think it's necessary now
-
+# I don't think it's necessary now, extended it anyway to access self.state_dict
 
 class PathologyGAN(nn.Module):
     def __init__(
@@ -25,7 +25,8 @@ class PathologyGAN(nn.Module):
             epochs: int,
             z_dim: int,
             checkpoint_path: str,
-            gp_coeff: float
+            gp_coeff: float,
+            output_path: str
     ) -> None:
         super().__init__()
         self.dataset = dataset
@@ -38,11 +39,14 @@ class PathologyGAN(nn.Module):
         self.regularizer = OrthogonalRegularizer(1e-4)
 
         self.checkpoint_path = checkpoint_path
+        self.output_path = output_path
         self.epochs = epochs
         self.z_dim = z_dim
         self.gp_coeff = gp_coeff
 
+        # Torch equivalent for tf.nn.sigmoid_cross_entropy_with_logits
         self.multi_label_margin_loss = nn.MultiLabelSoftMarginLoss()
+        # We can register buffers here to track variables,too
 
     def build_model(self) -> None:
         self.mapping = Mapping()
@@ -51,6 +55,7 @@ class PathologyGAN(nn.Module):
 
     def initialize_optimizers(self, learning_rate_d: float, learning_rate_g: float, beta_1: float, beta_2: float) -> None:
         disc_parameters = self.disc.parameters()
+        # Generator and Mapping are updated with the same optimizer
         gen_parameters = chain(self.mapping.parameters(),
                                self.gen.parameters())
         self.optimizerD = optim.Adam(
@@ -65,15 +70,11 @@ class PathologyGAN(nn.Module):
         torch.save(self.state_dict(), self.checkpoint_path)
 
     # Output images after each epoch with sampling from z
-    def generate_sample_images(self) -> torch.Tensor:
-        pass
-
-    def generate_images(self, input: torch.Tensor) -> torch.Tensor:
-        pass
-
-    # May also return a tuple of tensors
-    def calculate_losses(self) -> torch.Tensor:
-        pass
+    def generate_sample_images(self, latent_input: torch.Tensor, epoch: int) -> torch.Tensor:
+        w = self.mapping(latent_input)
+        images = self.gen(w,w).detach()
+        output_sample_image_grid(images, grid_size = 6, output_path=self.output_path, epoch=epoch)
+        return images
 
     def get_gradient_penalty(self, epsilon: torch.Tensor, real_images: torch.Tensor, fake_images: torch.Tensor) -> torch.Tensor:
         mixed_images = real_images * epsilon + fake_images * (1 - epsilon)
@@ -133,12 +134,14 @@ class PathologyGAN(nn.Module):
 
         return loss_discriminator.item()
 
+    # The generator basically has the inverse loss of disc
     def train_generator(self, real_images: torch.Tensor, fake_images: torch.Tensor) -> torch.Tensor:
         self.gen.zero_grad()
         self.mapping.zero_grad()
         out_real = self.disc(real_images)
         out_fake = self.disc(fake_images)
 
+        # Relativistic Loss
         real_fake_diff = out_real - torch.mean(out_fake, dim=0, keepdim=True)
         fake_real_diff = out_fake - torch.mean(out_real, dim=0, keepdim=True)
 
@@ -147,6 +150,7 @@ class PathologyGAN(nn.Module):
         loss_gen_fake = self.multi_label_margin_loss(
             real_fake_diff, torch.zeros(*real_fake_diff.shape))
 
+        # Torch does not implicitly regularize, so we need to add to the total loss
         orthogonality_loss = self.regularizer.get_regularizer_loss(
             self.gen) + self.regularizer.get_regularizer_loss(self.mapping)
 
@@ -160,13 +164,13 @@ class PathologyGAN(nn.Module):
     def train(self, restore: bool = False, n_critic: int = 5) -> None:
         iters = 0
 
-        # Create a steady latent input here
+        # Create a steady latent input here to benchmark epochs
+        steady_latent = torch.randn((36, self.z_dim))
 
         if restore:
             self.load_weights()
 
         print("Starting Training Loop")
-
         for epoch in range(self.epochs):
             pbar = tqdm(total=self.dataset.size)
             pbar.set_description(f"Epoch {epoch}")
@@ -182,6 +186,7 @@ class PathologyGAN(nn.Module):
 
                 loss_disc = self.train_discriminator(batch_images, fake_images)
 
+                # Train generator every n steps
                 if iters % n_critic == 0:
                     loss_gen = self.train_generator(batch_images, fake_images)
                     pbar.set_postfix_str({"Loss Disc": loss_disc, "Loss Gen": loss_gen})
@@ -190,6 +195,6 @@ class PathologyGAN(nn.Module):
 
             self.store_weights()
             self.dataset.reset()
-            self.generate_sample_images()
+            self.generate_sample_images(steady_latent, epoch)
 
         print("Training Finished")
