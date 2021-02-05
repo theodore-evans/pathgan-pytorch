@@ -1,18 +1,14 @@
-from typing import Union
+from typing import  List, Tuple, Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from modules.types import size_2_t
+from torch.tensor import Tensor
 import matplotlib.pyplot as plt
-
-# define _l2normalization
-
 
 def _l2normalize(v, eps=1e-12):
     return v / (torch.norm(v) + eps)
 
-
-def max_singular_value(W, u=None, Ip=1):
+def max_singular_value(W, u=None, Ip=1) -> Tuple[Tensor, Tensor]:
     """
     power iteration for weight parameter
     """
@@ -46,10 +42,6 @@ def apply_same_padding(conv_layer: Union[nn.Conv2d, nn.ConvTranspose2d]) -> None
     conv_layer.padding = tuple(padding)
 
 
-def pair(parameter: size_2_t):
-    return parameter if isinstance(parameter, tuple) else (parameter, parameter)
-
-
 def output_sample_image_grid(images: torch.Tensor, grid_size: int, output_path: str, epoch: int):
     fig, axes = plt.subplots(grid_size, grid_size, (15, 15), gridspec_kw={
                              'wspace': 0, 'hspace': 0})
@@ -59,3 +51,13 @@ def output_sample_image_grid(images: torch.Tensor, grid_size: int, output_path: 
         ax.imshow(images[i])
         ax.set_axis_off()
     fig.savefig(output_path + f"sample_images_epoch_{epoch}.png")
+    
+def pair(parameter: Union[int, Tuple[int,int]]) -> Tuple[int,int]:
+    return parameter if isinstance(parameter, tuple) else (parameter, parameter)
+
+def parameter_is_of_type(named_parameter: Tuple[str, Tensor], named_type: str) -> bool:
+    parameter_type = named_parameter[0].split('.')[-1]
+    return parameter_type in (named_type, named_type+'_orig')
+
+def get_parameters(m: nn.Module, param: str, recurse: bool = False) -> List[Tuple[str, Tensor]]:
+    return [np for np in m.named_parameters(recurse=recurse) if parameter_is_of_type(np, param)]

@@ -1,4 +1,5 @@
-from modules.initialization.AbstractInitialization import AbstractInitialization
+from torch.tensor import Tensor
+from modules.initialization.Initialization import Initialization
 from modules.normalization.AbstractNormalization import AbstractNormalization
 from typing import Callable, Optional, Tuple, TypeVar, Union
 import torch.nn as nn
@@ -12,8 +13,8 @@ size_any_t = _scalar_or_tuple_any_t[int]
 size_1_t = _scalar_or_tuple_1_t[int]
 size_2_t = _scalar_or_tuple_2_t[int]
 
-regularization_t = Optional[Callable[[nn.Module], nn.Module]]
-noise_input_t = Optional[Callable[[int], nn.Module]]
-normalization_t = Optional[Callable[..., AbstractNormalization]]
-activation_t = Optional[nn.Module]
-initialization_t = Optional[Callable[[nn.Module], AbstractInitialization]]
+regularization_t = Callable[[nn.Module], nn.Module]
+noise_input_t = Callable[[int], nn.Module]
+normalization_t = Callable[..., AbstractNormalization]
+activation_t = nn.Module
+initialization_t = Callable[[nn.Module], Initialization]

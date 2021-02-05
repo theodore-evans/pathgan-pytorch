@@ -1,28 +1,24 @@
 import torch.nn as nn
 from torch.nn.init import calculate_gain, xavier_uniform_
 
-from modules.initialization.AbstractInitialization import AbstractInitialization
+from modules.initialization.Initialization import Initialization
 
-class XavierInitialization(AbstractInitialization):    
+class XavierInitialization(Initialization):
     def __init__(self, module: nn.Module):
         self.module = module
-    
-    def initialize_weights(self) -> None:
+        self.weight_init = lambda weight : xavier_uniform_(weight, self._gain())
+        self.bias_init = lambda bias : nn.init.constant_(bias, 0.)
+
+    def _gain(self):
         gain_param_lookup = dict({
                 nn.Tanh : dict({'nonlinearity' : 'tanh'}),
                 nn.ReLU : dict({'nonlinearity' :'relu'}),
                 nn.LeakyReLU : dict({'nonlinearity' : 'leaky_relu', 'param' : 0.2})
             })
-        
-        gain = 1
-        
+
         if hasattr(self.module, 'activation'):
             activation = self.module.activation
             if activation is not None and type(activation) in gain_param_lookup:
-                gain = calculate_gain(**gain_param_lookup[type(activation)])
+                return calculate_gain(**gain_param_lookup[type(activation)])
         
-        if hasattr(self.module, 'weight'):
-            xavier_uniform_(self.module.weight, gain) #type: ignore
-        
-        if hasattr(self.module, 'bias'):
-            nn.init.constant_(self.module.bias, 0.) #type: ignore
+        return 1
