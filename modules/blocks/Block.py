@@ -14,11 +14,11 @@ class Block(nn.Module):
                  out_channels: int,
                  layers: ModuleDict = None,
                  latent_dim: Optional[int] = None,
-                 regularization: regularization_t = None,
-                 noise_input: noise_input_t = None,
-                 normalization: normalization_t = None,
-                 activation: activation_t = None,
-                 initialization: initialization_t = None
+                 regularization: Optional[regularization_t] = None,
+                 noise_input: Optional[noise_input_t] = None,
+                 normalization: Optional[normalization_t] = None,
+                 activation: Optional[activation_t] = None,
+                 initialization: Optional[initialization_t] = None
                  ) -> None:
         
         super().__init__()
@@ -57,7 +57,7 @@ class Block(nn.Module):
             for m in self.modules():
                 if isinstance(m, types_to_initialize) and not hasattr(m, 'initialization'):
                     m.initialization = initialization(m)
-                    m.initialization.initialize_weights()
+                    m.initialization.initialize()
     
     def forward(self, inputs: Tensor, latent_input: Optional[Tensor] = None) -> Tensor:
         net = inputs

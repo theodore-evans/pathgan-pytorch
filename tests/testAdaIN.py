@@ -14,15 +14,15 @@ class TestAdaIN(unittest.TestCase):
         self.test_w = torch.ones(n_test, self.w_channels)
         self.adain = AdaptiveInstanceNormalization(self.image_channels, self.w_channels, intermediate_layer=False)
 
-        nn.init.constant_(self.adain.gamma_layer.weight, 0.25)
-        nn.init.constant_(self.adain.beta_layer.weight, 0.2)
+        nn.init.constant_(self.adain.gamma_layer.weight, 0.25) #type: ignore
+        nn.init.constant_(self.adain.beta_layer.weight, 0.2) #type: ignore
         
         for bias in (self.adain.gamma_layer.bias, self.adain.beta_layer.bias):
             nn.init.zeros_(bias)
             
         if self.adain.dense_layer is not None:
-            nn.init.constant_(self.adain.dense_layer.weight, 0.2)
-            nn.init.zeros_(self.adain.dense_layer.bias)
+            nn.init.constant_(self.adain.dense_layer.weight, 0.2) #type: ignore
+            nn.init.zeros_(self.adain.dense_layer.bias) #type: ignore
 
         self.test_w = torch.ones(n_test, self.w_channels)
         

@@ -1,18 +1,19 @@
+from typing import Optional
 from torch import Tensor
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.utils.spectral_norm import spectral_norm
 
 from modules.blocks.Block import Block
 from modules.blocks.ConvolutionalBlock import ConvolutionalBlock
 
 from modules.types import regularization_t, initialization_t
+
 class AttentionBlock(Block):
     def __init__(self,
                  channels: int,
-                 regularization: regularization_t = None,
-                 initialization: initialization_t = None,
+                 regularization: Optional[regularization_t] = None,
+                 initialization: Optional[initialization_t] = None,
                  **kwargs,
                  ) -> None:
 
@@ -33,7 +34,7 @@ class AttentionBlock(Block):
         self.attention_g = ConvolutionalBlock(g_conv_layer, **conv_block_args)
         self.attention_h = ConvolutionalBlock(h_conv_layer, **conv_block_args)
 
-        self.gamma = nn.Parameter(torch.zeros(1), requires_grad=True)
+        self.gamma = nn.Parameter(torch.rand(1), requires_grad=True)
 
     def forward(self, inputs: Tensor, **kwargs) -> Tensor:
         batch_size, channels, height, width = inputs.shape

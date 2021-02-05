@@ -1,8 +1,7 @@
-
 import unittest
 import torch
 from torch import nn
-from torch.nn.utils import spectral_norm 
+from torch.nn.utils import spectral_norm
 from torch.nn.utils.spectral_norm import SpectralNorm
 
 from modules.blocks.ConvolutionalBlock import ConvolutionalBlock

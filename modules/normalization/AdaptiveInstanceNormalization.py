@@ -6,17 +6,17 @@ from torch.nn import InstanceNorm2d
 from torch.nn.modules.normalization import LayerNorm
 
 from modules.normalization.AbstractNormalization import AbstractNormalization
-from modules.types import regularization_t
+from modules.types import regularization_t, activation_t
 
 class AdaptiveInstanceNormalization(AbstractNormalization):
     def __init__(self,
                  channels : int,
                  latent_dim : int,
-                 regularization: regularization_t = None,
+                 regularization: Optional[regularization_t] = None,
                  intermediate_layer: bool = True,
-                 dense_activation : Optional[nn.Module] = nn.ReLU(),
-                 gamma_activation : Optional[nn.Module] = nn.ReLU(),
-                 beta_activation : Optional[nn.Module] = None
+                 dense_activation : Optional[activation_t] = nn.ReLU(),
+                 gamma_activation : Optional[activation_t] = nn.ReLU(),
+                 beta_activation : Optional[activation_t] = None
                  ) -> None:
         
         super().__init__(channels, latent_dim, regularization)

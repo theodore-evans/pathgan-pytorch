@@ -1,14 +1,12 @@
-from modules.normalization.AdaptiveInstanceNormalization import AdaptiveInstanceNormalization
 from modules.blocks.ResidualBlock import ResidualBlock
 from modules.blocks.DenseBlock import DenseBlock
-from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, DownscaleBlock, UpscaleBlock
+from modules.blocks.ConvolutionalBlock import ConvolutionalBlock, DownscaleBlock
 from modules.blocks.AttentionBlock import AttentionBlock
 
 import unittest
 from modules.generative.Discriminator import DiscriminatorResnet
 from collections import OrderedDict
 import torch.nn as nn
-
 
 class TestDiscriminator(unittest.TestCase):
     def setUp(self):
