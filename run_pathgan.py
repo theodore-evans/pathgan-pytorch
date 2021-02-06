@@ -39,7 +39,7 @@ restore = False
 
 # Model
 layers = 5
-z_dim = 128
+z_dim = 200
 alpha = 0.2
 n_critic = 5
 gp_coeff = .65
