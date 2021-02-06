@@ -20,6 +20,8 @@ args = parser.parse_args()
 epochs = args.epochs
 batch_size = args.batch_size
 
+# To overcome no locks available error
+os.environ['HDF5_USE_FILE_LOCKING']='FALSE'
 
 # Dataset information.
 dataset_path = args.data_path

@@ -96,7 +96,6 @@ class DiscriminatorResnet(nn.Module):
 
         for m in self.conv_part.children():
             data = m(data, **kwargs)
-            print(data.shape)
 
         # Flatten
         data = data.reshape((batch_size, -1))
