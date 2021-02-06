@@ -8,7 +8,7 @@ from torch.tensor import Tensor
 
 class AbstractRegularizer(ABC):
     @abstractmethod
-    def __init__(self, regularizer_scale: float = 1e-4, device = torch.Device):
+    def __init__(self, regularizer_scale: float, device = torch.device):
         self.regularizer_scale = regularizer_scale
         self.device = device
 

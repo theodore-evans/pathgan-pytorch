@@ -5,7 +5,7 @@ from torch.tensor import Tensor
 from .AbstractRegularizer import AbstractRegularizer
 
 class OrthogonalRegularizer(AbstractRegularizer):        
-    def __init__(self, regularizer_scale: float = 1e-4, device = torch.Device):
+    def __init__(self, regularizer_scale: float, device: torch.device):
         super().__init__(regularizer_scale, device)
     
     def get_regularizer_loss(self, module: nn.Module) -> Tensor:
