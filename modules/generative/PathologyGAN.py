@@ -34,6 +34,8 @@ class PathologyGAN(nn.Module):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
 
+        print(self.device)
+
         self.build_model()
         self.initialize_optimizers(
             learning_rate_d, learning_rate_g, beta_1, beta_2)
