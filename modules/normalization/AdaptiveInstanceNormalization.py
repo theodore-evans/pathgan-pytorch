@@ -19,7 +19,7 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
                  beta_activation : Optional[activation_t] = None
                  ) -> None:
         
-        super().__init__(channels, latent_dim, regularization)
+        super().__init__()
         
         self.latent_dim = latent_dim
         self.channels = channels
@@ -40,10 +40,16 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
         
         self.gamma_layer = regularization(nn.Linear(in_channels, out_channels))
         self.gamma_activation = gamma_activation
+        self.gamma: Tensor
         
         self.beta_layer = regularization(nn.Linear(in_channels, out_channels))
         self.beta_activation = beta_activation
+        self.beta: Tensor
+        
+        self.norm_2d = InstanceNorm2d(self.channels, affine=False)
+        self.norm_1d = LayerNorm(self.channels, elementwise_affine=False)
 
+        
     def forward(self,
                 inputs: Tensor,
                 latent_input: Optional[Tensor]
@@ -58,9 +64,7 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
             raise ValueError("Expecting input dimension of either 4 or 2")
         
         input_is_image = inputs.dim() == 4
-        norm_2d = InstanceNorm2d(self.channels, affine=False)
-        norm_1d = LayerNorm(inputs.size(), elementwise_affine=False)
-        normalize = norm_2d if input_is_image else norm_1d
+        normalize = self.norm_2d if input_is_image else self.norm_1d
         
         if self.dense_layer is not None:
             intermediate_result = self.dense_layer(latent_input)
@@ -68,16 +72,16 @@ class AdaptiveInstanceNormalization(AbstractNormalization):
                 intermediate_result = self.dense_activation(intermediate_result)
         else: intermediate_result = latent_input
         
-        gamma = self.gamma_layer(intermediate_result)
+        self.gamma = self.gamma_layer(intermediate_result)
         if self.gamma_activation is not None:
-            gamma = self.gamma_activation(gamma)
+            self.gamma = self.gamma_activation(self.gamma)
             
-        beta = self.beta_layer(intermediate_result)
+        self.beta = self.beta_layer(intermediate_result)
         if self.beta_activation is not None:
-            beta = self.beta_activation(beta)
+            self.beta = self.beta_activation(self.beta)
         
-        style_shift_transform = beta[:, :, None , None] if input_is_image else beta
-        style_scale_transform = gamma[:, :, None, None] if input_is_image else gamma
+        style_shift_transform = self.beta[:, :, None , None] if input_is_image else self.beta
+        style_scale_transform = self.gamma[:, :, None, None] if input_is_image else self.gamma
         
         transformed_input = style_scale_transform * normalize(inputs) + style_shift_transform
         return transformed_input
