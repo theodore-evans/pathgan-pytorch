@@ -103,7 +103,7 @@ class PathologyGAN(nn.Module):
             outputs=mixed_scores,
             #### END CODE HERE ####
             # These other parameters have to do with the pytorch autograd engine works
-            grad_outputs=torch.ones_like(mixed_scores),
+            grad_outputs=torch.ones_like(mixed_scores).to(self.device),
             create_graph=True,
             retain_graph=True,
         )[0]
@@ -125,9 +125,9 @@ class PathologyGAN(nn.Module):
         fake_real_diff = out_fake - torch.mean(out_real, dim=0, keepdim=True)
 
         loss_dis_real = self.multi_label_margin_loss(
-            real_fake_diff, torch.ones(*real_fake_diff.shape))
+            real_fake_diff, torch.ones(*real_fake_diff.shape, device=self.device))
         loss_dis_fake = self.multi_label_margin_loss(
-            fake_real_diff, torch.zeros(*real_fake_diff.shape))
+            fake_real_diff, torch.zeros(*real_fake_diff.shape, device=self.device))
 
         # Gradient Penalty Loss
         epsilon = torch.rand(len(real_images), 1, 1, 1,
@@ -157,9 +157,9 @@ class PathologyGAN(nn.Module):
         fake_real_diff = out_fake - torch.mean(out_real, dim=0, keepdim=True)
 
         loss_gen_real = self.multi_label_margin_loss(
-            fake_real_diff, torch.ones(*real_fake_diff.shape))
+            fake_real_diff, torch.ones(*real_fake_diff.shape, device=self.device))
         loss_gen_fake = self.multi_label_margin_loss(
-            real_fake_diff, torch.zeros(*real_fake_diff.shape))
+            real_fake_diff, torch.zeros(*real_fake_diff.shape, device=self.device))
 
         # Torch does not implicitly regularize, so we need to add to the total loss
         orthogonality_loss = self.regularizer.get_regularizer_loss(
