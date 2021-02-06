@@ -10,7 +10,7 @@ class OrthogonalRegularizer(AbstractRegularizer):
     
     def get_regularizer_loss(self, module: nn.Module) -> Tensor:
         loss_func = self.get_orthogonality
-        return super().get_regularizer_loss(loss_func, module)
+        return super().get_regularizer_loss(module, loss_func)
 
     @staticmethod
     def get_orthogonality(param: Tensor) -> Tensor:
