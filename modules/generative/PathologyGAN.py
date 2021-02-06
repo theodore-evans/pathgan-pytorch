@@ -14,6 +14,7 @@ from modules.utils import output_sample_image_grid
 # Should we extend nn.Module here?
 # I don't think it's necessary now, extended it anyway to access self.state_dict
 
+
 class PathologyGAN(nn.Module):
     def __init__(
             self,
@@ -64,16 +65,24 @@ class PathologyGAN(nn.Module):
             gen_parameters, lr=learning_rate_g, betas=(beta_1, beta_2))
 
     def load_weights(self) -> None:
-        self.load_state_dict(self.checkpoint_path)
+        checkpoint = torch.load(self.checkpoint_path)
+        self.load_state_dict(checkpoint['model_state'])
+        self.optimizerG.load_state_dict(checkpoint['optimizerG_state'])
+        self.optimizerD.load_state_dict(checkpoint['optimizerD_state'])
 
     def store_weights(self) -> None:
-        torch.save(self.state_dict(), self.checkpoint_path)
+        torch.save({
+            'model_state': self.state_dict(),
+            'optimizerG_state': self.optimizerG.state_dict(),
+            'optimizerD_state': self.optimizerD.state_dict()
+        }, self.checkpoint_path)
 
     # Output images after each epoch with sampling from z
     def generate_sample_images(self, latent_input: torch.Tensor, epoch: int) -> torch.Tensor:
         w = self.mapping(latent_input)
-        images = self.gen(w,w).detach()
-        output_sample_image_grid(images, grid_size = 6, output_path=self.output_path, epoch=epoch)
+        images = self.gen(w, w).detach()
+        output_sample_image_grid(
+            images, grid_size=6, output_path=self.output_path, epoch=epoch)
         return images
 
     def get_gradient_penalty(self, epsilon: torch.Tensor, real_images: torch.Tensor, fake_images: torch.Tensor) -> torch.Tensor:
@@ -189,7 +198,8 @@ class PathologyGAN(nn.Module):
                 # Train generator every n steps
                 if iters % n_critic == 0:
                     loss_gen = self.train_generator(batch_images, fake_images)
-                    pbar.set_postfix_str({"Loss Disc": loss_disc, "Loss Gen": loss_gen})
+                    pbar.set_postfix_str(
+                        {"Loss Disc": loss_disc, "Loss Gen": loss_gen})
                 iters += 1
                 pbar.update(self.dataset.i)
 
