@@ -203,7 +203,7 @@ class PathologyGAN(nn.Module):
                     pbar.set_postfix_str(
                         {"Loss Disc": loss_disc, "Loss Gen": loss_gen})
                 iters += 1
-                pbar.update(self.dataset.i)
+                pbar.update(self.dataset.batch_size)
 
             self.store_weights()
             self.dataset.reset()
