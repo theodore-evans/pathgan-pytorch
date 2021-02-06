@@ -49,9 +49,9 @@ class PathologyGAN(nn.Module):
         # We can register buffers here to track variables,too
 
     def build_model(self) -> None:
-        self.mapping = Mapping()
-        self.disc = DiscriminatorResnet()
-        self.gen = Generator()
+        self.mapping = Mapping().to(self.device)
+        self.disc = DiscriminatorResnet().to(self.device)
+        self.gen = Generator().to(self.device)
 
     def initialize_optimizers(self, learning_rate_d: float, learning_rate_g: float, beta_1: float, beta_2: float) -> None:
         disc_parameters = self.disc.parameters()
@@ -165,7 +165,7 @@ class PathologyGAN(nn.Module):
         iters = 0
 
         # Create a steady latent input here to benchmark epochs
-        steady_latent = torch.randn((36, self.z_dim))
+        steady_latent = torch.randn((36, self.z_dim)).to(self.device)
 
         if restore:
             self.load_weights()
