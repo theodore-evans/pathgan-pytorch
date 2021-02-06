@@ -39,7 +39,7 @@ class PathologyGAN(nn.Module):
         self.build_model()
         self.initialize_optimizers(
             learning_rate_d, learning_rate_g, beta_1, beta_2)
-        self.regularizer = OrthogonalRegularizer(1e-4)
+        self.regularizer = OrthogonalRegularizer(1e-4, self.device)
 
         self.checkpoint_path = checkpoint_path
         self.output_path = output_path
