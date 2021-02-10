@@ -30,6 +30,7 @@ class PathologyGAN(nn.Module):
             output_path: str
     ) -> None:
         super().__init__()
+        
         self.dataset = dataset
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
@@ -114,9 +115,12 @@ class PathologyGAN(nn.Module):
 
         return penalty
 
-    def train_discriminator(self, real_images: torch.Tensor, fake_images: torch.Tensor) -> torch.Tensor:
+    def train_discriminator(self, real_images: torch.Tensor, z_latent: torch.Tensor) -> torch.Tensor:
+        self.optimizerD.zero_grad()
 
-        self.disc.zero_grad()
+        w_latent = self.mapping(z_latent)
+        fake_images = self.gen(w_latent, w_latent)
+
         out_real = self.disc(real_images)
         out_fake = self.disc(fake_images.detach())
 
@@ -146,9 +150,12 @@ class PathologyGAN(nn.Module):
         return loss_discriminator.item()
 
     # The generator basically has the inverse loss of disc
-    def train_generator(self, real_images: torch.Tensor, fake_images: torch.Tensor) -> torch.Tensor:
-        self.gen.zero_grad()
-        self.mapping.zero_grad()
+    def train_generator(self, real_images: torch.Tensor, z_latent: torch.Tensor) -> torch.Tensor:
+        self.optimizerG.zero_grad()
+
+        w_latent = self.mapping(z_latent)
+        fake_images = self.gen(w_latent, w_latent)
+
         out_real = self.disc(real_images)
         out_fake = self.disc(fake_images)
 
@@ -186,22 +193,19 @@ class PathologyGAN(nn.Module):
             pbar = tqdm(total=self.dataset.size)
             pbar.set_description(f"Epoch {epoch}")
             for images, labels in self.dataset:
-
+                
                 z_latent = torch.randn(
                     len(images), self.z_dim, device=self.device)
-
                 batch_images = images.to(self.device)
-
-                w_latent = self.mapping(z_latent)
-                fake_images = self.gen(w_latent, w_latent)
-
-                loss_disc = self.train_discriminator(batch_images, fake_images)
+                
+                loss_disc = self.train_discriminator(batch_images, z_latent)
 
                 # Train generator every n steps
                 if iters % n_critic == 0:
-                    loss_gen = self.train_generator(batch_images, fake_images)
+                    loss_gen = self.train_generator(batch_images, z_latent)
                     pbar.set_postfix_str(
                         {"Loss Disc": loss_disc, "Loss Gen": loss_gen})
+                
                 iters += 1
                 pbar.update(self.dataset.batch_size)
 
