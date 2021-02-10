@@ -1,9 +1,9 @@
 # %%
 import os
+import sys
 import argparse
 from modules.generative.PathologyGAN import PathologyGAN
 from dataset import Dataset
-
 
 parser = argparse.ArgumentParser(description='PathologyGAN trainer.')
 parser.add_argument('--epochs', dest='epochs', type=int, default=45,
@@ -16,9 +16,18 @@ parser.add_argument('--out_path', dest='out_path', type=str,
                     default=None, help='Path for storing sample images, losses, etc')
 parser.add_argument('--weights', '-w', dest='weights',
                     type=str, default=None, help='Path for model weights')
+parser.add_argument('--logs', dest='logs_path', type=str,
+                    default=None, help='Path to logs')
 args = parser.parse_args()
 epochs = args.epochs
 batch_size = args.batch_size
+weights = args.weights
+logs = args.logs
+log_file  =None
+if logs:
+    log_file = open(logs, 'w')
+    sys.stdout = log_file
+    sys.stderr = log_file
 
 # To overcome no locks available error
 os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
@@ -50,5 +59,8 @@ data = Dataset(dataset_path, image_height, image_width,
 
 # TODO: add parameters and beta
 pathgan = PathologyGAN(data, learning_rate_d=learning_rate_d, learning_rate_g=learning_rate_g, beta_1=beta_1, beta_2=beta_2,
-                       epochs=15, z_dim=z_dim, checkpoint_path=args.weights, gp_coeff=gp_coeff, output_path=data_out_path)
+                       epochs=epochs, z_dim=z_dim, checkpoint_path=weights, gp_coeff=gp_coeff, output_path=data_out_path)
 pathgan.train(False, 5)
+
+if log_file:
+    log_file.close()
