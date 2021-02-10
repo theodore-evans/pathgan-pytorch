@@ -22,10 +22,10 @@ args = parser.parse_args()
 epochs = args.epochs
 batch_size = args.batch_size
 weights = args.weights
-logs = args.logs
-log_file  =None
-if logs:
-    log_file = open(logs, 'w')
+logs_path = args.logs_path
+log_file = None
+if logs_path:
+    log_file = open(logs_path, 'w')
     sys.stdout = log_file
     sys.stderr = log_file
 
