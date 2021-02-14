@@ -187,9 +187,10 @@ class PathologyGAN(nn.Module):
 
         if restore:
             self.load_weights()
-
+        
         print("Starting Training Loop")
         for epoch in range(self.epochs):
+            self.generate_sample_images(steady_latent, epoch)
             pbar = tqdm(total=self.dataset.size)
             pbar.set_description(f"Epoch {epoch}")
             for images, labels in self.dataset:
@@ -211,6 +212,5 @@ class PathologyGAN(nn.Module):
 
             self.store_weights()
             self.dataset.reset()
-            self.generate_sample_images(steady_latent, epoch)
 
         print("Training Finished")

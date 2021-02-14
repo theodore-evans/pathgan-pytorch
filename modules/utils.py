@@ -43,7 +43,7 @@ def apply_same_padding(conv_layer: Union[nn.Conv2d, nn.ConvTranspose2d]) -> None
 
 
 def output_sample_image_grid(images: torch.Tensor, grid_size: int, output_path: str, epoch: int):
-    fig, axes = plt.subplots(grid_size, grid_size, (15, 15), gridspec_kw={
+    fig, axes = plt.subplots(grid_size, grid_size, figsize=(15, 15), gridspec_kw={
                              'wspace': 0, 'hspace': 0})
     axes = axes.flatten()
     images = images.cpu().permute(0, 2, 3, 1).numpy()
